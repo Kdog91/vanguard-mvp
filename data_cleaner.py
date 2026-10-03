@@ -57,6 +57,13 @@ def auto_profile_columns(df: pd.DataFrame) -> dict:
             profile[col] = "identifier"
             continue
 
+        # Numeric-looking CODE columns (NAICS, ZIP, PSC, FIPS...) are labels, not quantities --
+        # doing math on them (averaging, correlating) is meaningless, so treat them as categories.
+        code_hint = any(k in col.lower() for k in ("code", "naics", "zip", "psc", "fips", "sic"))
+        if is_numeric_col and code_hint and (series.dropna() % 1 == 0).all():
+            profile[col] = "categorical"
+            continue
+
         if pd.api.types.is_numeric_dtype(series):
             profile[col] = "numeric"
         elif pd.api.types.is_datetime64_any_dtype(series):

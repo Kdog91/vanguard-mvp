@@ -10,11 +10,16 @@ import numpy as np
 from data_cleaner import load_file, clean_dataframe
 from model_selector import run_pipeline, detect_problem_type
 from unsupervised import run_clustering, run_anomaly_detection
+from explore_ui import render_explore, render_prepare
+from statistical_tests import (
+    chi_square_independence, chi_square_goodness_of_fit,
+    two_sample_ttest, one_way_anova, correlation_test,
+)
 
 st.set_page_config(page_title="GovData Analytics — MVP", layout="wide")
 
 st.title("📊 GovData Analytics")
-st.caption("Universal Data Cleaner + Predictive Model Selector — Phase 1 MVP")
+st.caption("Universal Data Cleaner, Descriptive Analytics & Predictive Model Selector")
 
 # --- Step 1: Upload ---
 st.header("Step 1: Upload Your Data")
@@ -58,14 +63,25 @@ if uploaded_file:
     mode = st.radio(
         "What do you want to do with this data?",
         [
+            "Explore & describe (frequency tables, statistics, charts)",
+            "Prepare & transform (data quality, scale types, normalize, PCA)",
             "Predict a target variable (Regression / Classification)",
             "Find hidden groups (Clustering — no target needed)",
             "Detect anomalies (flag statistical outliers)",
+            "Test statistical significance (is this pattern real, or just noise?)",
         ],
     )
 
-    # ===================== MODE 1: SUPERVISED (existing) =====================
-    if mode.startswith("Predict a target"):
+    # ===================== EXPLORE & DESCRIBE =====================
+    if mode.startswith("Explore"):
+        render_explore(clean_df, profile)
+
+    # ===================== PREPARE & TRANSFORM =====================
+    elif mode.startswith("Prepare"):
+        render_prepare(raw_df, clean_df, profile)
+
+    # ===================== MODE 1: SUPERVISED =====================
+    elif mode.startswith("Predict a target"):
         numeric_or_cat_cols = [c for c, t in profile.items() if t in ("numeric", "categorical")]
 
         if not numeric_or_cat_cols:
@@ -175,7 +191,7 @@ if uploaded_file:
             )
 
     # ===================== MODE 3: ANOMALY DETECTION =====================
-    else:
+    elif mode.startswith("Detect anomalies"):
         st.write("This mode flags statistical outliers — rows that look very different from the rest of "
                  "the dataset. Useful for catching a single unusually large contract hidden among thousands "
                  "of normal ones.")
@@ -207,12 +223,87 @@ if uploaded_file:
                 "relative to the rest of the dataset. Only numeric columns are used in this MVP."
             )
 
+    # ===================== MODE 4: HYPOTHESIS TESTING =====================
+    elif mode.startswith("Test statistical"):
+        st.write("This mode checks whether a pattern is **statistically real or could be random chance** — "
+                 "useful before acting on a finding, e.g. 'do agencies really differ in average contract cost?'")
+        numeric_cols = [c for c, t in profile.items() if t == "numeric"]
+        categorical_cols = [c for c, t in profile.items() if t == "categorical"]
+
+        test = st.selectbox("Which test?", [
+            "Correlation test (are two numbers related?)",
+            "One-way ANOVA (does a number differ across 3+ groups?)",
+            "Two-sample t-test (does a number differ between 2 groups?)",
+            "Chi-Square test of independence (are two categories related?)",
+            "Chi-Square goodness-of-fit (is one category evenly split?)",
+        ])
+
+        def show(result, detail):
+            st.header("Step 4: Test Results")
+            (st.success if result["significant"] else st.info)(result["interpretation"])
+            st.write(detail)
+
+        try:
+            if test.startswith("Correlation"):
+                if len(numeric_cols) < 2:
+                    st.warning("Needs at least 2 numeric columns."); st.stop()
+                a = st.selectbox("First numeric column", numeric_cols, key="c_a")
+                b = st.selectbox("Second numeric column", [c for c in numeric_cols if c != a], key="c_b")
+                if st.button("Run Test", type="primary"):
+                    r = correlation_test(clean_df, a, b)
+                    show(r, f"Correlation r = {r['correlation_r']:.3f}, p-value = {r['p_value']:.4f}")
+
+            elif test.startswith("One-way ANOVA"):
+                if not numeric_cols or not categorical_cols:
+                    st.warning("Needs 1 numeric and 1 categorical column."); st.stop()
+                n = st.selectbox("Numeric column", numeric_cols, key="a_n")
+                g = st.selectbox("Group column (3+ groups)", categorical_cols, key="a_g")
+                if st.button("Run Test", type="primary"):
+                    r = one_way_anova(clean_df, n, g)
+                    show(r, f"F-statistic = {r['f_statistic']:.3f}, p-value = {r['p_value']:.4f}")
+                    st.dataframe(pd.DataFrame(list(r["group_means"].items()), columns=["Group", "Mean"]), hide_index=True)
+
+            elif test.startswith("Two-sample"):
+                if not numeric_cols or not categorical_cols:
+                    st.warning("Needs 1 numeric and 1 categorical column."); st.stop()
+                n = st.selectbox("Numeric column", numeric_cols, key="t_n")
+                g = st.selectbox("Group column (exactly 2 groups)", categorical_cols, key="t_g")
+                if st.button("Run Test", type="primary"):
+                    r = two_sample_ttest(clean_df, n, g)
+                    show(r, f"t-statistic = {r['t_statistic']:.3f}, p-value = {r['p_value']:.4f}")
+
+            elif test.startswith("Chi-Square test of independence"):
+                if len(categorical_cols) < 2:
+                    st.warning("Needs at least 2 categorical columns."); st.stop()
+                a = st.selectbox("First categorical column", categorical_cols, key="x_a")
+                b = st.selectbox("Second categorical column", [c for c in categorical_cols if c != a], key="x_b")
+                if st.button("Run Test", type="primary"):
+                    r = chi_square_independence(clean_df, a, b)
+                    show(r, f"Chi-Square = {r['chi2_statistic']:.3f}, degrees of freedom = {r['degrees_of_freedom']}, p-value = {r['p_value']:.4f}")
+                    st.dataframe(r["contingency_table"])
+
+            else:
+                if not categorical_cols:
+                    st.warning("Needs at least 1 categorical column."); st.stop()
+                c = st.selectbox("Categorical column", categorical_cols, key="g_c")
+                if st.button("Run Test", type="primary"):
+                    r = chi_square_goodness_of_fit(clean_df, c)
+                    show(r, f"Chi-Square = {r['chi2_statistic']:.3f}, p-value = {r['p_value']:.4f}")
+                    st.dataframe(r["observed"])
+        except ValueError as e:
+            st.error(str(e))
+
+        st.caption("p-value below 0.05 = conventionally 'statistically significant' (unlikely to be random chance). "
+                   "It says whether an effect is likely real, not how large or important it is.")
+
 else:
     st.info("👆 Upload a file to get started. Try a CSV with a mix of numeric and category columns — "
             "e.g. a contracts dataset with cost, delivery days, and a risk category.")
     st.markdown("""
     ---
     **What this MVP demonstrates:**
+    - **Explore & describe** — frequency tables (absolute, relative, cumulative), statistical measures, cross-tabulations, grouped summaries, correlation matrices, and charts (histogram, box plot, bar, pie, scatter, line, area, heatmap)
+    - **Prepare & transform** — data quality report, scale types (nominal/ordinal/interval/ratio), binning, one-hot encoding, min-max and z-score normalization, log/square-root/Box-Cox transforms, and PCA dimensionality reduction
     - Universal Data Cleaner — handles missing values, duplicates, currency formatting, outlier flagging, and automatic identifier-column removal
     - Auto Column Profiling — detects numeric / categorical / datetime / identifier / text columns automatically
     - **Supervised prediction** — auto-detects regression vs. classification and runs the right model family:
@@ -220,6 +311,7 @@ else:
       Classification: Logistic Regression, KNN, Naive Bayes, Decision Tree, Random Forest.
     - **Clustering** — finds hidden groups in data with no target variable, using K-Means with automatic k-selection via Silhouette Score
     - **Anomaly Detection** — flags statistical outliers using Isolation Forest (e.g. a single unrealistic contract hidden among thousands of normal ones)
+    - **Statistical Hypothesis Testing** — Chi-Square, t-test, ANOVA, and correlation tests to check whether a pattern is real
     - Train/Test Validation & Cross-Validation on every supervised model, so results aren't a fluke of one split
 
     *Additional models (Ridge/Lasso, KNN, Time Series, Gradient Boosting, Neural Networks, Dimensionality Reduction, Association Rules)
