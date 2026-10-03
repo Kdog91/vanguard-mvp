@@ -1,7 +1,7 @@
 """
 GovData Analytics — MVP
-Phase 1: Universal Data Cleaner + Model Selector (Linear/Logistic Regression,
-Decision Tree, Random Forest) with Train/Test validation and Cross-Validation.
+Universal data cleaner, descriptive analytics, model selector, forecasting,
+clustering, anomaly detection and significance tests.
 """
 import streamlit as st
 import pandas as pd
@@ -11,6 +11,8 @@ from data_cleaner import load_file, clean_dataframe
 from model_selector import run_pipeline, detect_problem_type
 from unsupervised import run_clustering, run_anomaly_detection
 from explore_ui import render_explore, render_prepare
+from forecasting import FREQS, suggest_frequency, prepare_series, run_forecast
+from charts import forecast_chart
 from statistical_tests import (
     chi_square_independence, chi_square_goodness_of_fit,
     two_sample_ttest, one_way_anova, correlation_test,
@@ -23,7 +25,8 @@ st.caption("Universal Data Cleaner, Descriptive Analytics & Predictive Model Sel
 
 # --- Step 1: Upload ---
 st.header("Step 1: Upload Your Data")
-uploaded_file = st.file_uploader("Upload a CSV, Excel, or JSON file", type=["csv", "xlsx", "xls", "json"])
+uploaded_file = st.file_uploader("Upload a CSV, TSV, TXT, Excel, JSON, or Parquet file",
+                                 type=["csv", "tsv", "txt", "xlsx", "xls", "json", "jsonl", "ndjson", "parquet"])
 
 if uploaded_file:
     try:
@@ -66,6 +69,7 @@ if uploaded_file:
             "Explore & describe (frequency tables, statistics, charts)",
             "Prepare & transform (data quality, scale types, normalize, PCA)",
             "Predict a target variable (Regression / Classification)",
+            "Forecast future values (time series — needs a date column)",
             "Find hidden groups (Clustering — no target needed)",
             "Detect anomalies (flag statistical outliers)",
             "Test statistical significance (is this pattern real, or just noise?)",
@@ -155,6 +159,70 @@ if uploaded_file:
                     "Accuracy/Precision/Recall/F1: category prediction accuracy (classification). "
                     "CV = 5-fold cross-validation, confirming results aren't a fluke of one train/test split."
                 )
+
+    # ===================== FORECASTING =====================
+    elif mode.startswith("Forecast"):
+        st.write("This mode projects a number forward in time, for example next quarter's spending or demand. "
+                 "It compares several forecasting methods on your most recent periods (held back, so the methods "
+                 "never see them) and uses the one that predicted them best.")
+        date_cols = [c for c, t in profile.items() if t == "datetime"]
+        num_cols = [c for c, t in profile.items() if t == "numeric"]
+        if not date_cols:
+            st.warning("No date column was found. Forecasting needs a column of dates "
+                       "(with 'date' or 'time' in its name) plus a numeric column.")
+        elif not num_cols:
+            st.warning("No numeric column was found to forecast.")
+        else:
+            c1, c2 = st.columns(2)
+            date_col = c1.selectbox("Date column", date_cols)
+            value_col = c2.selectbox("Number to forecast", num_cols)
+            c3, c4, c5 = st.columns(3)
+            freq_names = list(FREQS)
+            freq_label = c3.selectbox("Group dates by", freq_names,
+                                      index=freq_names.index(suggest_frequency(clean_df[date_col])))
+            agg_label = c4.selectbox("Combine rows in each period as",
+                                     ["Total (sum)", "Average", "Number of rows (count)"])
+            horizon = c5.number_input("Periods to forecast ahead", min_value=1, max_value=36, value=6)
+            agg = {"Total (sum)": "sum", "Average": "mean", "Number of rows (count)": "count"}[agg_label]
+
+            if st.button("Run Forecast", type="primary"):
+                with st.spinner("Comparing forecasting methods..."):
+                    try:
+                        series = prepare_series(clean_df, date_col, value_col, freq_label, agg)
+                        fc = run_forecast(series, int(horizon), freq_label)
+                    except Exception as e:
+                        st.error(f"Forecast failed: {e}")
+                        st.stop()
+
+                unit = freq_label.lower()
+                label = f"{agg_label.split(' (')[0]} {value_col} per {unit}"
+                st.header("Step 4: Forecast Results")
+                best_row = fc["comparison"].iloc[0]
+                mape_txt = f", off by {best_row['MAPE (%)']:.1f}% on average" if pd.notna(best_row["MAPE (%)"]) else ""
+                st.success(f"**Best method: {fc['best_method']}** — tested on the last {fc['holdout']} "
+                           f"{unit}s of your data{mape_txt}.")
+                st.altair_chart(forecast_chart(fc["history"], fc["forecast"], label), use_container_width=True)
+                st.caption("Shaded band = rough range, based on how far off the method was on the held-back periods. "
+                           "It is a guide, not a guarantee.")
+
+                st.write(f"**Forecast for the next {int(horizon)} {unit}s:**")
+                out = fc["forecast"].copy()
+                out["Period"] = out["Period"].dt.strftime("%Y-%m-%d")
+                st.dataframe(out.round(2), hide_index=True)
+                st.download_button("Download forecast as CSV", out.round(2).to_csv(index=False),
+                                   file_name="forecast.csv", mime="text/csv")
+
+                st.write("**Method comparison** (lower error = better; sorted best first):")
+                st.dataframe(fc["comparison"].round(2), hide_index=True)
+                with st.expander(f"How the best method did on the held-back {unit}s"):
+                    bt = fc["backtest"].copy()
+                    bt["Period"] = bt["Period"].dt.strftime("%Y-%m-%d")
+                    st.dataframe(bt.round(2), hide_index=True)
+                if not fc["seasonal_tested"] and FREQS[freq_label][1] > 1:
+                    st.info("Seasonal methods were skipped: they need at least two full cycles of history "
+                            "before the held-back periods.")
+                st.caption("MAE = average miss. RMSE = like MAE but punishes big misses more. "
+                           "MAPE = average miss as a percentage. The best method is the one with the lowest RMSE.")
 
     # ===================== MODE 2: CLUSTERING =====================
     elif mode.startswith("Find hidden groups"):
@@ -307,13 +375,13 @@ else:
     - Universal Data Cleaner — handles missing values, duplicates, currency formatting, outlier flagging, and automatic identifier-column removal
     - Auto Column Profiling — detects numeric / categorical / datetime / identifier / text columns automatically
     - **Supervised prediction** — auto-detects regression vs. classification and runs the right model family:
-      Regression: Linear, Ridge, Lasso, ElasticNet, KNN, Decision Tree, Random Forest.
-      Classification: Logistic Regression, KNN, Naive Bayes, Decision Tree, Random Forest.
+      Regression: Linear, Ridge, Lasso, ElasticNet, KNN, Decision Tree, Random Forest, Gradient Boosting.
+      Classification: Logistic Regression, KNN, Naive Bayes, Decision Tree, Random Forest, Gradient Boosting.
+    - **Forecasting** — projects a dated number forward (Naive, Moving average, Linear trend, Holt, Holt-Winters, ARIMA), choosing the method that best predicted your most recent periods
     - **Clustering** — finds hidden groups in data with no target variable, using K-Means with automatic k-selection via Silhouette Score
     - **Anomaly Detection** — flags statistical outliers using Isolation Forest (e.g. a single unrealistic contract hidden among thousands of normal ones)
     - **Statistical Hypothesis Testing** — Chi-Square, t-test, ANOVA, and correlation tests to check whether a pattern is real
     - Train/Test Validation & Cross-Validation on every supervised model, so results aren't a fluke of one split
 
-    *Additional models (Ridge/Lasso, KNN, Time Series, Gradient Boosting, Neural Networks, Dimensionality Reduction, Association Rules)
-    are planned for later phases per the product roadmap.*
+    *Neural networks and association rules are planned for later phases per the product roadmap.*
     """)

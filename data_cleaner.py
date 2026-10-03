@@ -7,17 +7,62 @@ import pandas as pd
 import numpy as np
 
 
+def _read_text_table(raw: bytes) -> pd.DataFrame:
+    """Delimited text (comma, tab, semicolon, pipe). The separator and the text encoding are detected."""
+    import io
+    for enc in ("utf-8-sig", "cp1252", "latin-1"):
+        try:
+            text = raw.decode(enc)
+            break
+        except UnicodeDecodeError:
+            continue
+    # The separator is whichever candidate appears most in the header line
+    header = next((ln for ln in text.splitlines() if ln.strip()), "")
+    sep = max([",", "\t", ";", "|"], key=header.count)
+    return pd.read_csv(io.StringIO(text), sep=sep)
+
+
+def _read_json(raw: bytes) -> pd.DataFrame:
+    """JSON in the usual shapes: a list of records, records nested under a key, or one record per line."""
+    import json
+    text = raw.decode("utf-8-sig")
+    try:
+        data = json.loads(text)
+    except json.JSONDecodeError:
+        data = [json.loads(line) for line in text.splitlines() if line.strip()]  # JSON Lines
+    if isinstance(data, dict):
+        # e.g. {"results": [ {...}, {...} ]}: use the longest list of records inside
+        lists = [v for v in data.values() if isinstance(v, list) and v and isinstance(v[0], dict)]
+        if lists:
+            data = max(lists, key=len)
+        elif all(isinstance(v, (list, dict)) for v in data.values()):
+            return pd.DataFrame(data)  # column-oriented JSON
+        else:
+            data = [data]
+    return pd.json_normalize(data, sep=".")  # nested objects become columns like "vendor.name"
+
+
 def load_file(uploaded_file):
-    """Load CSV or Excel file into a DataFrame."""
+    """Load CSV / TSV / TXT, Excel, JSON / JSON Lines, or Parquet into a DataFrame."""
     name = uploaded_file.name.lower()
-    if name.endswith(".csv"):
-        return pd.read_csv(uploaded_file)
+    if name.endswith((".csv", ".tsv", ".txt")):
+        df = _read_text_table(uploaded_file.read())
     elif name.endswith((".xlsx", ".xls")):
-        return pd.read_excel(uploaded_file)
-    elif name.endswith(".json"):
-        return pd.read_json(uploaded_file)
+        df = pd.read_excel(uploaded_file)
+    elif name.endswith((".json", ".jsonl", ".ndjson")):
+        df = _read_json(uploaded_file.read())
+    elif name.endswith(".parquet"):
+        df = pd.read_parquet(uploaded_file)
     else:
-        raise ValueError("Unsupported file type. Please upload CSV, Excel, or JSON.")
+        raise ValueError("Unsupported file type. Please upload CSV, TSV, TXT, Excel, JSON, or Parquet.")
+    if df.empty or df.shape[1] == 0:
+        raise ValueError("The file was read but contains no rows of data.")
+    df.columns = [str(c).strip() for c in df.columns]
+    # Lists / objects left inside cells (from nested JSON) become text so they can be counted and compared
+    for col in df.columns:
+        if df[col].map(lambda v: isinstance(v, (list, dict))).any():
+            df[col] = df[col].map(lambda v: str(v) if isinstance(v, (list, dict)) else v)
+    return df
 
 
 def clean_currency_and_numbers(series: pd.Series) -> pd.Series:
@@ -143,6 +188,12 @@ def clean_dataframe(df: pd.DataFrame):
         # Re-profile after dropping, so downstream code doesn't reference stale columns
         profile = {k: v for k, v in profile.items() if k not in id_cols}
 
+    # Parse date columns into real dates (so they can be charted and forecast)
+    for col, kind in profile.items():
+        if kind == "datetime" and not pd.api.types.is_datetime64_any_dtype(df[col]):
+            df[col] = pd.to_datetime(df[col], errors="coerce")
+            report.append(f"Parsed column '{col}' as dates.")
+
     # Handle missing values per column type
     for col, kind in profile.items():
         n_missing = df[col].isna().sum()
@@ -159,8 +210,7 @@ def clean_dataframe(df: pd.DataFrame):
             df[col] = df[col].fillna(fill_val)
             report.append(f"Filled {n_missing} missing values in '{col}' with most common value ('{fill_val}').")
         elif kind == "datetime":
-            df[col] = pd.to_datetime(df[col], errors="coerce")
-            report.append(f"Column '{col}' parsed as datetime ({n_missing} missing left as-is).")
+            report.append(f"Left {n_missing} missing dates in '{col}' as-is.")
         else:  # text
             df[col] = df[col].fillna("")
             report.append(f"Filled {n_missing} missing text values in '{col}' with empty string.")

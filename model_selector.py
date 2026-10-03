@@ -11,9 +11,8 @@ Phase 2 (classification): K-Nearest Neighbors Classifier, Naive Bayes (Gaussian)
 
 Train/Test split validation and K-Fold cross-validation applied to every model.
 
-Phase 3+ models (Time Series, Gradient Boosting, Neural Networks, etc.) are
-intentionally not implemented yet — this keeps scope matched to the phased
-roadmap.
+Phase 3: Gradient Boosting (regression and classification). Time-series
+forecasting lives in forecasting.py.
 """
 import pandas as pd
 import numpy as np
@@ -22,7 +21,10 @@ from sklearn.linear_model import (
     LinearRegression, LogisticRegression, RidgeCV, LassoCV, ElasticNetCV
 )
 from sklearn.tree import DecisionTreeRegressor, DecisionTreeClassifier
-from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
+from sklearn.ensemble import (
+    RandomForestRegressor, RandomForestClassifier,
+    GradientBoostingRegressor, GradientBoostingClassifier,
+)
 from sklearn.neighbors import KNeighborsRegressor, KNeighborsClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.preprocessing import LabelEncoder, StandardScaler
@@ -93,6 +95,7 @@ def run_regression_models(X, y):
         "KNN Regressor": KNeighborsRegressor(n_neighbors=min(5, max(2, len(X)//10))),
         "Decision Tree Regressor": DecisionTreeRegressor(random_state=42, max_depth=8),
         "Random Forest Regressor": RandomForestRegressor(random_state=42, n_estimators=200, max_depth=10),
+        "Gradient Boosting Regressor": GradientBoostingRegressor(random_state=42, n_estimators=200, max_depth=3, learning_rate=0.05, subsample=0.8),
     }
 
     results = {}
@@ -148,6 +151,7 @@ def run_classification_models(X, y):
         "Naive Bayes": GaussianNB(),
         "Decision Tree Classifier": DecisionTreeClassifier(random_state=42, max_depth=8),
         "Random Forest Classifier": RandomForestClassifier(random_state=42, n_estimators=200, max_depth=10),
+        "Gradient Boosting Classifier": GradientBoostingClassifier(random_state=42, n_estimators=200, max_depth=3, learning_rate=0.05, subsample=0.8),
     }
 
     results = {}

@@ -157,3 +157,29 @@ def before_after_histograms(before: pd.Series, after: pd.Series, name: str):
             tooltip=[alt.Tooltip("value:Q", bin=alt.Bin(maxbins=20)), "count():Q"],
         ).properties(height=260, width=320, title=t)
     return alt.hconcat(h(a, "Before"), h(b, "After"))
+
+
+def forecast_chart(history: pd.Series, forecast: pd.DataFrame, value_name: str):
+    """History (blue line), forecast (orange dashed line) and its rough range (shaded band)."""
+    hist = pd.DataFrame({"Period": history.index, "Value": history.values, "Series": "Actual"})
+    # start the forecast line at the last actual point so the two lines join
+    join = pd.DataFrame({"Period": [history.index[-1]], "Value": [history.values[-1]], "Series": ["Forecast"]})
+    fc = pd.concat([join, pd.DataFrame({"Period": forecast["Period"], "Value": forecast["Forecast"], "Series": "Forecast"})])
+    data = pd.concat([hist, fc], ignore_index=True)
+    domain, colors = ["Actual", "Forecast"], [BLUE, CATEGORICAL[1]]
+    band = alt.Chart(forecast).mark_area(color=CATEGORICAL[1], opacity=0.18).encode(
+        x="Period:T", y=alt.Y("Low:Q", title=value_name), y2="High:Q")
+    lines = alt.Chart(data).mark_line(strokeWidth=2).encode(
+        x=alt.X("Period:T", title=None),
+        y=alt.Y("Value:Q", title=value_name),
+        color=alt.Color("Series:N", scale=alt.Scale(domain=domain, range=colors), legend=alt.Legend(title=None, orient="top")),
+        strokeDash=alt.StrokeDash("Series:N", scale=alt.Scale(domain=domain, range=[[1, 0], [6, 4]]), legend=None),
+    )
+    hover = alt.selection_point(fields=["Period"], nearest=True, on="pointerover", empty=False)
+    points = alt.Chart(data).mark_circle(size=70).encode(
+        x="Period:T", y="Value:Q",
+        color=alt.Color("Series:N", scale=alt.Scale(domain=domain, range=colors), legend=None),
+        opacity=alt.condition(hover, alt.value(1), alt.value(0)),
+        tooltip=[alt.Tooltip("Period:T"), alt.Tooltip("Series:N"), alt.Tooltip("Value:Q", format=",.2f")],
+    ).add_params(hover)
+    return (band + lines + points).properties(height=HEIGHT + 40, title=f"{value_name}: history and forecast")
