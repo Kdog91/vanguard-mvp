@@ -23,13 +23,14 @@ from statistical_tests import (
 )
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+ON_CLOUD = HERE.replace("\\", "/").startswith("/mount/src")   # Streamlit Community Cloud: no access to the visitor's disk
 LOGO = os.path.join(HERE, "assets", "logo_mark.png")
 SAMPLES = {
     "Contracts (305 rows)": "sample_contracts.csv",
     "Awards over time (1,383 rows)": "sample_awards_timeseries.csv",
 }
 
-st.set_page_config(page_title="GovData Analytics | Vanguard Data Analytics",
+st.set_page_config(page_title="Vanguard Data Analytics | GovData Analytics",
                    page_icon=LOGO if os.path.exists(LOGO) else None, layout="wide")
 
 st.markdown("""
@@ -52,8 +53,8 @@ st.markdown("""
 head_logo, head_text = st.columns([1, 14], vertical_alignment="center")
 if os.path.exists(LOGO):
     head_logo.image(LOGO, width=64)
-head_text.markdown('<div class="vg-brand"><div><div class="name">GovData Analytics</div>'
-                   '<div class="by">by Vanguard Data Analytics · clean, describe, predict and forecast from one file</div>'
+head_text.markdown('<div class="vg-brand"><div><div class="name">Vanguard Data Analytics</div>'
+                   '<div class="by">GovData Analytics · clean, describe, predict and forecast from one file</div>'
                    '</div></div>', unsafe_allow_html=True)
 
 
@@ -96,17 +97,21 @@ with st.sidebar:
                                      help="CSV, TSV, TXT, Excel, JSON or Parquet, up to 200 MB.")
     sample_choice = st.selectbox("Or try sample data", ["None"] + list(SAMPLES), key="sample_choice",
                                  help="Made-up data that ships with the app, so you can see every feature work.")
-    with st.expander("Very large file (millions of rows)"):
-        local_path = st.text_input(
-            "Full path to the file", placeholder=r"C:\Users\you\data\big_file.csv",
-            help="For files over the 200 MB upload limit. Works when the app runs on your own computer; "
-                 "CSV, TSV, TXT, Parquet or JSON Lines.").strip().strip('"')
-        sample_rows = st.select_slider(
-            "Rows to sample for charts and models", options=[10_000, 20_000, 50_000, 100_000], value=20_000,
-            format_func=lambda v: f"{v:,}",
-            help="Large files are cleaned and summarized in full. Charts, models and tests use a random sample "
-                 "of this many rows so they finish in reasonable time. More rows = slower: comparing models "
-                 "on 50,000 rows can take several minutes.")
+    local_path, sample_rows = "", 20_000
+    if ON_CLOUD:
+        st.caption("Files with millions of rows: run the app on your own computer to read them straight from disk.")
+    else:
+        with st.expander("Very large file (millions of rows)"):
+            local_path = st.text_input(
+                "Full path to the file", placeholder=r"C:\Users\you\data\big_file.csv",
+                help="For files over the 200 MB upload limit. Works when the app runs on your own computer; "
+                     "CSV, TSV, TXT, Parquet or JSON Lines.").strip().strip('"')
+            sample_rows = st.select_slider(
+                "Rows to sample for charts and models", options=[10_000, 20_000, 50_000, 100_000], value=20_000,
+                format_func=lambda v: f"{v:,}",
+                help="Large files are cleaned and summarized in full. Charts, models and tests use a random sample "
+                     "of this many rows so they finish in reasonable time. More rows = slower: comparing models "
+                     "on 50,000 rows can take several minutes.")
 
 sample_path = None
 if uploaded_file is None and not local_path and sample_choice != "None":
