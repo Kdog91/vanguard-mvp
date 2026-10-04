@@ -94,7 +94,7 @@ def run_regression_models(X, y):
         "ElasticNet Regression": ElasticNetCV(alphas=np.logspace(-3, 3, 20), l1_ratio=[.1, .5, .7, .9, .95, 1], max_iter=5000, random_state=42),
         "KNN Regressor": KNeighborsRegressor(n_neighbors=min(5, max(2, len(X)//10))),
         "Decision Tree Regressor": DecisionTreeRegressor(random_state=42, max_depth=8),
-        "Random Forest Regressor": RandomForestRegressor(random_state=42, n_estimators=200, max_depth=10),
+        "Random Forest Regressor": RandomForestRegressor(random_state=42, n_estimators=200, max_depth=10, n_jobs=-1),
         "Gradient Boosting Regressor": GradientBoostingRegressor(random_state=42, n_estimators=200, max_depth=3, learning_rate=0.05, subsample=0.8),
     }
 
@@ -150,7 +150,7 @@ def run_classification_models(X, y):
         "KNN Classifier": KNeighborsClassifier(n_neighbors=n_neighbors),
         "Naive Bayes": GaussianNB(),
         "Decision Tree Classifier": DecisionTreeClassifier(random_state=42, max_depth=8),
-        "Random Forest Classifier": RandomForestClassifier(random_state=42, n_estimators=200, max_depth=10),
+        "Random Forest Classifier": RandomForestClassifier(random_state=42, n_estimators=200, max_depth=10, n_jobs=-1),
         "Gradient Boosting Classifier": GradientBoostingClassifier(random_state=42, n_estimators=200, max_depth=3, learning_rate=0.05, subsample=0.8),
     }
 

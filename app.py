@@ -6,12 +6,16 @@ clustering, anomaly detection and significance tests.
 import streamlit as st
 import pandas as pd
 import numpy as np
+import os
+import time
+import tempfile
 
 from data_cleaner import load_file, clean_dataframe
 from model_selector import run_pipeline, detect_problem_type
 from unsupervised import run_clustering, run_anomaly_detection
 from explore_ui import render_explore, render_prepare
-from forecasting import FREQS, suggest_frequency, prepare_series, run_forecast
+from forecasting import FREQS, suggest_frequency, prepare_series, series_from_daily, run_forecast
+import bigdata
 from charts import forecast_chart
 from statistical_tests import (
     chi_square_independence, chi_square_goodness_of_fit,
@@ -23,19 +27,96 @@ st.set_page_config(page_title="GovData Analytics — MVP", layout="wide")
 st.title("📊 GovData Analytics")
 st.caption("Universal Data Cleaner, Descriptive Analytics & Predictive Model Selector")
 
+@st.cache_data(show_spinner=False)
+def _big_summary(path, stamp):
+    return bigdata.summarize_file(path)
+
+
+@st.cache_data(show_spinner=False)
+def _big_sample(path, stamp, n):
+    return bigdata.load_sample(path, n)
+
+
+@st.cache_data(show_spinner=False)
+def _big_daily(path, stamp, date_col, value_col, types):
+    return bigdata.daily_totals(path, date_col, value_col, types)
+
+
+def _spool_upload(uploaded):
+    """Write a big upload to disk once, so it can be read in pieces instead of held in memory."""
+    key = f"spool::{uploaded.name}::{uploaded.size}"
+    if key not in st.session_state or not os.path.exists(st.session_state[key]):
+        ext = os.path.splitext(uploaded.name)[1].lower()
+        fd, path = tempfile.mkstemp(suffix=ext, prefix="vanguard_upload_")
+        with os.fdopen(fd, "wb") as f:
+            f.write(uploaded.getbuffer())
+        st.session_state[key] = path
+    return st.session_state[key]
+
+
 # --- Step 1: Upload ---
 st.header("Step 1: Upload Your Data")
 uploaded_file = st.file_uploader("Upload a CSV, TSV, TXT, Excel, JSON, or Parquet file",
                                  type=["csv", "tsv", "txt", "xlsx", "xls", "json", "jsonl", "ndjson", "parquet"])
+with st.expander("Very large file? Read it straight from this computer instead (millions of rows)"):
+    local_path = st.text_input(
+        "Full path to the file", placeholder=r"C:\Users\you\data\big_file.csv",
+        help="For files over the 200 MB upload limit. Works when the app runs on your own computer; "
+             "CSV, TSV, TXT, Parquet or JSON Lines.").strip().strip('"')
+    sample_rows = st.select_slider(
+        "Rows to sample for charts and models", options=[10_000, 20_000, 50_000, 100_000], value=20_000,
+        format_func=lambda v: f"{v:,}",
+        help="Large files are cleaned and summarized in full. Charts, models and tests use a random sample "
+             "of this many rows so they finish in reasonable time. More rows = slower: comparing models "
+             "on 50,000 rows can take several minutes.")
 
-if uploaded_file:
+big = None          # set when large-file mode is active: {"path", "stamp", "summary"}
+big_path = None
+if local_path:
+    if not os.path.isfile(local_path):
+        st.error("That file was not found. Check the path, or use the upload box above.")
+        st.stop()
+    if not local_path.lower().endswith(bigdata.SUPPORTED):
+        st.error("Reading from a path supports CSV, TSV, TXT, Parquet and JSON Lines files.")
+        st.stop()
+    big_path = local_path
+elif (uploaded_file is not None and uploaded_file.size > bigdata.LARGE_FILE_BYTES
+      and uploaded_file.name.lower().endswith(bigdata.SUPPORTED)):
+    big_path = _spool_upload(uploaded_file)
+
+if big_path:
+    stamp = (os.path.getsize(big_path), os.path.getmtime(big_path))
     try:
-        raw_df = load_file(uploaded_file)
+        with st.spinner("Scanning the whole file..."):
+            summary = _big_summary(big_path, stamp)
     except Exception as e:
         st.error(f"Could not read file: {e}")
         st.stop()
+    if summary["rows"] > bigdata.LARGE_ROW_THRESHOLD or local_path:
+        big = {"path": big_path, "stamp": stamp, "summary": summary}
 
-    st.success(f"Loaded {raw_df.shape[0]} rows × {raw_df.shape[1]} columns.")
+if uploaded_file or big:
+    if big:
+        summary = big["summary"]
+        st.success(f"Large-file mode: {summary['rows']:,} rows × {summary['columns']} columns "
+                   f"({summary['size_mb']:,.0f} MB), scanned in {summary['seconds']:.1f} seconds.")
+        with st.expander("Full-file summary (every row)", expanded=True):
+            st.dataframe(summary["table"], hide_index=True)
+        n_sample = min(sample_rows, summary["rows"])
+        with st.spinner("Drawing a random sample..."):
+            raw_df = _big_sample(big["path"], big["stamp"], n_sample)
+        st.info(f"Steps 2–4 run on a random sample of **{len(raw_df):,}** of {summary['rows']:,} rows "
+                f"({len(raw_df) / summary['rows']:.1%}). Results from a sample are estimates. "
+                "Full-file cleaning and forecasting totals use every row.")
+    else:
+        try:
+            raw_df = load_file(uploaded_file)
+        except Exception as e:
+            st.error(f"Could not read file: {e}")
+            st.stop()
+
+    if not big:
+        st.success(f"Loaded {raw_df.shape[0]:,} rows × {raw_df.shape[1]} columns.")
     with st.expander("Preview raw data"):
         st.dataframe(raw_df.head(20))
 
@@ -60,6 +141,37 @@ if uploaded_file:
 
     with st.expander("Preview cleaned data"):
         st.dataframe(clean_df.head(20))
+
+    if big:
+        st.subheader("Clean the full file")
+        st.write(f"The report above describes the sample. This applies the same rules to all "
+                 f"{big['summary']['rows']:,} rows and saves the result as a Parquet file.")
+        fc_key = f"full_clean::{big['path']}::{big['stamp']}"
+        if st.button("Clean every row and save"):
+            src = big["path"]
+            folder = os.path.dirname(src) if local_path else tempfile.gettempdir()
+            stem = os.path.splitext(os.path.basename(local_path or uploaded_file.name))[0]
+            out_path = os.path.join(folder, f"{stem}_cleaned.parquet")
+            with st.spinner("Cleaning every row..."):
+                try:
+                    full = bigdata.clean_full_file(src, profile, list(dropped_identifiers),
+                                                   big["summary"]["types"], out_path)
+                except Exception as e:
+                    st.error(f"Full-file cleaning failed: {e}")
+                    st.stop()
+            st.session_state[fc_key] = full
+        full = st.session_state.get(fc_key)
+        if full and os.path.exists(full["out_path"]):
+            st.success(f"Cleaned {full['rows_in']:,} rows in {full['seconds']:.1f} seconds. "
+                       f"{full['rows_out']:,} rows × {full['columns_out']} columns saved "
+                       f"({full['out_mb']:,.0f} MB).")
+            for line in full["report"]:
+                st.write(f"• {line}")
+            st.code(full["out_path"])
+            if full["out_mb"] <= 200:
+                with open(full["out_path"], "rb") as f:
+                    st.download_button("Download cleaned file (Parquet)", f,
+                                       file_name=os.path.basename(full["out_path"]))
 
     # --- Step 3: Choose analysis mode ---
     st.header("Step 3: Choose Your Analysis")
@@ -188,7 +300,12 @@ if uploaded_file:
             if st.button("Run Forecast", type="primary"):
                 with st.spinner("Comparing forecasting methods..."):
                     try:
-                        series = prepare_series(clean_df, date_col, value_col, freq_label, agg)
+                        if big:   # totals come from every row, not the sample
+                            daily = _big_daily(big["path"], big["stamp"], date_col, value_col,
+                                               big["summary"]["types"])
+                            series = series_from_daily(daily, value_col, freq_label, agg)
+                        else:
+                            series = prepare_series(clean_df, date_col, value_col, freq_label, agg)
                         fc = run_forecast(series, int(horizon), freq_label)
                     except Exception as e:
                         st.error(f"Forecast failed: {e}")
@@ -197,6 +314,8 @@ if uploaded_file:
                 unit = freq_label.lower()
                 label = f"{agg_label.split(' (')[0]} {value_col} per {unit}"
                 st.header("Step 4: Forecast Results")
+                if big:
+                    st.caption(f"Computed from all {big['summary']['rows']:,} rows, not the sample.")
                 best_row = fc["comparison"].iloc[0]
                 mape_txt = f", off by {best_row['MAPE (%)']:.1f}% on average" if pd.notna(best_row["MAPE (%)"]) else ""
                 st.success(f"**Best method: {fc['best_method']}** — tested on the last {fc['holdout']} "
@@ -229,10 +348,13 @@ if uploaded_file:
         st.write("This mode groups similar rows together automatically — no target column needed. "
                  "Useful for finding patterns like 'high-risk vendor clusters' without pre-labeling anything.")
 
+        use_cats = st.checkbox("Also use category columns (not just numbers)", key="clu_cats",
+                               help="Off: group rows by their numeric columns only. On: categories such as agency "
+                                    "also count toward which rows are similar.")
         if st.button("Run Clustering", type="primary"):
             with st.spinner("Testing multiple cluster counts and scoring each with Silhouette Score..."):
                 try:
-                    result = run_clustering(clean_df, profile)
+                    result = run_clustering(clean_df, profile, include_categorical=use_cats)
                 except Exception as e:
                     st.error(f"Clustering failed: {e}")
                     st.stop()
@@ -254,8 +376,9 @@ if uploaded_file:
 
             st.caption(
                 f"Features used for clustering: {', '.join(result['feature_cols'])}. "
-                "Only numeric columns are used for clustering in this MVP; categorical feature "
-                "support for unsupervised methods is a planned Phase 2+ extension."
+                + ("Category columns were converted to 0/1 columns so they could be compared."
+                   if use_cats else "Tick the box above to include category columns as well.")
+                + (f" Skipped (too many distinct values): {', '.join(result['skipped_cols'])}." if result["skipped_cols"] else "")
             )
 
     # ===================== MODE 3: ANOMALY DETECTION =====================
@@ -270,10 +393,13 @@ if uploaded_file:
                  "5% is a reasonable default; lower it if you expect very few anomalies."
         ) / 100.0
 
+        use_cats_an = st.checkbox("Also use category columns (not just numbers)", key="an_cats",
+                                  help="On: a row can also be flagged for an unusual combination, such as a "
+                                       "category that rarely goes with those amounts.")
         if st.button("Run Anomaly Detection", type="primary"):
             with st.spinner("Scoring every row for how anomalous it is..."):
                 try:
-                    result = run_anomaly_detection(clean_df, profile, contamination=contamination)
+                    result = run_anomaly_detection(clean_df, profile, contamination=contamination, include_categorical=use_cats_an)
                 except Exception as e:
                     st.error(f"Anomaly detection failed: {e}")
                     st.stop()
@@ -288,7 +414,7 @@ if uploaded_file:
             st.caption(
                 f"Features used for scoring: {', '.join(result['feature_cols'])}. "
                 "Anomaly score: lower (more negative) means the row is more of a statistical outlier "
-                "relative to the rest of the dataset. Only numeric columns are used in this MVP."
+                "relative to the rest of the dataset."
             )
 
     # ===================== MODE 4: HYPOTHESIS TESTING =====================
@@ -372,6 +498,7 @@ else:
     **What this MVP demonstrates:**
     - **Explore & describe** — frequency tables (absolute, relative, cumulative), statistical measures, cross-tabulations, grouped summaries, correlation matrices, and charts (histogram, box plot, bar, pie, scatter, line, area, heatmap)
     - **Prepare & transform** — data quality report, scale types (nominal/ordinal/interval/ratio), binning, one-hot encoding, min-max and z-score normalization, log/square-root/Box-Cox transforms, and PCA dimensionality reduction
+    - **Large-file mode** — files with millions of rows are scanned and cleaned in full from disk (DuckDB); charts and models run on a random sample
     - Universal Data Cleaner — handles missing values, duplicates, currency formatting, outlier flagging, and automatic identifier-column removal
     - Auto Column Profiling — detects numeric / categorical / datetime / identifier / text columns automatically
     - **Supervised prediction** — auto-detects regression vs. classification and runs the right model family:

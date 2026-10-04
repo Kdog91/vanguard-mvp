@@ -15,27 +15,52 @@ from sklearn.ensemble import IsolationForest
 from sklearn.metrics import silhouette_score
 
 
+MAX_CATEGORIES = 15  # category columns with more distinct values than this are skipped
+
+
 def get_numeric_feature_columns(df: pd.DataFrame, profile: dict) -> list:
-    """Only numeric columns are used for clustering/anomaly detection in this MVP.
-    Categorical encoding for unsupervised methods is a reasonable Phase 2+ extension,
-    but numeric-only keeps the first version correct and easy to validate."""
     return [c for c in df.columns if profile.get(c) == "numeric"]
 
 
-def run_clustering(df: pd.DataFrame, profile: dict, k_range=range(2, 7)):
+def build_features(df: pd.DataFrame, profile: dict, include_categorical: bool = False):
+    """
+    Build the matrix the unsupervised models see.
+    Numeric columns are standardized (mean 0, spread 1). If include_categorical is on,
+    each category column becomes a set of 0/1 columns (one-hot), scaled so that a whole
+    category column carries about the same weight as one numeric column.
+    Returns (matrix, numeric columns used, category columns used, category columns skipped).
+    """
+    num_cols = get_numeric_feature_columns(df, profile)
+    parts = []
+    if num_cols:
+        parts.append(StandardScaler().fit_transform(df[num_cols]))
+    cat_cols, skipped = [], []
+    if include_categorical:
+        for c in df.columns:
+            if profile.get(c) != "categorical":
+                continue
+            n = df[c].nunique()
+            if n < 2 or n > MAX_CATEGORIES:
+                skipped.append(c)
+                continue
+            cat_cols.append(c)
+            parts.append(pd.get_dummies(df[c].astype(str)).to_numpy(dtype=float) / np.sqrt(2))
+    if not parts:
+        raise ValueError("No usable columns were found.")
+    return np.hstack(parts), num_cols, cat_cols, skipped
+
+
+def run_clustering(df: pd.DataFrame, profile: dict, k_range=range(2, 7), include_categorical: bool = False):
     """
     Run K-Means across a range of k values, pick the best k by Silhouette Score,
     and return cluster assignments plus per-cluster summary statistics.
     """
-    feature_cols = get_numeric_feature_columns(df, profile)
+    X_scaled, num_cols, cat_cols, skipped = build_features(df, profile, include_categorical)
+    feature_cols = num_cols + cat_cols
     if len(feature_cols) < 2:
         raise ValueError(
-            f"Clustering needs at least 2 numeric columns; found {len(feature_cols)}: {feature_cols}"
+            f"Clustering needs at least 2 usable columns; found {len(feature_cols)}: {feature_cols}"
         )
-
-    X = df[feature_cols].copy()
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X)
 
     n_rows = len(df)
     max_k = min(max(k_range), n_rows - 1)
@@ -50,7 +75,8 @@ def run_clustering(df: pd.DataFrame, profile: dict, k_range=range(2, 7)):
         # Silhouette score needs at least 2 distinct labels and fewer clusters than samples
         if len(set(labels)) < 2:
             continue
-        score = silhouette_score(X_scaled, labels)
+        # On big tables the score is computed on 10,000 random rows; the full calculation grows with rows squared
+        score = silhouette_score(X_scaled, labels, sample_size=10_000 if len(X_scaled) > 10_000 else None, random_state=42)
         results_by_k[k] = {"model": km, "labels": labels, "silhouette": score}
 
     if not results_by_k:
@@ -63,7 +89,11 @@ def run_clustering(df: pd.DataFrame, profile: dict, k_range=range(2, 7)):
     df_out["cluster"] = best["labels"]
 
     # Per-cluster summary: mean of each numeric feature, and cluster size
-    cluster_summary = df_out.groupby("cluster")[feature_cols].mean().round(2)
+    cluster_summary = df_out.groupby("cluster")[num_cols].mean().round(2)
+    for c in cat_cols:  # for category columns, show the most common value and its share of the cluster
+        top = df_out.groupby("cluster")[c].agg(lambda v: v.astype(str).value_counts().index[0])
+        share = df_out.groupby("cluster")[c].agg(lambda v: v.astype(str).value_counts(normalize=True).iloc[0])
+        cluster_summary[f"most common {c}"] = [f"{t} ({p:.0%})" for t, p in zip(top, share)]
     cluster_summary["count"] = df_out.groupby("cluster").size()
 
     all_scores = {k: results_by_k[k]["silhouette"] for k in results_by_k}
@@ -74,23 +104,19 @@ def run_clustering(df: pd.DataFrame, profile: dict, k_range=range(2, 7)):
         "labels": best["labels"],
         "cluster_summary": cluster_summary,
         "feature_cols": feature_cols,
+        "skipped_cols": skipped,
         "all_k_scores": all_scores,
         "df_with_clusters": df_out,
     }
 
 
-def run_anomaly_detection(df: pd.DataFrame, profile: dict, contamination: float = 0.05):
+def run_anomaly_detection(df: pd.DataFrame, profile: dict, contamination: float = 0.05, include_categorical: bool = False):
     """
     Run Isolation Forest to flag statistical outliers across numeric columns.
     `contamination` is the expected proportion of anomalies (default 5%).
     """
-    feature_cols = get_numeric_feature_columns(df, profile)
-    if len(feature_cols) < 1:
-        raise ValueError("Anomaly detection needs at least 1 numeric column.")
-
-    X = df[feature_cols].copy()
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X)
+    X_scaled, num_cols, cat_cols, skipped = build_features(df, profile, include_categorical)
+    feature_cols = num_cols + cat_cols
 
     iso = IsolationForest(contamination=contamination, random_state=42, n_estimators=200)
     # -1 = anomaly, 1 = normal (sklearn convention)
@@ -108,6 +134,7 @@ def run_anomaly_detection(df: pd.DataFrame, profile: dict, contamination: float 
         "n_flagged": n_flagged,
         "pct_flagged": n_flagged / len(df) if len(df) else 0,
         "feature_cols": feature_cols,
+        "skipped_cols": skipped,
         "flagged_rows": flagged_rows,
         "df_with_scores": df_out,
         "contamination_setting": contamination,

@@ -63,6 +63,25 @@ def prepare_series(df: pd.DataFrame, date_col: str, value_col: str, freq_label: 
     return s
 
 
+def series_from_daily(daily: pd.DataFrame, value_col: str, freq_label: str, agg: str = "sum") -> pd.Series:
+    """Same result as prepare_series, but built from per-day totals (date, total, n) computed over a large file."""
+    freq, _ = FREQS[freq_label]
+    d = daily.set_index(pd.to_datetime(daily["d"]))
+    total, n = d["total"].resample(freq).sum(), d["n"].resample(freq).sum()
+    if agg == "sum":
+        s = total
+    elif agg == "count":
+        s = n.astype(float)
+    else:
+        s = (total / n.where(n > 0)).interpolate(limit_direction="both")
+    s.name = value_col
+    if len(s) < MIN_PERIODS:
+        raise ValueError(
+            f"Only {len(s)} {freq_label.lower()} periods of data. Forecasting needs at least {MIN_PERIODS}. "
+            "Try a shorter period (for example Week instead of Month).")
+    return s
+
+
 def _fit_predict(name: str, train: pd.Series, h: int, m: int) -> np.ndarray:
     """Fit one method on `train` and return h future values."""
     from statsmodels.tsa.holtwinters import ExponentialSmoothing
