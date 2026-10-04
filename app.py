@@ -22,10 +22,44 @@ from statistical_tests import (
     two_sample_ttest, one_way_anova, correlation_test,
 )
 
-st.set_page_config(page_title="GovData Analytics — MVP", layout="wide")
+HERE = os.path.dirname(os.path.abspath(__file__))
+LOGO = os.path.join(HERE, "assets", "logo_mark.png")
+SAMPLES = {
+    "Contracts (305 rows)": "sample_contracts.csv",
+    "Awards over time (1,383 rows)": "sample_awards_timeseries.csv",
+}
 
-st.title("📊 GovData Analytics")
-st.caption("Universal Data Cleaner, Descriptive Analytics & Predictive Model Selector")
+st.set_page_config(page_title="GovData Analytics | Vanguard Data Analytics",
+                   page_icon=LOGO if os.path.exists(LOGO) else None, layout="wide")
+
+st.markdown("""
+<style>
+  .block-container {padding-top: 2.2rem; padding-bottom: 3rem; max-width: 1280px;}
+  h1, h2, h3 {letter-spacing: -0.01em;}
+  [data-testid="stMetric"] {background: #f2f5f9; border: 1px solid #e1e7ef; border-radius: 10px; padding: 14px 16px;}
+  [data-testid="stMetricLabel"] p {font-size: 0.82rem; color: #4a5b70;}
+  [data-testid="stMetricValue"] {font-size: 1.55rem; color: #15365b;}
+  .vg-brand {display: flex; align-items: center; gap: 14px; margin-bottom: 0.2rem;}
+  .vg-brand .name {font-size: 1.9rem; font-weight: 700; color: #15365b; line-height: 1.1;}
+  .vg-brand .by {font-size: 0.9rem; color: #4a5b70;}
+  .vg-card {border: 1px solid #e1e7ef; border-radius: 10px; padding: 16px 18px; height: 100%; background: #ffffff;}
+  .vg-card h4 {margin: 0 0 6px 0; color: #15365b; font-size: 1.02rem;}
+  .vg-card p {margin: 0; color: #3c4d63; font-size: 0.92rem; line-height: 1.45;}
+  .vg-section {font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #1f5fb0; margin: 1.4rem 0 0.2rem 0;}
+</style>
+""", unsafe_allow_html=True)
+
+head_logo, head_text = st.columns([1, 14], vertical_alignment="center")
+if os.path.exists(LOGO):
+    head_logo.image(LOGO, width=64)
+head_text.markdown('<div class="vg-brand"><div><div class="name">GovData Analytics</div>'
+                   '<div class="by">by Vanguard Data Analytics · clean, describe, predict and forecast from one file</div>'
+                   '</div></div>', unsafe_allow_html=True)
+
+
+def section(label):
+    st.markdown(f'<div class="vg-section">{label}</div>', unsafe_allow_html=True)
+
 
 @st.cache_data(show_spinner=False)
 def _big_summary(path, stamp):
@@ -54,21 +88,32 @@ def _spool_upload(uploaded):
     return st.session_state[key]
 
 
-# --- Step 1: Upload ---
-st.header("Step 1: Upload Your Data")
-uploaded_file = st.file_uploader("Upload a CSV, TSV, TXT, Excel, JSON, or Parquet file",
-                                 type=["csv", "tsv", "txt", "xlsx", "xls", "json", "jsonl", "ndjson", "parquet"])
-with st.expander("Very large file? Read it straight from this computer instead (millions of rows)"):
-    local_path = st.text_input(
-        "Full path to the file", placeholder=r"C:\Users\you\data\big_file.csv",
-        help="For files over the 200 MB upload limit. Works when the app runs on your own computer; "
-             "CSV, TSV, TXT, Parquet or JSON Lines.").strip().strip('"')
-    sample_rows = st.select_slider(
-        "Rows to sample for charts and models", options=[10_000, 20_000, 50_000, 100_000], value=20_000,
-        format_func=lambda v: f"{v:,}",
-        help="Large files are cleaned and summarized in full. Charts, models and tests use a random sample "
-             "of this many rows so they finish in reasonable time. More rows = slower: comparing models "
-             "on 50,000 rows can take several minutes.")
+# --- Data source (sidebar) ---
+with st.sidebar:
+    st.markdown("### Data")
+    uploaded_file = st.file_uploader("Upload a file",
+                                     type=["csv", "tsv", "txt", "xlsx", "xls", "json", "jsonl", "ndjson", "parquet"],
+                                     help="CSV, TSV, TXT, Excel, JSON or Parquet, up to 200 MB.")
+    sample_choice = st.selectbox("Or try sample data", ["None"] + list(SAMPLES), key="sample_choice",
+                                 help="Made-up data that ships with the app, so you can see every feature work.")
+    with st.expander("Very large file (millions of rows)"):
+        local_path = st.text_input(
+            "Full path to the file", placeholder=r"C:\Users\you\data\big_file.csv",
+            help="For files over the 200 MB upload limit. Works when the app runs on your own computer; "
+                 "CSV, TSV, TXT, Parquet or JSON Lines.").strip().strip('"')
+        sample_rows = st.select_slider(
+            "Rows to sample for charts and models", options=[10_000, 20_000, 50_000, 100_000], value=20_000,
+            format_func=lambda v: f"{v:,}",
+            help="Large files are cleaned and summarized in full. Charts, models and tests use a random sample "
+                 "of this many rows so they finish in reasonable time. More rows = slower: comparing models "
+                 "on 50,000 rows can take several minutes.")
+
+sample_path = None
+if uploaded_file is None and not local_path and sample_choice != "None":
+    sample_path = os.path.join(HERE, SAMPLES[sample_choice])
+    if not os.path.exists(sample_path):
+        st.error(f"Sample file {SAMPLES[sample_choice]} is missing from the app folder.")
+        st.stop()
 
 big = None          # set when large-file mode is active: {"path", "stamp", "summary"}
 big_path = None
@@ -95,7 +140,8 @@ if big_path:
     if summary["rows"] > bigdata.LARGE_ROW_THRESHOLD or local_path:
         big = {"path": big_path, "stamp": stamp, "summary": summary}
 
-if uploaded_file or big:
+if uploaded_file or big or sample_path:
+    section("1 · Your data")
     if big:
         summary = big["summary"]
         st.success(f"Large-file mode: {summary['rows']:,} rows × {summary['columns']} columns "
@@ -105,27 +151,42 @@ if uploaded_file or big:
         n_sample = min(sample_rows, summary["rows"])
         with st.spinner("Drawing a random sample..."):
             raw_df = _big_sample(big["path"], big["stamp"], n_sample)
-        st.info(f"Steps 2–4 run on a random sample of **{len(raw_df):,}** of {summary['rows']:,} rows "
+        st.info(f"Cleaning preview, charts and models run on a random sample of **{len(raw_df):,}** of {summary['rows']:,} rows "
                 f"({len(raw_df) / summary['rows']:.1%}). Results from a sample are estimates. "
                 "Full-file cleaning and forecasting totals use every row.")
     else:
         try:
-            raw_df = load_file(uploaded_file)
+            if sample_path:
+                with open(sample_path, "rb") as fh:
+                    raw_df = load_file(fh)
+            else:
+                raw_df = load_file(uploaded_file)
         except Exception as e:
             st.error(f"Could not read file: {e}")
             st.stop()
 
     if not big:
-        st.success(f"Loaded {raw_df.shape[0]:,} rows × {raw_df.shape[1]} columns.")
+        src_name = os.path.basename(sample_path) if sample_path else uploaded_file.name
+        st.markdown(f"**{src_name}** · loaded {raw_df.shape[0]:,} rows × {raw_df.shape[1]} columns"
+                    + (" · sample data (synthetic)" if sample_path else ""))
     with st.expander("Preview raw data"):
         st.dataframe(raw_df.head(20))
 
     # --- Step 2: Clean ---
-    st.header("Step 2: Automated Cleaning")
+    section("2 · Automated cleaning")
     with st.spinner("Cleaning data..."):
         clean_df, profile, report, outlier_summary, dropped_identifiers = clean_dataframe(raw_df)
 
-    st.success(f"Cleaning complete. {clean_df.shape[0]} rows × {clean_df.shape[1]} columns remain.")
+    import re as _re
+    filled = sum(int(m.group(1)) for line in report for m in [_re.match(r"Filled (\d+) missing", line)] if m)
+    flagged = sum(int(m.group(1)) for line in report for m in [_re.match(r"Flagged (\d+) statistical", line)] if m)
+    m1, m2, m3, m4, m5 = st.columns(5)
+    m1.metric("Rows after cleaning", f"{clean_df.shape[0]:,}")
+    m2.metric("Columns kept", f"{clean_df.shape[1]} of {raw_df.shape[1]}")
+    m3.metric("Rows removed", f"{len(raw_df) - len(clean_df):,}", help="Duplicate and completely empty rows.")
+    m4.metric("Missing values filled", f"{filled:,}")
+    m5.metric("Outliers flagged", f"{flagged:,}", help="Flagged with the 1.5 × IQR rule. They are kept, not removed.")
+    st.write("")
 
     col1, col2 = st.columns([2, 1])
     with col1:
@@ -173,20 +234,21 @@ if uploaded_file or big:
                     st.download_button("Download cleaned file (Parquet)", f,
                                        file_name=os.path.basename(full["out_path"]))
 
-    # --- Step 3: Choose analysis mode ---
-    st.header("Step 3: Choose Your Analysis")
-    mode = st.radio(
-        "What do you want to do with this data?",
-        [
-            "Explore & describe (frequency tables, statistics, charts)",
-            "Prepare & transform (data quality, scale types, normalize, PCA)",
-            "Predict a target variable (Regression / Classification)",
-            "Forecast future values (time series — needs a date column)",
-            "Find hidden groups (Clustering — no target needed)",
-            "Detect anomalies (flag statistical outliers)",
-            "Test statistical significance (is this pattern real, or just noise?)",
-        ],
-    )
+    # --- Step 3: Choose analysis mode (sidebar) ---
+    with st.sidebar:
+        st.markdown("### Analysis")
+        mode = st.radio(
+            "What do you want to do with this data?",
+            ["Explore & describe", "Prepare & transform", "Predict a target variable", "Forecast future values",
+             "Find hidden groups", "Detect anomalies", "Test statistical significance"],
+            captions=["Frequency tables, statistics, charts", "Data quality, scale types, normalize, PCA",
+                      "Regression or classification", "Time series; needs a date column",
+                      "Clustering; no target needed", "Flag statistical outliers",
+                      "Is this pattern real, or just noise?"],
+            label_visibility="collapsed",
+        )
+    section("3 · Analysis")
+    st.subheader(mode)
 
     # ===================== EXPLORE & DESCRIBE =====================
     if mode.startswith("Explore"):
@@ -222,7 +284,7 @@ if uploaded_file or big:
                         st.error(f"Modeling failed: {e}")
                         st.stop()
 
-                st.header("Step 4: Results Dashboard")
+                st.subheader("Results Dashboard")
 
                 if output["dropped_cols"]:
                     st.caption(f"Note: columns excluded from modeling (text/datetime, not yet supported in Phase 1): "
@@ -313,7 +375,7 @@ if uploaded_file or big:
 
                 unit = freq_label.lower()
                 label = f"{agg_label.split(' (')[0]} {value_col} per {unit}"
-                st.header("Step 4: Forecast Results")
+                st.subheader("Forecast Results")
                 if big:
                     st.caption(f"Computed from all {big['summary']['rows']:,} rows, not the sample.")
                 best_row = fc["comparison"].iloc[0]
@@ -359,7 +421,7 @@ if uploaded_file or big:
                     st.error(f"Clustering failed: {e}")
                     st.stop()
 
-            st.header("Step 4: Clustering Results")
+            st.subheader("Clustering Results")
             st.success(f"**Best number of clusters: {result['best_k']}** "
                        f"— Silhouette Score: {result['silhouette_score']:.3f} "
                        f"(range: -1 to 1, higher means better-separated clusters)")
@@ -404,7 +466,7 @@ if uploaded_file or big:
                     st.error(f"Anomaly detection failed: {e}")
                     st.stop()
 
-            st.header("Step 4: Anomaly Detection Results")
+            st.subheader("Anomaly Detection Results")
             st.success(f"**Flagged {result['n_flagged']} anomalies** "
                        f"out of {len(clean_df)} rows ({result['pct_flagged']*100:.1f}%).")
 
@@ -433,7 +495,7 @@ if uploaded_file or big:
         ])
 
         def show(result, detail):
-            st.header("Step 4: Test Results")
+            st.subheader("Test Results")
             (st.success if result["significant"] else st.info)(result["interpretation"])
             st.write(detail)
 
@@ -491,24 +553,28 @@ if uploaded_file or big:
                    "It says whether an effect is likely real, not how large or important it is.")
 
 else:
-    st.info("👆 Upload a file to get started. Try a CSV with a mix of numeric and category columns — "
-            "e.g. a contracts dataset with cost, delivery days, and a risk category.")
-    st.markdown("""
-    ---
-    **What this MVP demonstrates:**
-    - **Explore & describe** — frequency tables (absolute, relative, cumulative), statistical measures, cross-tabulations, grouped summaries, correlation matrices, and charts (histogram, box plot, bar, pie, scatter, line, area, heatmap)
-    - **Prepare & transform** — data quality report, scale types (nominal/ordinal/interval/ratio), binning, one-hot encoding, min-max and z-score normalization, log/square-root/Box-Cox transforms, and PCA dimensionality reduction
-    - **Large-file mode** — files with millions of rows are scanned and cleaned in full from disk (DuckDB); charts and models run on a random sample
-    - Universal Data Cleaner — handles missing values, duplicates, currency formatting, outlier flagging, and automatic identifier-column removal
-    - Auto Column Profiling — detects numeric / categorical / datetime / identifier / text columns automatically
-    - **Supervised prediction** — auto-detects regression vs. classification and runs the right model family:
-      Regression: Linear, Ridge, Lasso, ElasticNet, KNN, Decision Tree, Random Forest, Gradient Boosting.
-      Classification: Logistic Regression, KNN, Naive Bayes, Decision Tree, Random Forest, Gradient Boosting.
-    - **Forecasting** — projects a dated number forward (Naive, Moving average, Linear trend, Holt, Holt-Winters, ARIMA), choosing the method that best predicted your most recent periods
-    - **Clustering** — finds hidden groups in data with no target variable, using K-Means with automatic k-selection via Silhouette Score
-    - **Anomaly Detection** — flags statistical outliers using Isolation Forest (e.g. a single unrealistic contract hidden among thousands of normal ones)
-    - **Statistical Hypothesis Testing** — Chi-Square, t-test, ANOVA, and correlation tests to check whether a pattern is real
-    - Train/Test Validation & Cross-Validation on every supervised model, so results aren't a fluke of one split
-
-    *Neural networks and association rules are planned for later phases per the product roadmap.*
-    """)
+    st.write("")
+    st.markdown("#### Turn a raw data file into tested answers, without writing code.")
+    st.write("Upload a file in the sidebar, or pick **Or try sample data** there to see it work straight away.")
+    cards = [
+        ("Clean", "Fixes currency text, removes duplicates and identifier columns, fills gaps, flags outliers, "
+                  "and reports every change it made."),
+        ("Describe", "Frequency tables, summary statistics, cross-tabulations, correlation, and charts chosen "
+                     "to fit each column's type."),
+        ("Predict", "Compares up to eight models on data they have not seen, with cross-validation, and "
+                    "reports which one did best."),
+        ("Forecast", "Projects a dated number forward, using whichever of seven methods best predicted your "
+                     "most recent periods."),
+        ("Find patterns", "Groups similar rows, flags unusual ones, and tests whether a difference is real "
+                          "or just chance."),
+        ("Large files", "Scans and cleans files with millions of rows from disk on a single machine; charts "
+                        "and models run on a random sample."),
+    ]
+    for row in (cards[:3], cards[3:]):
+        cols = st.columns(3)
+        for col, (title, text) in zip(cols, row):
+            col.markdown(f'<div class="vg-card"><h4>{title}</h4><p>{text}</p></div>', unsafe_allow_html=True)
+        st.write("")
+    st.caption("Accepts CSV, TSV, TXT, Excel, JSON and Parquet. Runs on one computer; distributed processing, "
+               "neural networks and association rules are on the roadmap, not built yet. "
+               "Sample files are synthetic.")

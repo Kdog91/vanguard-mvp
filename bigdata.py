@@ -29,6 +29,10 @@ def _q(name: str) -> str:
     return '"' + str(name).replace('"', '""') + '"'
 
 
+def _is_int(stored_type: str) -> bool:
+    return any(k in stored_type.upper() for k in ("BIGINT", "INTEGER", "SMALLINT", "TINYINT", "HUGEINT"))
+
+
 def source_sql(path: str) -> str:
     """The SQL expression that reads the file."""
     p = str(path).replace("'", "''")
@@ -114,7 +118,9 @@ def clean_full_file(path: str, profile: dict, identifier_cols: list, types: dict
         cols = list(types)
         select = []
         for c in cols:
-            if profile.get(c) == "numeric":
+            if profile.get(c) == "numeric" and _is_int(types[c]):
+                select.append(_q(c))            # already a whole number: keep it whole
+            elif profile.get(c) == "numeric":
                 select.append(f"{_number_expr(c, types[c])} AS {_q(c)}")
                 if "VARCHAR" in types[c].upper():
                     report.append(f"Converted column '{c}' from text to numeric (stripped $ , % symbols).")
@@ -140,7 +146,8 @@ def clean_full_file(path: str, profile: dict, identifier_cols: list, types: dict
                     f"SELECT quantile_cont({_q(c)}, [0.25, 0.5, 0.75]) FROM t").fetchone()[0]
                 if missing:
                     report.append(f"Filled {missing:,} missing values in '{c}' with median ({med:.2f}).")
-                final.append(f"COALESCE({_q(c)}, {med!r}) AS {_q(c)}")
+                fill = f"CAST({round(med)} AS BIGINT)" if _is_int(types[c]) else repr(float(med))
+                final.append(f"COALESCE({_q(c)}, {fill}) AS {_q(c)}")
                 iqr = q3 - q1
                 if iqr > 0:
                     n_out = con.execute(
