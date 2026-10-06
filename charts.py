@@ -183,3 +183,24 @@ def forecast_chart(history: pd.Series, forecast: pd.DataFrame, value_name: str):
         tooltip=[alt.Tooltip("Period:T"), alt.Tooltip("Series:N"), alt.Tooltip("Value:Q", format=",.2f")],
     ).add_params(hover)
     return (band + lines + points).properties(height=HEIGHT + 40, title=f"{value_name}: history and forecast")
+
+
+def kde_chart(series: pd.Series, name: str):
+    """Smoothed density curve (KDE) of a numeric column, with a normal curve of the same mean and spread for comparison."""
+    import numpy as np
+    from scipy import stats
+    x = pd.to_numeric(series, errors="coerce").dropna().to_numpy()
+    grid = np.linspace(x.min(), x.max(), 200)
+    data = pd.concat([
+        pd.DataFrame({"x": grid, "Density": stats.gaussian_kde(x)(grid), "Curve": "This column (KDE)"}),
+        pd.DataFrame({"x": grid, "Density": stats.norm.pdf(grid, x.mean(), x.std(ddof=1)), "Curve": "Normal curve"}),
+    ])
+    domain = ["This column (KDE)", "Normal curve"]
+    return alt.Chart(data).mark_line(strokeWidth=2).encode(
+        x=alt.X("x:Q", title=name),
+        y=alt.Y("Density:Q", title="Density"),
+        color=alt.Color("Curve:N", scale=alt.Scale(domain=domain, range=[BLUE, CATEGORICAL[1]]),
+                        legend=alt.Legend(title=None, orient="top")),
+        strokeDash=alt.StrokeDash("Curve:N", scale=alt.Scale(domain=domain, range=[[1, 0], [6, 4]]), legend=None),
+        tooltip=[alt.Tooltip("Curve:N"), alt.Tooltip("x:Q", title=name, format=",.2f"), alt.Tooltip("Density:Q", format=".3g")],
+    ).properties(height=HEIGHT, title=f"Density of {name} compared with a normal curve")

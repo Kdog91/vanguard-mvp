@@ -29,6 +29,12 @@ def _q(name: str) -> str:
     return '"' + str(name).replace('"', '""') + '"'
 
 
+def _size_mb(path: str) -> float:
+    if os.path.isdir(path):
+        return sum(os.path.getsize(os.path.join(r, f)) for r, _, fs in os.walk(path) for f in fs) / 1e6
+    return os.path.getsize(path) / 1e6
+
+
 def _is_int(stored_type: str) -> bool:
     return any(k in stored_type.upper() for k in ("BIGINT", "INTEGER", "SMALLINT", "TINYINT", "HUGEINT"))
 
@@ -102,7 +108,8 @@ def _number_expr(col: str, stored_type: str) -> str:
     return f"TRY_CAST({_q(col)} AS DOUBLE)"
 
 
-def clean_full_file(path: str, profile: dict, identifier_cols: list, types: dict, out_path: str) -> dict:
+def clean_full_file(path: str, profile: dict, identifier_cols: list, types: dict, out_path: str,
+                    partition_by: str | None = None) -> dict:
     """
     Apply the cleaner's rules to every row and save the result as Parquet.
     `profile` is the column-type decision made on the sample (numeric / categorical / datetime / text).
@@ -164,11 +171,20 @@ def clean_full_file(path: str, profile: dict, identifier_cols: list, types: dict
             else:
                 final.append(_q(c))
         out_sql = out_path.replace("'", "''")
-        con.execute(f"COPY (SELECT {', '.join(final)} FROM t) TO '{out_sql}' (FORMAT PARQUET)")
+        if partition_by:
+            # One folder per value (e.g. agency=DoD/), so later queries read only the folders they need
+            import shutil
+            if os.path.isdir(out_path):
+                shutil.rmtree(out_path)
+            con.execute(f"COPY (SELECT {', '.join(final)} FROM t) TO '{out_sql}' "
+                        f"(FORMAT PARQUET, PARTITION_BY ({_q(partition_by)}))")
+        else:
+            con.execute(f"COPY (SELECT {', '.join(final)} FROM t) TO '{out_sql}' (FORMAT PARQUET)")
     finally:
         con.close()
     return {"rows_in": rows_in, "rows_out": rows_out, "columns_out": len(keep), "report": report,
-            "outliers": outliers, "out_path": out_path, "out_mb": os.path.getsize(out_path) / 1e6,
+            "outliers": outliers, "out_path": out_path, "out_mb": _size_mb(out_path), "partition_by": partition_by,
+            "n_parts": len(os.listdir(out_path)) if partition_by else 1,
             "seconds": time.time() - t0}
 
 

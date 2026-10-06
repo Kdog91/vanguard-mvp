@@ -9,6 +9,16 @@ import streamlit as st
 
 import charts
 import descriptive as d
+import wrangle_ui
+import recommend
+
+
+def _pick_chart(options, rec, reason, key):
+    """Chart-type picker that opens on the recommended chart and says why."""
+    choice = st.radio("Chart type", options, index=options.index(rec), horizontal=True, key=key,
+                      format_func=lambda o: f"{o} (recommended)" if o == rec else o)
+    st.caption(f"Recommended: **{rec}**, because {reason}.")
+    return choice
 
 
 def _num(profile):
@@ -24,7 +34,7 @@ def _txt(profile):
 
 
 def _chart(c):
-    st.altair_chart(c, use_container_width=True)
+    st.altair_chart(c, width="stretch")
 
 
 def _download(df: pd.DataFrame, filename: str, label: str = "Download as CSV"):
@@ -52,7 +62,7 @@ def render_explore(df: pd.DataFrame, profile: dict):
             with left:
                 st.markdown("**Frequency table**")
                 freq = d.frequency_table(df[col], kind)
-                st.dataframe(freq, hide_index=True, use_container_width=True)
+                st.dataframe(freq, hide_index=True, width="stretch")
                 if kind == "numeric" and df[col].nunique() > 15:
                     st.caption("Values grouped into ranges (Sturges' rule) because there are too many distinct values to count one by one.")
             with right:
@@ -60,20 +70,40 @@ def render_explore(df: pd.DataFrame, profile: dict):
                 stats_df = d.summary_stats(df[col]) if kind == "numeric" else d.categorical_stats(df[col])
                 if kind == "numeric":
                     stats_df["Value"] = stats_df["Value"].map(lambda v: f"{v:,.3f}" if pd.notna(v) else "")
-                st.dataframe(stats_df, hide_index=True, use_container_width=True)
+                st.dataframe(stats_df, hide_index=True, width="stretch")
 
             st.markdown("**Charts**")
             if kind == "numeric":
-                kinds = ["Histogram", "Box plot"]
+                kinds = ["Histogram", "Box plot", "Density (KDE)"]
+                rec, why = recommend.one_numeric(df[col])
             else:
                 kinds = ["Bar chart", "Pie chart"]
-            choice = st.radio("Chart type", kinds, horizontal=True, key="uni_chart")
+                rec, why = recommend.one_categorical(df[col])
+                if stype == "ordinal":
+                    rec, why = "Bar chart", "the categories have a natural order, which bars keep and a pie loses"
+            choice = _pick_chart(kinds, rec, why, f"uni_chart_{col}")
             if choice == "Histogram":
                 _chart(charts.histogram(df, col))
             elif choice == "Box plot":
                 _chart(charts.box_plot(df, col))
+            elif choice == "Density (KDE)":
+                try:
+                    nc = d.normality_check(df[col])
+                    _chart(charts.kde_chart(df[col], col))
+                    verdict = ("consistent with a normal distribution" if nc["looks_normal"]
+                               else "not normally distributed")
+                    st.write(f"**{verdict.capitalize()}** ({nc['test']} test, p {'< 0.0001' if nc['p_value'] < 0.0001 else '= ' + format(nc['p_value'], '.4f')}). "
+                             f"The shape is {nc['shape']}: skewness {nc['skewness']:.2f}, "
+                             f"excess kurtosis {nc['kurtosis']:.2f}.")
+                    st.caption("A KDE is a smoothed histogram. The dashed line is a normal (bell) curve with the same "
+                               "mean and spread. p below 0.05 means the data differs from a normal curve by more than "
+                               "chance would explain; with thousands of rows even small differences give a low p.")
+                except ValueError as e:
+                    st.info(str(e))
             elif choice == "Bar chart":
-                _chart(charts.bar_chart(freq, "Value", "Absolute frequency", f"Frequency of {col}"))
+                wide = df[col].nunique() > 8
+                bars = freq.sort_values("Absolute frequency", ascending=False) if wide and stype == "nominal" else freq
+                _chart(charts.bar_chart(bars, "Value", "Absolute frequency", f"Frequency of {col}", horizontal=wide))
             else:
                 if df[col].nunique() < 3:
                     st.info("With fewer than 3 categories a pie adds nothing — the frequency table above says it all.")
@@ -95,8 +125,9 @@ def render_explore(df: pd.DataFrame, profile: dict):
                 st.markdown("**Relationship measures**")
                 m = d.bivariate_numeric(df, a, b)
                 m["Value"] = m["Value"].map(lambda v: f"{v:,.4f}")
-                st.dataframe(m, hide_index=True, use_container_width=True)
-                choice = st.radio("Chart type", ["Scatter plot", "Line chart", "Area chart"], horizontal=True, key="bi_chart")
+                st.dataframe(m, hide_index=True, width="stretch")
+                rec, why = recommend.two_numeric(df, a, b)
+                choice = _pick_chart(["Scatter plot", "Line chart", "Area chart"], rec, why, f"bi_chart_{a}_{b}")
                 if choice == "Scatter plot":
                     color = st.selectbox("Color points by (optional)", ["(none)"] + cat, key="bi_color")
                     _chart(charts.scatter(df, a, b, None if color == "(none)" else color))
@@ -108,9 +139,11 @@ def render_explore(df: pd.DataFrame, profile: dict):
                 num_col, cat_col = (a, b) if ka == "numeric" else (b, a)
                 st.markdown(f"**Summary of {num_col} by {cat_col}**")
                 gs = d.group_summary(df, cat_col, num_col)
-                st.dataframe(gs, hide_index=True, use_container_width=True)
+                st.dataframe(gs, hide_index=True, width="stretch")
                 _download(gs, f"{num_col}_by_{cat_col}.csv")
-                choice = st.radio("Chart type", ["Box plot by group", f"Bar chart of average {num_col}"], horizontal=True, key="bi_chart2")
+                opts = ["Box plot by group", f"Bar chart of average {num_col}"]
+                rec_kind, why = recommend.numeric_by_category(df, num_col, cat_col)
+                choice = _pick_chart(opts, opts[0] if rec_kind == "Box" else opts[1], why, f"bi_chart2_{num_col}_{cat_col}")
                 if choice.startswith("Box"):
                     _chart(charts.box_plot(df, num_col, cat_col, d._sorted_categories(df[cat_col].dropna())))
                 else:
@@ -121,7 +154,7 @@ def render_explore(df: pd.DataFrame, profile: dict):
                 view = st.radio("Show", ["Counts", "Row %", "Column %", "% of total"], horizontal=True, key="bi_ct")
                 norm = {"Counts": None, "Row %": "index", "Column %": "columns", "% of total": "all"}[view]
                 ct = d.crosstab(df, a, b, norm)
-                st.dataframe(ct, use_container_width=True)
+                st.dataframe(ct, width="stretch")
                 counts = d.crosstab(df, a, b).drop(index="Total", columns="Total")
                 counts.index.name = a
                 _chart(charts.heatmap(counts, f"{a} × {b} (counts)", diverging=False, fmt=",.0f"))
@@ -136,9 +169,9 @@ def render_explore(df: pd.DataFrame, profile: dict):
             _chart(charts.heatmap(corr, "Correlation between numeric columns (−1 to 1)"))
             st.caption("Blue = move in opposite directions, red = move together, pale = little or no relationship.")
             with st.expander("Covariance matrix"):
-                st.dataframe(d.covariance_matrix(df, num), use_container_width=True)
+                st.dataframe(d.covariance_matrix(df, num), width="stretch")
             with st.expander("Summary statistics for every numeric column"):
-                st.dataframe(df[num].describe().T.round(2), use_container_width=True)
+                st.dataframe(df[num].describe().T.round(2), width="stretch")
         else:
             st.info("Correlation matrix needs at least 2 numeric columns.")
 
@@ -147,7 +180,7 @@ def render_explore(df: pd.DataFrame, profile: dict):
             chosen = st.multiselect("Categorical columns to combine", cat, default=cat[:2], key="mv_cats")
             if len(chosen) >= 2:
                 mf = d.multivariate_frequency(df, chosen)
-                st.dataframe(mf, hide_index=True, use_container_width=True)
+                st.dataframe(mf, hide_index=True, width="stretch")
                 _download(mf, "multivariate_frequencies.csv")
 
         txt = _txt(profile)
@@ -165,21 +198,28 @@ def render_explore(df: pd.DataFrame, profile: dict):
 # =============================== PREPARE & TRANSFORM ===============================
 def render_prepare(raw_df: pd.DataFrame, df: pd.DataFrame, profile: dict):
     st.write("Check data quality and reshape columns before analysis. Every result can be downloaded as a CSV.")
-    q, scale, resc, trans, dim = st.tabs(
-        ["Data quality", "Scale types & conversion", "Rescale / normalize", "Transform", "Dimensionality reduction"])
+    q, miss, flt, edit, scale, resc, trans, dim = st.tabs(
+        ["Data quality", "Missing values", "Filter rows", "Edit columns", "Scale types & conversion",
+         "Rescale / normalize", "Transform", "Dimensionality reduction"])
+    with miss:
+        wrangle_ui.render_missing(raw_df)
+    with flt:
+        wrangle_ui.render_filter(df, profile)
+    with edit:
+        wrangle_ui.render_columns(df, profile)
     num, cat = _num(profile), _cat(profile)
 
     with q:
         st.markdown("**Data quality report**")
         rep = d.data_quality_report(raw_df, df, profile)
-        st.dataframe(rep, hide_index=True, use_container_width=True)
+        st.dataframe(rep, hide_index=True, width="stretch")
         st.caption("'Missing in original' is before cleaning; the cleaned data has those gaps filled (see the cleaning report above). "
                    "Outliers use the same 1.5 × IQR rule as the box plots.")
         _download(rep, "data_quality_report.csv")
 
     with scale:
         st.markdown("**Scale types**")
-        st.dataframe(d.scale_type_table(df, profile), hide_index=True, use_container_width=True)
+        st.dataframe(d.scale_type_table(df, profile), hide_index=True, width="stretch")
         st.markdown("**Convert to a different scale type**")
         conv = st.radio("Conversion", [
             "Numeric → ordinal categories (binning)",
@@ -196,7 +236,7 @@ def render_prepare(raw_df: pd.DataFrame, df: pd.DataFrame, profile: dict):
                                   help="Equal width: same-size value ranges. Equal frequency: about the same number of rows per category.")
                 out = df[[c]].copy()
                 out[f"{c}_category"] = d.bin_numeric(df[c], k, method)
-                st.dataframe(out.head(20), use_container_width=True)
+                st.dataframe(out.head(20), width="stretch")
                 st.dataframe(d.frequency_table(out[f"{c}_category"], "categorical"), hide_index=True)
                 _download(df.assign(**{f"{c}_category": out[f"{c}_category"]}), f"{c}_binned.csv", "Download full data with new column")
         elif conv.startswith("Nominal"):
@@ -205,7 +245,7 @@ def render_prepare(raw_df: pd.DataFrame, df: pd.DataFrame, profile: dict):
             else:
                 c = st.selectbox("Categorical column", cat, key="oh_c")
                 oh = d.one_hot(df, c)
-                st.dataframe(pd.concat([df[[c]], oh], axis=1).head(20), use_container_width=True)
+                st.dataframe(pd.concat([df[[c]], oh], axis=1).head(20), width="stretch")
                 _download(pd.concat([df, oh], axis=1), f"{c}_one_hot.csv", "Download full data with new columns")
         else:
             if not cat:
@@ -235,7 +275,7 @@ def render_prepare(raw_df: pd.DataFrame, df: pd.DataFrame, profile: dict):
                 cmp = pd.DataFrame({c: {"Min before": df[c].min(), "Max before": df[c].max(), "Mean before": df[c].mean(),
                                         "Min after": scaled[c].min(), "Max after": scaled[c].max(), "Mean after": scaled[c].mean()}
                                     for c in chosen}).T.round(3)
-                st.dataframe(cmp, use_container_width=True)
+                st.dataframe(cmp, width="stretch")
                 show = st.selectbox("Compare distribution for", chosen, key="rs_show")
                 _chart(charts.before_after_histograms(df[show], scaled[show], show))
                 st.caption("Rescaling changes the units, not the shape — the two histograms should look the same.")
@@ -252,7 +292,7 @@ def render_prepare(raw_df: pd.DataFrame, df: pd.DataFrame, profile: dict):
             try:
                 out = d.transform(df[c], method)
                 sk = pd.DataFrame({"Skewness": [df[c].skew(), out.skew()]}, index=["Before", "After"]).round(3)
-                st.dataframe(sk, use_container_width=True)
+                st.dataframe(sk, width="stretch")
                 st.caption("Skewness closer to 0 means a more symmetric distribution.")
                 _chart(charts.before_after_histograms(df[c], out, c))
                 _download(df.assign(**{f"{c}_{method.replace(' ', '_')}": out.round(4)}), f"{c}_{method}.csv",
@@ -273,10 +313,10 @@ def render_prepare(raw_df: pd.DataFrame, df: pd.DataFrame, profile: dict):
                 left, right = st.columns(2)
                 with left:
                     st.markdown("**Variance explained**")
-                    st.dataframe(variance, hide_index=True, use_container_width=True)
+                    st.dataframe(variance, hide_index=True, width="stretch")
                 with right:
                     st.markdown("**Loadings** (how much each column feeds each component)")
-                    st.dataframe(loadings, use_container_width=True)
+                    st.dataframe(loadings, width="stretch")
                 _chart(charts.bar_chart(variance, "Component", "Explained variance (%)", "Variance explained by each component"))
                 if k >= 2:
                     color = st.selectbox("Color points by (optional)", ["(none)"] + cat, key="pca_color")

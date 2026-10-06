@@ -213,15 +213,21 @@ if uploaded_file or big or sample_path:
         st.write(f"The report above describes the sample. This applies the same rules to all "
                  f"{big['summary']['rows']:,} rows and saves the result as a Parquet file.")
         fc_key = f"full_clean::{big['path']}::{big['stamp']}"
+        part_opts = ["One file"] + [c for c, k in profile.items() if k == "categorical" and clean_df[c].nunique() <= 50]
+        part_pick = st.selectbox("Save as", part_opts, format_func=lambda v: v if v == "One file" else f"A folder split by {v}",
+                                 help="Splitting by a category (partitioned Parquet) writes one sub-folder per value, "
+                                      "so later analysis of one agency or one year reads only that part.")
+        partition_by = None if part_pick == "One file" else part_pick
         if st.button("Clean every row and save"):
             src = big["path"]
             folder = os.path.dirname(src) if local_path else tempfile.gettempdir()
             stem = os.path.splitext(os.path.basename(local_path or uploaded_file.name))[0]
-            out_path = os.path.join(folder, f"{stem}_cleaned.parquet")
+            out_path = os.path.join(folder, f"{stem}_cleaned_by_{partition_by}" if partition_by
+                                    else f"{stem}_cleaned.parquet")
             with st.spinner("Cleaning every row..."):
                 try:
                     full = bigdata.clean_full_file(src, profile, list(dropped_identifiers),
-                                                   big["summary"]["types"], out_path)
+                                                   big["summary"]["types"], out_path, partition_by)
                 except Exception as e:
                     st.error(f"Full-file cleaning failed: {e}")
                     st.stop()
@@ -234,7 +240,10 @@ if uploaded_file or big or sample_path:
             for line in full["report"]:
                 st.write(f"• {line}")
             st.code(full["out_path"])
-            if full["out_mb"] <= 200:
+            if full.get("partition_by"):
+                st.caption(f"Partitioned Parquet: {full['n_parts']} sub-folders, one per value of "
+                           f"'{full['partition_by']}'.")
+            elif full["out_mb"] <= 200:
                 with open(full["out_path"], "rb") as f:
                     st.download_button("Download cleaned file (Parquet)", f,
                                        file_name=os.path.basename(full["out_path"]))
@@ -387,7 +396,7 @@ if uploaded_file or big or sample_path:
                 mape_txt = f", off by {best_row['MAPE (%)']:.1f}% on average" if pd.notna(best_row["MAPE (%)"]) else ""
                 st.success(f"**Best method: {fc['best_method']}** — tested on the last {fc['holdout']} "
                            f"{unit}s of your data{mape_txt}.")
-                st.altair_chart(forecast_chart(fc["history"], fc["forecast"], label), use_container_width=True)
+                st.altair_chart(forecast_chart(fc["history"], fc["forecast"], label), width="stretch")
                 st.caption("Shaded band = rough range, based on how far off the method was on the held-back periods. "
                            "It is a guide, not a guarantee.")
 

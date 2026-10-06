@@ -312,3 +312,20 @@ def word_frequencies(series: pd.Series, top: int = 25) -> pd.DataFrame:
             if w not in STOPWORDS and len(w) > 2:
                 words[w] += 1
     return pd.DataFrame(words.most_common(top), columns=["Word", "Frequency"])
+
+
+def normality_check(series: pd.Series) -> dict:
+    """Is this column roughly bell-shaped? Skewness, excess kurtosis and a normality test."""
+    from scipy import stats
+    x = pd.to_numeric(series, errors="coerce").dropna()
+    if len(x) < 8 or x.nunique() < 3:
+        raise ValueError("Need at least 8 values and 3 distinct values to check for a normal distribution.")
+    skew, kurt = float(stats.skew(x)), float(stats.kurtosis(x))
+    if len(x) <= 5000:
+        name, (stat, p) = "Shapiro-Wilk", stats.shapiro(x)
+    else:
+        name, (stat, p) = "D'Agostino-Pearson", stats.normaltest(x)
+    shape = "roughly symmetric" if abs(skew) < 0.5 else ("skewed right (long tail of high values)" if skew > 0
+                                                         else "skewed left (long tail of low values)")
+    return {"test": name, "statistic": float(stat), "p_value": float(p), "skewness": skew, "kurtosis": kurt,
+            "looks_normal": bool(p >= 0.05), "shape": shape, "n": int(len(x))}
