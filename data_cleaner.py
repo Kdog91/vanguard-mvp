@@ -204,11 +204,17 @@ def clean_dataframe(df: pd.DataFrame):
             median_val = df[col].median()
             df[col] = df[col].fillna(median_val)
             report.append(f"Filled {n_missing} missing values in '{col}' with median ({median_val:.2f}).")
+            if pct_missing >= 0.3:
+                report.append(f"Caution: '{col}' was {pct_missing:.0%} empty before filling. Treat results that "
+                              "rely on it with care, or leave it out of models.")
         elif kind == "categorical":
             mode_val = df[col].mode(dropna=True)
             fill_val = mode_val.iloc[0] if not mode_val.empty else "Unknown"
             df[col] = df[col].fillna(fill_val)
             report.append(f"Filled {n_missing} missing values in '{col}' with most common value ('{fill_val}').")
+            if pct_missing >= 0.3:
+                report.append(f"Caution: '{col}' was {pct_missing:.0%} empty before filling. Treat results that "
+                              "rely on it with care, or leave it out of models.")
         elif kind == "datetime":
             report.append(f"Left {n_missing} missing dates in '{col}' as-is.")
         else:  # text

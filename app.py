@@ -16,6 +16,7 @@ from unsupervised import run_clustering, run_anomaly_detection
 from explore_ui import render_explore, render_prepare
 from forecasting import FREQS, suggest_frequency, prepare_series, series_from_daily, run_forecast
 import bigdata
+import usaspending
 from charts import forecast_chart
 from statistical_tests import (
     chi_square_independence, chi_square_goodness_of_fit,
@@ -97,6 +98,41 @@ with st.sidebar:
                                      help="CSV, TSV, TXT, Excel, JSON or Parquet, up to 200 MB.")
     sample_choice = st.selectbox("Or try sample data", ["None"] + list(SAMPLES), key="sample_choice",
                                  help="Made-up data that ships with the app, so you can see every feature work.")
+    with st.expander("Federal contract awards (USAspending.gov)"):
+        st.caption("Real awards from the U.S. Treasury's public database. No account needed.")
+        usa_agency = st.selectbox("Awarding agency", usaspending.AGENCIES, key="usa_agency")
+        _today = pd.Timestamp.today().normalize()
+        usa_dates = st.date_input("Awards active between", (_today - pd.DateOffset(years=1), _today),
+                                  min_value=pd.Timestamp(usaspending.EARLIEST_DATE), max_value=_today, key="usa_dates")
+        usa_n = st.select_slider("How many awards", options=[200, 500, 1000, 2000, 5000], value=1000, key="usa_n",
+                                 help="Each 100 awards is one request to USAspending. 1,000 takes roughly 10 to 30 seconds.")
+        usa_sort = st.radio("Which awards", list(usaspending.SORT_CHOICES), key="usa_sort",
+                            help="The app takes the first awards in this order. It is not a random sample, "
+                                 "so 'Largest first' gives only the biggest awards.")
+        if st.button("Load awards", key="usa_load"):
+            if not isinstance(usa_dates, (tuple, list)) or len(usa_dates) != 2:
+                st.error("Pick a start and an end date.")
+            else:
+                bar = st.progress(0.0, text="Contacting USAspending.gov...")
+                try:
+                    _df, _info = usaspending.fetch_awards(
+                        usa_agency, str(usa_dates[0]), str(usa_dates[1]), usa_n, usa_sort,
+                        progress=lambda done, total: bar.progress(min(done / total, 1.0),
+                                                                  text=f"{done:,} of up to {total:,} awards"))
+                    bar.empty()
+                    if _df.empty:
+                        st.warning("USAspending returned no awards for that agency and period.")
+                    else:
+                        st.session_state["usa_data"] = {"df": _df, "info": _info}
+                except usaspending.USAspendingError as e:
+                    bar.empty()
+                    st.error(str(e))
+        if "usa_data" in st.session_state:
+            _i = st.session_state["usa_data"]["info"]
+            st.success(f"{_i['rows']:,} awards loaded ({_i['agency']}).")
+            if st.button("Clear loaded awards", key="usa_clear"):
+                del st.session_state["usa_data"]
+                st.rerun()
     local_path, sample_rows = "", 20_000
     if ON_CLOUD:
         st.caption("Files with millions of rows: run the app on your own computer to read them straight from disk.")
@@ -113,8 +149,9 @@ with st.sidebar:
                      "of this many rows so they finish in reasonable time. More rows = slower: comparing models "
                      "on 50,000 rows can take several minutes.")
 
+usa = st.session_state.get("usa_data") if (uploaded_file is None and not local_path) else None
 sample_path = None
-if uploaded_file is None and not local_path and sample_choice != "None":
+if uploaded_file is None and not local_path and usa is None and sample_choice != "None":
     sample_path = os.path.join(HERE, SAMPLES[sample_choice])
     if not os.path.exists(sample_path):
         st.error(f"Sample file {SAMPLES[sample_choice]} is missing from the app folder.")
@@ -145,7 +182,7 @@ if big_path:
     if summary["rows"] > bigdata.LARGE_ROW_THRESHOLD or local_path:
         big = {"path": big_path, "stamp": stamp, "summary": summary}
 
-if uploaded_file or big or sample_path:
+if uploaded_file or big or sample_path or usa:
     section("1 · Your data")
     if big:
         summary = big["summary"]
@@ -161,7 +198,9 @@ if uploaded_file or big or sample_path:
                 "Full-file cleaning and forecasting totals use every row.")
     else:
         try:
-            if sample_path:
+            if usa:
+                raw_df = usa["df"].copy()
+            elif sample_path:
                 with open(sample_path, "rb") as fh:
                     raw_df = load_file(fh)
             else:
@@ -170,7 +209,17 @@ if uploaded_file or big or sample_path:
             st.error(f"Could not read file: {e}")
             st.stop()
 
-    if not big:
+    if usa:
+        _i = usa["info"]
+        st.markdown(f"**USAspending.gov contract awards** · {_i['agency']} · {_i['start_date']} to {_i['end_date']} · "
+                    f"{raw_df.shape[0]:,} rows × {raw_df.shape[1]} columns · real federal data")
+        st.caption(f"The first {_i['rows']:,} awards, {_i['sort_by'].lower()}"
+                   + (" (more exist for this period)" if _i["more_available"] else " (all awards for this period)")
+                   + f", fetched in {_i['seconds']:.0f} seconds. This is not a random sample of the agency's awards. "
+                     "duration_days is calculated by the app from the start and end dates.")
+        st.download_button("Download these awards as CSV", raw_df.to_csv(index=False).encode("utf-8"),
+                           file_name="usaspending_awards.csv", mime="text/csv", key="usa_dl")
+    elif not big:
         src_name = os.path.basename(sample_path) if sample_path else uploaded_file.name
         st.markdown(f"**{src_name}** · loaded {raw_df.shape[0]:,} rows × {raw_df.shape[1]} columns"
                     + (" · sample data (synthetic)" if sample_path else ""))
@@ -290,10 +339,22 @@ if uploaded_file or big or sample_path:
             st.info(f"Detected problem type: **{problem_type.upper()}** "
                     f"({'predicting a number' if problem_type == 'regression' else 'predicting a category'})")
 
+            candidates = [c for c in numeric_or_cat_cols if c != target_col]
+            default_feats = [c for c in candidates if clean_df[c].nunique() > 1]
+            feature_cols = st.multiselect(
+                "Columns the models may use to make the prediction", candidates, default=default_feats,
+                key=f"feats_{target_col}",
+                help="Remove any column that would not be known at the time you need the prediction, or that is "
+                     "really the answer in another form (for example, money paid out when predicting the award "
+                     "amount). Leaving such a column in makes the models look better than they are.")
+            if not feature_cols:
+                st.warning("Pick at least one column for the models to use.")
+                st.stop()
+
             if st.button("Run Model Selector", type="primary"):
                 with st.spinner("Splitting data, training models, and validating..."):
                     try:
-                        output = run_pipeline(clean_df, target_col, profile)
+                        output = run_pipeline(clean_df[feature_cols + [target_col]], target_col, profile)
                     except Exception as e:
                         st.error(f"Modeling failed: {e}")
                         st.stop()
