@@ -58,7 +58,10 @@ FIELDS = {
     "Description": "description",
 }
 CONTRACT_TYPE_CODES = ["A", "B", "C", "D"]   # purchase orders, delivery orders, definitive contracts, BPA calls
-SORT_CHOICES = {"Most recent first": "Start Date", "Largest first": "Award Amount"}
+SPREAD = "Spread across the period"
+SORT_CHOICES = {SPREAD: "Start Date", "Most recent first": "Start Date", "Largest first": "Award Amount"}
+MAX_SLICES = 12          # "spread" mode takes an equal share of awards from up to this many time slices
+NO_STATE = "Other"       # place of performance outside the 50 states, or not recorded
 
 
 class USAspendingError(Exception):
@@ -66,15 +69,20 @@ class USAspendingError(Exception):
 
 
 def build_request(agency: str, start_date: str, end_date: str, page: int, sort_by: str,
-                  min_amount: float | None = None) -> dict:
+                  min_amount: float | None = None, new_only: bool = False, limit: int = PAGE_SIZE) -> dict:
+    period = {"start_date": start_date, "end_date": end_date}
+    if new_only:
+        # Only awards that BEGAN in the window. Without this the API also returns old awards
+        # that merely had some activity (a modification, a payment) in the window.
+        period["date_type"] = "new_awards_only"
     filters = {
         "award_type_codes": CONTRACT_TYPE_CODES,
         "agencies": [{"type": "awarding", "tier": "toptier", "name": agency}],
-        "time_period": [{"start_date": start_date, "end_date": end_date}],
+        "time_period": [period],
     }
     if min_amount:
         filters["award_amounts"] = [{"lower_bound": float(min_amount)}]
-    return {"filters": filters, "fields": list(FIELDS), "page": page, "limit": PAGE_SIZE,
+    return {"filters": filters, "fields": list(FIELDS), "page": page, "limit": int(max(1, min(limit, PAGE_SIZE))),
             "sort": SORT_CHOICES.get(sort_by, sort_by), "order": "desc", "subawards": False}
 
 
@@ -128,18 +136,51 @@ def to_dataframe(results: list) -> pd.DataFrame:
         df[c] = pd.to_datetime(df[c], errors="coerce")
     for c in ("award_amount", "total_outlays"):
         df[c] = pd.to_numeric(df[c], errors="coerce")
+    if "place_of_performance_state" in df:
+        df["place_of_performance_state"] = df["place_of_performance_state"].fillna(NO_STATE)
     # Planned length of the award in days: a number the models can use
     df["duration_days"] = (df["end_date"] - df["start_date"]).dt.days
     df = df.dropna(axis=1, how="all")          # e.g. descriptions, when the API sends plain codes
     return df
 
 
+def check_dates(df: pd.DataFrame, today=None) -> tuple[pd.DataFrame, dict]:
+    """
+    Real award records contain date mistakes. Count them, and blank out any duration that is
+    impossible (end before start) so it is not treated as a real number.
+    """
+    counts = {"end_before_start": 0, "future_start": 0, "same_day": 0}
+    if df.empty or "duration_days" not in df:
+        return df, counts
+    df = df.copy()
+    today = pd.Timestamp(today) if today is not None else pd.Timestamp.today().normalize()
+    bad = df["duration_days"] < 0
+    counts["end_before_start"] = int(bad.sum())
+    counts["future_start"] = int((df["start_date"] > today).sum())
+    counts["same_day"] = int((df["duration_days"] == 0).sum())
+    df["duration_days"] = df["duration_days"].astype("float64")
+    df.loc[bad, "duration_days"] = float("nan")
+    return df, counts
+
+
+def _slices(start_date: str, end_date: str, n: int) -> list:
+    """Split a date range into up to n back-to-back slices of (start, end) text dates."""
+    a, b = pd.Timestamp(start_date), pd.Timestamp(end_date)
+    days = (b - a).days + 1
+    n = max(1, min(n, days))
+    edges = [a + pd.Timedelta(days=round(days * i / n)) for i in range(n + 1)]
+    return [(edges[i].strftime("%Y-%m-%d"), (edges[i + 1] - pd.Timedelta(days=1)).strftime("%Y-%m-%d")) for i in range(n)]
+
+
 def fetch_awards(agency: str, start_date: str, end_date: str, max_awards: int = 1000,
-                 sort_by: str = "Most recent first", min_amount: float | None = None,
-                 progress=None, url: str = API_URL) -> tuple[pd.DataFrame, dict]:
+                 sort_by: str = SPREAD, min_amount: float | None = None,
+                 progress=None, url: str = API_URL, new_only: bool = True) -> tuple[pd.DataFrame, dict]:
     """
     Download up to `max_awards` contract awards. Returns (table, info).
-    `progress(done, total)` is called after each page so the app can show a progress bar.
+    `progress(done, total)` is called after each request so the app can show a progress bar.
+
+    sort_by = SPREAD takes an equal share from up to 12 slices of the period, so the awards cover
+    the whole period instead of bunching at one end. new_only keeps awards that began in the period.
     """
     if agency not in AGENCIES:
         raise USAspendingError(f"Unknown agency: {agency}")
@@ -150,21 +191,59 @@ def fetch_awards(agency: str, start_date: str, end_date: str, max_awards: int = 
     max_awards = int(max(1, min(max_awards, MAX_AWARDS)))
 
     t0 = time.time()
-    results, page, has_next, messages = [], 1, True, []
-    while has_next and len(results) < max_awards:
-        reply = _post(build_request(agency, str(start_date), str(end_date), page, sort_by, min_amount), url)
-        batch = reply.get("results") or []
-        results.extend(batch)
-        messages.extend(reply.get("messages") or [])
-        has_next = bool((reply.get("page_metadata") or {}).get("hasNext")) and bool(batch)
-        if progress:
-            progress(min(len(results), max_awards), max_awards)
-        page += 1
-        if has_next:
+    state = {"new_only": bool(new_only), "requests": 0}
+    results, messages, notes = [], [], []
+
+    def ask(s, e, page, limit):
+        """One request. If the 'began in the period' filter is refused, carry on without it and say so."""
+        state["requests"] += 1
+        try:
+            return _post(build_request(agency, s, e, page, sort_by, min_amount, state["new_only"], limit), url)
+        except USAspendingError as err:
+            if not state["new_only"] or "rejected the request" not in str(err):
+                raise
+            state["new_only"] = False
+            notes.append("USAspending did not accept the 'new awards only' filter, so awards that were "
+                         "only active in the period are included.")
+            state["requests"] += 1
+            return _post(build_request(agency, s, e, page, sort_by, min_amount, False, limit), url)
+
+    def pull(s, e, want):
+        """Page through one date range until `want` awards are collected. Returns (rows, more_exist)."""
+        got, page, has_next = [], 1, True
+        while has_next and len(got) < want:
+            reply = ask(s, e, page, min(PAGE_SIZE, want - len(got)) if page == 1 and want <= PAGE_SIZE else PAGE_SIZE)
+            batch = reply.get("results") or []
+            got.extend(batch)
+            messages.extend(reply.get("messages") or [])
+            has_next = bool((reply.get("page_metadata") or {}).get("hasNext")) and bool(batch)
+            if progress:
+                progress(min(len(results) + len(got), max_awards), max_awards)
+            page += 1
             time.sleep(0.2)     # be polite to a free public service
-    results = results[:max_awards]
-    df = to_dataframe(results)
+        return got[:want], has_next or len(got) > want
+
+    more = False
+    if sort_by == SPREAD:
+        parts = _slices(str(start_date), str(end_date), min(MAX_SLICES, max_awards))
+        for k, (s, e) in enumerate(parts):
+            want = -(-(max_awards - len(results)) // (len(parts) - k))     # share what is left evenly
+            if want <= 0:
+                break
+            got, m = pull(s, e, want)
+            results.extend(got)
+            more = more or m
+        n_slices = len(parts)
+    else:
+        results, more = pull(str(start_date), str(end_date), max_awards)
+        n_slices = 1
+
+    df = to_dataframe(results[:max_awards])
+    if not df.empty:
+        df = df.drop_duplicates(subset="award_id").reset_index(drop=True) if "award_id" in df else df
+    df, date_issues = check_dates(df)
     info = {"agency": agency, "start_date": str(start_date), "end_date": str(end_date), "rows": len(df),
-            "requests": page - 1, "seconds": time.time() - t0, "more_available": has_next,
-            "sort_by": sort_by, "messages": list(dict.fromkeys(messages))}
+            "requests": state["requests"], "seconds": time.time() - t0, "more_available": more,
+            "sort_by": sort_by, "new_only": state["new_only"], "slices": n_slices, "date_issues": date_issues,
+            "messages": list(dict.fromkeys(notes + messages))}
     return df, info

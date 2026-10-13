@@ -4,6 +4,7 @@ Streamlit screens for:
   - Prepare & transform (data quality, scale types & conversion, rescaling,
                          transformations, dimensionality reduction)
 """
+import numpy as np
 import pandas as pd
 import streamlit as st
 
@@ -70,6 +71,8 @@ def render_explore(df: pd.DataFrame, profile: dict):
                 stats_df = d.summary_stats(df[col]) if kind == "numeric" else d.categorical_stats(df[col])
                 if kind == "numeric":
                     stats_df["Value"] = stats_df["Value"].map(lambda v: f"{v:,.3f}" if pd.notna(v) else "")
+                else:
+                    stats_df["Value"] = stats_df["Value"].astype(str)
                 st.dataframe(stats_df, hide_index=True, width="stretch")
 
             st.markdown("**Charts**")
@@ -82,10 +85,22 @@ def render_explore(df: pd.DataFrame, profile: dict):
                 if stype == "ordinal":
                     rec, why = "Bar chart", "the categories have a natural order, which bars keep and a pie loses"
             choice = _pick_chart(kinds, rec, why, f"uni_chart_{col}")
+            plot_df, plot_col = df, col
+            if kind == "numeric" and choice in ("Histogram", "Box plot") and df[col].min() >= 0 and df[col].nunique() > 2:
+                skew = float(df[col].skew())
+                use_log = st.checkbox("Log scale", value=skew > 3, key=f"uni_log_{col}",
+                                      help="Plots log10(value + 1), so each step is 10 times the last: "
+                                           "3 = about 1 thousand, 6 = about 1 million, 9 = about 1 billion.")
+                if use_log:
+                    plot_col = f"log10({col} + 1)"
+                    plot_df = pd.DataFrame({plot_col: np.log10(df[col].astype(float) + 1)})
+                    st.caption(f"Log scale is on because a few very large values (skewness {skew:.1f}) would otherwise "
+                               "squash everything else flat. Read the axis as powers of ten: 3 is about 1 thousand, "
+                               "6 about 1 million, 9 about 1 billion. The tables above are in the original units.")
             if choice == "Histogram":
-                _chart(charts.histogram(df, col))
+                _chart(charts.histogram(plot_df, plot_col))
             elif choice == "Box plot":
-                _chart(charts.box_plot(df, col))
+                _chart(charts.box_plot(plot_df, plot_col))
             elif choice == "Density (KDE)":
                 try:
                     nc = d.normality_check(df[col])

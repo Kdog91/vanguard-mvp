@@ -92,9 +92,11 @@ def frequency_table(series: pd.Series, kind: str, bins: int | None = None) -> pd
     s = series.dropna()
     if kind == "numeric" and s.nunique() > 15:
         k = bins or int(np.ceil(np.log2(len(s)) + 1))  # Sturges' rule
-        binned = pd.cut(s, bins=k)
+        lo, hi = float(s.min()), float(s.max())
+        edges = np.linspace(lo, hi, k + 1)       # bins start at the real minimum, not below it
+        binned = pd.cut(s, bins=edges, include_lowest=True)
         counts = binned.value_counts().sort_index()
-        labels = [f"{iv.left:,.2f} – {iv.right:,.2f}" for iv in counts.index]
+        labels = [f"{edges[i]:,.2f} – {edges[i + 1]:,.2f}" for i in range(len(counts))]
     elif kind == "numeric":
         counts = s.value_counts().sort_index()
         labels = [str(v) for v in counts.index]

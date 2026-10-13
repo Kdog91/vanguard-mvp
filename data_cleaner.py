@@ -3,6 +3,7 @@ Universal Data Cleaner
 Handles automatic type detection, missing value handling, outlier detection,
 and duplicate removal for any uploaded tabular dataset.
 """
+import re
 import pandas as pd
 import numpy as np
 
@@ -65,6 +66,9 @@ def load_file(uploaded_file):
     return df
 
 
+NEAR_EMPTY = 0.80    # columns at least this empty are set aside instead of filled
+
+
 def clean_currency_and_numbers(series: pd.Series) -> pd.Series:
     """Strip $ , % and convert to numeric where possible."""
     if pd.api.types.is_object_dtype(series) or pd.api.types.is_string_dtype(series):
@@ -75,6 +79,14 @@ def clean_currency_and_numbers(series: pd.Series) -> pd.Series:
             return converted
     return series
 
+
+_CODE_WORDS = ("code", "naics", "zip", "psc", "fips", "sic")
+
+
+def _is_code_name(col) -> bool:
+    """True when a column name says it holds codes (NAICS, ZIP, PSC, FIPS...), which are labels, not amounts."""
+    name = str(col).lower()
+    return name.endswith("code") or any(w in re.split(r"[^a-z]+", name) for w in _CODE_WORDS)
 
 def auto_profile_columns(df: pd.DataFrame) -> dict:
     """Classify each column as numeric, categorical, datetime, identifier, or text."""
@@ -104,8 +116,11 @@ def auto_profile_columns(df: pd.DataFrame) -> dict:
 
         # Numeric-looking CODE columns (NAICS, ZIP, PSC, FIPS...) are labels, not quantities --
         # doing math on them (averaging, correlating) is meaningless, so treat them as categories.
-        code_hint = any(k in col.lower() for k in ("code", "naics", "zip", "psc", "fips", "sic"))
+        code_hint = _is_code_name(col)
         if is_numeric_col and code_hint and (series.dropna() % 1 == 0).all():
+            profile[col] = "categorical"
+            continue
+        if (not is_numeric_col) and code_hint and uniqueness_ratio < 0.5:
             profile[col] = "categorical"
             continue
 
@@ -129,7 +144,11 @@ def auto_profile_columns(df: pd.DataFrame) -> dict:
                 except Exception:
                     pass
             nunique = series.nunique(dropna=True)
-            if nunique <= max(20, int(0.05 * len(series))):
+            # Short codes (state abbreviations, grades, flags) are categories even when there are
+            # many of them, as long as they repeat.
+            short_code = (nunique <= 80 and uniqueness_ratio < 0.5
+                          and series.dropna().astype(str).str.len().max() <= 6)
+            if nunique <= max(20, int(0.05 * len(series))) or short_code:
                 profile[col] = "categorical"
             else:
                 profile[col] = "text"
@@ -158,6 +177,8 @@ def clean_dataframe(df: pd.DataFrame):
 
     # Attempt currency/number cleaning on object columns
     for col in df.columns:
+        if _is_code_name(col) and not pd.api.types.is_numeric_dtype(df[col]):
+            continue                              # NAICS, ZIP, PSC... are labels: keep the text (and leading zeros)
         original_dtype = df[col].dtype
         df[col] = clean_currency_and_numbers(df[col])
         if df[col].dtype != original_dtype:
@@ -187,6 +208,16 @@ def clean_dataframe(df: pd.DataFrame):
             report.append(f"Detected and removed identifier column '{c}' (nearly all values unique — not useful for modeling).")
         # Re-profile after dropping, so downstream code doesn't reference stale columns
         profile = {k: v for k, v in profile.items() if k not in id_cols}
+
+    # Set aside columns that are almost entirely empty. Filling them would invent most of the
+    # column, and anything computed from it would describe the filler, not the data.
+    for col in list(profile):
+        pct_empty = df[col].isna().mean() if len(df) else 0
+        if pct_empty >= NEAR_EMPTY:
+            df = df.drop(columns=[col])
+            del profile[col]
+            report.append(f"Set aside column '{col}': {pct_empty:.0%} empty, too little data to analyze. "
+                          "It is still in the raw data.")
 
     # Parse date columns into real dates (so they can be charted and forecast)
     for col, kind in profile.items():

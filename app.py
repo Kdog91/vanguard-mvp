@@ -102,13 +102,17 @@ with st.sidebar:
         st.caption("Real awards from the U.S. Treasury's public database. No account needed.")
         usa_agency = st.selectbox("Awarding agency", usaspending.AGENCIES, key="usa_agency")
         _today = pd.Timestamp.today().normalize()
-        usa_dates = st.date_input("Awards active between", (_today - pd.DateOffset(years=1), _today),
+        usa_dates = st.date_input("Dates", (_today - pd.DateOffset(years=1), _today),
                                   min_value=pd.Timestamp(usaspending.EARLIEST_DATE), max_value=_today, key="usa_dates")
         usa_n = st.select_slider("How many awards", options=[200, 500, 1000, 2000, 5000], value=1000, key="usa_n",
                                  help="Each 100 awards is one request to USAspending. 1,000 takes roughly 10 to 30 seconds.")
         usa_sort = st.radio("Which awards", list(usaspending.SORT_CHOICES), key="usa_sort",
-                            help="The app takes the first awards in this order. It is not a random sample, "
-                                 "so 'Largest first' gives only the biggest awards.")
+                            captions=["Recommended: an equal share from each part of the period", "", ""],
+                            help="'Spread' covers the whole period. The other two take the first awards in that "
+                                 "order, so 'Largest first' gives only the biggest awards. None is a random sample.")
+        usa_new = st.checkbox("Only new awards signed in these dates", value=True, key="usa_new",
+                              help="Uses USAspending's 'new awards only' filter: awards first signed in the period. Work on some starts "
+                                   "later. Off: also includes older awards with any activity in the period, such as a modification.")
         if st.button("Load awards", key="usa_load"):
             if not isinstance(usa_dates, (tuple, list)) or len(usa_dates) != 2:
                 st.error("Pick a start and an end date.")
@@ -116,7 +120,7 @@ with st.sidebar:
                 bar = st.progress(0.0, text="Contacting USAspending.gov...")
                 try:
                     _df, _info = usaspending.fetch_awards(
-                        usa_agency, str(usa_dates[0]), str(usa_dates[1]), usa_n, usa_sort,
+                        usa_agency, str(usa_dates[0]), str(usa_dates[1]), usa_n, usa_sort, new_only=usa_new,
                         progress=lambda done, total: bar.progress(min(done / total, 1.0),
                                                                   text=f"{done:,} of up to {total:,} awards"))
                     bar.empty()
@@ -213,10 +217,28 @@ if uploaded_file or big or sample_path or usa:
         _i = usa["info"]
         st.markdown(f"**USAspending.gov contract awards** · {_i['agency']} · {_i['start_date']} to {_i['end_date']} · "
                     f"{raw_df.shape[0]:,} rows × {raw_df.shape[1]} columns · real federal data")
-        st.caption(f"The first {_i['rows']:,} awards, {_i['sort_by'].lower()}"
-                   + (" (more exist for this period)" if _i["more_available"] else " (all awards for this period)")
+        _how = (f"an equal share from each of {_i.get('slices', 1)} parts of the period"
+                if _i["sort_by"] == usaspending.SPREAD else f"the first awards, {_i['sort_by'].lower()}")
+        _which = "new awards signed in the period" if _i.get("new_only") else "awards active in the period"
+        st.caption(f"{_i['rows']:,} {_which}: {_how}"
+                   + (" (more exist)" if _i["more_available"] else " (all there are)")
                    + f", fetched in {_i['seconds']:.0f} seconds. This is not a random sample of the agency's awards. "
                      "duration_days is calculated by the app from the start and end dates.")
+        _d = _i.get("date_issues") or {}
+        _notes = []
+        if _d.get("end_before_start"):
+            _notes.append(f"**{_d['end_before_start']:,}** awards have an end date before the start date, so their "
+                          "duration is left blank (the cleaner then fills it with the median)")
+        if _d.get("same_day"):
+            _notes.append(f"**{_d['same_day']:,}** start and end on the same day (duration 0)")
+        if _notes:
+            st.warning("Date problems in the government's records: " + "; ".join(_notes) + ".")
+        if _d.get("future_start"):
+            st.info(f"**{_d['future_start']:,}** awards are scheduled to start after today: signed now, with work "
+                    "beginning later. That is normal, not an error.")
+        for _m in _i.get("messages", []):
+            if _m.startswith("USAspending did not accept"):
+                st.info(_m)
         st.download_button("Download these awards as CSV", raw_df.to_csv(index=False).encode("utf-8"),
                            file_name="usaspending_awards.csv", mime="text/csv", key="usa_dl")
     elif not big:
