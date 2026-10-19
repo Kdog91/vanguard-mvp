@@ -39,7 +39,11 @@ def _chart(c):
 
 
 def _download(df: pd.DataFrame, filename: str, label: str = "Download as CSV"):
-    st.download_button(label, df.to_csv(index=False).encode("utf-8"), file_name=filename, mime="text/csv")
+    """Download button whose file is named after the dataset and the table, e.g.
+    Department_of_Defense_2025-10-12_to_2026-10-12_award_amount_statistics.csv"""
+    name = f"{st.session_state.get('dataset_label', 'data')}_{filename}"
+    st.download_button(label, df.to_csv(index=False).encode("utf-8"), file_name=name, mime="text/csv",
+                       key=f"dl::{name}::{label}")
 
 
 # =============================== EXPLORE & DESCRIBE ===============================
@@ -62,10 +66,31 @@ def render_explore(df: pd.DataFrame, profile: dict):
             left, right = st.columns(2)
             with left:
                 st.markdown("**Frequency table**")
-                freq = d.frequency_table(df[col], kind)
+                grouped = kind == "numeric" and df[col].nunique() > 15
+                method = "Equal-width ranges"
+                if grouped:
+                    auto_m, auto_why = d.choose_binning(df[col])
+                    pick = st.selectbox("Group values by", d.BIN_METHODS, key="uni_bins",
+                                        format_func=lambda m: f"Auto ({auto_m.lower()})" if m == "Auto" else m,
+                                        help="Equal-width: ranges of the same size. Equal-count: each group holds "
+                                             "about the same number of rows. Log-scale: ranges grow by powers of ten, "
+                                             "best when a few values are huge.")
+                    method = auto_m if pick == "Auto" else pick
+                    if method.startswith("Log") and df[col].min() < 0:
+                        st.caption("Log-scale ranges need values of zero or more; using equal-count groups instead.")
+                        method = "Equal-count groups (quantiles)"
+                freq = d.frequency_table(df[col], kind, method=method)
                 st.dataframe(freq, hide_index=True, width="stretch")
-                if kind == "numeric" and df[col].nunique() > 15:
-                    st.caption("Values grouped into ranges (Sturges' rule) because there are too many distinct values to count one by one.")
+                _download(freq, f"{col}_frequency_table.csv", "Download frequency table")
+                if grouped:
+                    if pick == "Auto":
+                        st.caption(f"Grouped as **{auto_m.lower()}** because {auto_why}.")
+                    elif method.startswith("Equal-width"):
+                        st.caption("Values grouped into equal-width ranges (Sturges' rule for the number of ranges).")
+                    elif method.startswith("Equal-count"):
+                        st.caption("Each group holds about the same number of rows, so the ranges differ in width.")
+                    else:
+                        st.caption("Ranges grow by powers of ten (100, 1,000, 10,000...). Zeros get their own row.")
             with right:
                 st.markdown("**Statistical measures**")
                 stats_df = d.summary_stats(df[col]) if kind == "numeric" else d.categorical_stats(df[col])
@@ -74,6 +99,7 @@ def render_explore(df: pd.DataFrame, profile: dict):
                 else:
                     stats_df["Value"] = stats_df["Value"].astype(str)
                 st.dataframe(stats_df, hide_index=True, width="stretch")
+                _download(stats_df, f"{col}_statistics.csv", "Download statistics")
 
             st.markdown("**Charts**")
             if kind == "numeric":
@@ -141,6 +167,7 @@ def render_explore(df: pd.DataFrame, profile: dict):
                 m = d.bivariate_numeric(df, a, b)
                 m["Value"] = m["Value"].map(lambda v: f"{v:,.4f}")
                 st.dataframe(m, hide_index=True, width="stretch")
+                _download(m, f"{a}_vs_{b}_relationship.csv", "Download relationship measures")
                 rec, why = recommend.two_numeric(df, a, b)
                 choice = _pick_chart(["Scatter plot", "Line chart", "Area chart"], rec, why, f"bi_chart_{a}_{b}")
                 if choice == "Scatter plot":

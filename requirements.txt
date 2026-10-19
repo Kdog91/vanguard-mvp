@@ -6,3 +6,5 @@ openpyxl
 scipy
 statsmodels
 duckdb
+python-docx
+matplotlib

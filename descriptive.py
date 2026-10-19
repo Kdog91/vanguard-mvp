@@ -86,17 +86,68 @@ def _sorted_categories(series: pd.Series):
     return series.value_counts().index.tolist()  # most frequent first
 
 
-def frequency_table(series: pd.Series, kind: str, bins: int | None = None) -> pd.DataFrame:
+BIN_METHODS = ["Auto", "Equal-width ranges", "Equal-count groups (quantiles)", "Log-scale ranges"]
+
+
+def choose_binning(series: pd.Series) -> tuple[str, str]:
+    """Pick how to group a numeric column, and say why.
+    Equal-width ranges suit roughly symmetric data. For very lopsided data (a few huge values),
+    equal-width ranges put almost everything in the first range, so use log-scale ranges when all
+    values are zero or more, otherwise equal-count groups."""
+    s = series.dropna().astype(float)
+    if len(s) < 3:
+        return "Equal-width ranges", "there are too few values to judge the shape"
+    skew = float(s.skew())
+    if abs(skew) <= 2:
+        return "Equal-width ranges", f"the values are fairly balanced (skewness {skew:.1f})"
+    if s.min() >= 0 and (s > 0).sum() >= 3:
+        return "Log-scale ranges", (f"a few very large values (skewness {skew:.1f}) would put almost everything "
+                                    "in the first equal-width range; log-scale ranges grow by powers of ten")
+    return "Equal-count groups (quantiles)", (f"the values are very lopsided (skewness {skew:.1f}), so each group "
+                                              "holds about the same number of rows")
+
+
+def _fmt_edge(v: float) -> str:
+    return f"{v:,.0f}" if abs(v) >= 100 else f"{v:,.2f}"
+
+
+def frequency_table(series: pd.Series, kind: str, bins: int | None = None, method: str = "Equal-width ranges") -> pd.DataFrame:
     """Absolute, relative, and cumulative frequencies.
-    Numeric columns with many distinct values are grouped into bins (Sturges' rule by default)."""
+    Numeric columns with many distinct values are grouped. method is one of BIN_METHODS
+    ("Auto" picks with choose_binning). Equal-width uses Sturges' rule for the number of ranges."""
     s = series.dropna()
     if kind == "numeric" and s.nunique() > 15:
+        s = s.astype(float)
+        if method == "Auto":
+            method = choose_binning(s)[0]
         k = bins or int(np.ceil(np.log2(len(s)) + 1))  # Sturges' rule
         lo, hi = float(s.min()), float(s.max())
-        edges = np.linspace(lo, hi, k + 1)       # bins start at the real minimum, not below it
-        binned = pd.cut(s, bins=edges, include_lowest=True)
+        if method.startswith("Equal-count"):
+            edges = np.unique(np.quantile(s, np.linspace(0, 1, min(k, 10) + 1)))
+        elif method.startswith("Log") and lo >= 0 and (s > 0).any():
+            pos = s[s > 0]
+            a, b = np.floor(np.log10(pos.min())), np.ceil(np.log10(pos.max()))
+            if b <= a:
+                b = a + 1
+            edges = 10.0 ** np.arange(a, b + 1)
+            edges[-1] = max(edges[-1], hi)
+            if lo == 0:
+                edges = np.concatenate([[0.0], edges])
+        else:
+            edges = np.linspace(lo, hi, k + 1)   # bins start at the real minimum, not below it
+        if len(edges) < 2:
+            edges = np.array([lo, hi if hi > lo else lo + 1])
+        binned = pd.cut(s, bins=edges, include_lowest=True, duplicates="drop")
         counts = binned.value_counts().sort_index()
-        labels = [f"{edges[i]:,.2f} – {edges[i + 1]:,.2f}" for i in range(len(counts))]
+        e = list(edges)
+        labels = []
+        for i, iv in enumerate(counts.index):
+            left, right = iv.left, iv.right
+            if method.startswith("Log") and lo == 0 and i == 0:
+                labels.append("0 (zero)")
+            else:
+                left = max(left, lo) if i == 0 else left
+                labels.append(f"{_fmt_edge(left)} – {_fmt_edge(min(right, hi))}")
     elif kind == "numeric":
         counts = s.value_counts().sort_index()
         labels = [str(v) for v in counts.index]
@@ -135,6 +186,7 @@ def summary_stats(series: pd.Series) -> pd.DataFrame:
         ("Interquartile range (IQR)", q3 - q1, "Spread of the middle 50%"),
         ("Variance", s.var(), "Average squared distance from the mean"),
         ("Standard deviation", s.std(), "Typical distance from the mean"),
+        ("Mean absolute deviation", (s - mean).abs().mean(), "Average distance from the mean, without squaring"),
         ("Coefficient of variation (%)", (s.std() / mean * 100) if mean else np.nan, "Std. deviation relative to the mean"),
         ("Skewness", s.skew(), "0 = symmetric; > 0 = long tail to the right; < 0 = long tail to the left"),
         ("Kurtosis", s.kurt(), "0 = normal-like tails; > 0 = heavier tails / more outliers"),

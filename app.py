@@ -29,6 +29,7 @@ LOGO = os.path.join(HERE, "assets", "logo_mark.png")
 SAMPLES = {
     "Contracts (305 rows)": "sample_contracts.csv",
     "Awards over time (1,383 rows)": "sample_awards_timeseries.csv",
+    "Multi-site measurements (401 rows)": "sample_multisite_measurements.csv",
 }
 
 st.set_page_config(page_title="Vanguard Data Analytics | GovData Analytics",
@@ -213,6 +214,21 @@ if uploaded_file or big or sample_path or usa:
             st.error(f"Could not read file: {e}")
             st.stop()
 
+    # A short name for this dataset, used to name every downloaded file (e.g. Department_of_Defense_2025-10-12_to_2026-10-12)
+    import re as _re_lbl
+    if usa:
+        _lbl = f"{usa['info']['agency']}_{usa['info']['start_date']}_to_{usa['info']['end_date']}"
+    elif sample_path:
+        _lbl = os.path.splitext(os.path.basename(sample_path))[0]
+        _lbl = _lbl if _lbl.startswith("sample") else "sample_" + _lbl
+    elif big:
+        _lbl = os.path.splitext(os.path.basename(big["path"]))[0]
+    elif uploaded_file is not None:
+        _lbl = os.path.splitext(uploaded_file.name)[0]
+    else:
+        _lbl = os.path.splitext(os.path.basename(local_path or "data"))[0]
+    st.session_state["dataset_label"] = _re_lbl.sub(r"[^A-Za-z0-9._-]+", "_", _lbl).strip("_")[:80] or "data"
+
     if usa:
         _i = usa["info"]
         st.markdown(f"**USAspending.gov contract awards** · {_i['agency']} · {_i['start_date']} to {_i['end_date']} · "
@@ -240,11 +256,16 @@ if uploaded_file or big or sample_path or usa:
             if _m.startswith("USAspending did not accept"):
                 st.info(_m)
         st.download_button("Download these awards as CSV", raw_df.to_csv(index=False).encode("utf-8"),
-                           file_name="usaspending_awards.csv", mime="text/csv", key="usa_dl")
+                           file_name=f"{st.session_state['dataset_label']}_awards_raw.csv", mime="text/csv", key="usa_dl")
     elif not big:
         src_name = os.path.basename(sample_path) if sample_path else uploaded_file.name
         st.markdown(f"**{src_name}** · loaded {raw_df.shape[0]:,} rows × {raw_df.shape[1]} columns"
                     + (" · sample data (synthetic)" if sample_path else ""))
+    if raw_df.shape[1] < 2 or len(raw_df) < 3:
+        st.warning("This file doesn't look like a data table (it has "
+                   f"{len(raw_df):,} rows and {raw_df.shape[1]} column{'s' if raw_df.shape[1] != 1 else ''}). "
+                   "The app works best with one row per record and one column per field, such as a CSV or "
+                   "spreadsheet export. Results below may not be meaningful.")
     with st.expander("Preview raw data"):
         st.dataframe(raw_df.head(20))
 
@@ -278,6 +299,42 @@ if uploaded_file or big or sample_path or usa:
 
     with st.expander("Preview cleaned data"):
         st.dataframe(clean_df.head(20))
+
+    # --- One-click Word report ---
+    _rep_key = f"report::{st.session_state['dataset_label']}::{raw_df.shape}::{clean_df.shape}"
+    rc1, rc2 = st.columns([1, 2])
+    with rc1:
+        if st.button("Build report (Word)", help="A shareable summary: what was loaded, what the cleaning changed, "
+                                                  "and a plain-language description of each column with charts."):
+            from report import build_report
+            if usa:
+                _src = (f"Source: USAspending.gov contract awards, {usa['info']['agency']}, "
+                        f"{usa['info']['start_date']} to {usa['info']['end_date']}. Not a random sample of the agency's awards.")
+            elif big:
+                _src = f"Source: {os.path.basename(big['path'])} (random sample of {len(raw_df):,} rows from a larger file)."
+            elif sample_path:
+                _src = f"Source: {os.path.basename(sample_path)} (synthetic sample data)."
+            else:
+                _src = f"Source: {uploaded_file.name if uploaded_file is not None else 'uploaded file'}."
+            _notes = []
+            _di = (usa or {}).get("info", {}).get("date_issues") or {}
+            if _di.get("end_before_start"):
+                _notes.append(f"{_di['end_before_start']:,} records have an end date before the start date in the source.")
+            if _di.get("same_day"):
+                _notes.append(f"{_di['same_day']:,} records start and end on the same day.")
+            if _di.get("future_start"):
+                _notes.append(f"{_di['future_start']:,} records are scheduled to start after today (normal for new awards).")
+            with st.spinner("Building report..."):
+                st.session_state[_rep_key] = build_report(
+                    st.session_state["dataset_label"], _src, raw_df, clean_df, profile, report,
+                    {"rows_after": len(clean_df), "cols_kept": clean_df.shape[1], "cols_raw": raw_df.shape[1],
+                     "rows_removed": len(raw_df) - len(clean_df), "filled": filled, "flagged": flagged}, _notes)
+    with rc2:
+        if st.session_state.get(_rep_key):
+            st.download_button("Download report (.docx)", st.session_state[_rep_key],
+                               file_name=f"{st.session_state['dataset_label']}_report.docx",
+                               mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                               key="report_dl")
 
     if big:
         st.subheader("Clean the full file")
@@ -325,18 +382,25 @@ if uploaded_file or big or sample_path or usa:
         mode = st.radio(
             "What do you want to do with this data?",
             ["Explore & describe", "Prepare & transform", "Predict a target variable", "Forecast future values",
-             "Find hidden groups", "Detect anomalies", "Test statistical significance"],
+             "Find hidden groups", "Detect anomalies", "Test statistical significance",
+             "Combine & standardize sources"],
             captions=["Frequency tables, statistics, charts", "Data quality, scale types, normalize, PCA",
                       "Regression or classification", "Time series; needs a date column",
                       "Clustering; no target needed", "Flag statistical outliers",
-                      "Is this pattern real, or just noise?"],
+                      "Is this pattern real, or just noise?",
+                      "Make sites, labs or methods comparable; one index"],
             label_visibility="collapsed",
         )
     section("3 · Analysis")
     st.subheader(mode)
 
+    # ===================== COMBINE & STANDARDIZE =====================
+    if mode.startswith("Combine"):
+        from standardize_ui import render_standardize
+        render_standardize(clean_df, profile, st.session_state.get("dataset_label", "data"))
+
     # ===================== EXPLORE & DESCRIBE =====================
-    if mode.startswith("Explore"):
+    elif mode.startswith("Explore"):
         render_explore(clean_df, profile)
 
     # ===================== PREPARE & TRANSFORM =====================
@@ -488,7 +552,7 @@ if uploaded_file or big or sample_path or usa:
                 out["Period"] = out["Period"].dt.strftime("%Y-%m-%d")
                 st.dataframe(out.round(2), hide_index=True)
                 st.download_button("Download forecast as CSV", out.round(2).to_csv(index=False),
-                                   file_name="forecast.csv", mime="text/csv")
+                                   file_name=f"{st.session_state.get('dataset_label', 'data')}_forecast.csv", mime="text/csv")
 
                 st.write("**Method comparison** (lower error = better; sorted best first):")
                 st.dataframe(fc["comparison"].round(2), hide_index=True)
