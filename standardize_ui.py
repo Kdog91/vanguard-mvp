@@ -5,6 +5,8 @@ import pandas as pd
 import streamlit as st
 
 import standardize as sz
+from charts import forecast_chart
+from forecasting import run_forecast
 from data_cleaner import load_file
 from explore_ui import _download
 
@@ -100,7 +102,7 @@ def render_standardize(clean_df: pd.DataFrame, profile: dict, source_name: str):
     m[1].metric("Series", f"{sm['series']:,}", help="A series is one source measured one way.")
     m[2].metric("Outliers flagged", f"{sm['outliers']:,}")
     m[3].metric(f"Gaps over {gap_days} days", f"{sm['gaps']:,}")
-    m[4].metric("Possible step changes", f"{sm['step_changes']:,}", help="A lasting jump against the other series, "
+    m[4].metric("Step changes", f"{sm['step_changes']:,}", help="A lasting jump against the other series, "
                                                                           "often a lab or method switch. Check these.")
     notes = [f"{sm['rows_used']:,} of {sm['rows_in']:,} readings used"]
     if sm["dropped_missing"]:
@@ -115,16 +117,21 @@ def render_standardize(clean_df: pd.DataFrame, profile: dict, source_name: str):
     st.markdown("**Combined index**")
     base = alt.Chart(idx).encode(x=alt.X("period:T", title=None))
     line = base.mark_line(color=BLUE, strokeWidth=2).encode(
-        y=alt.Y("index:Q", title="Index (robust z: 0 = typical, +1 = one spread above)"),
+        y=alt.Y("index:Q", title="Index (0 = typical)"),
         tooltip=[alt.Tooltip("period:T", title="Period"), alt.Tooltip("index:Q", title="Index", format=".2f"),
                  alt.Tooltip("sources:Q", title="Series reporting")])
     zero = alt.Chart(pd.DataFrame({"y": [0]})).mark_rule(color="#a3a29c", strokeDash=[4, 4]).encode(y="y:Q")
     st.altair_chart((zero + line).properties(height=300), width="stretch")
     st.caption(f"Each period's value is the {sm['index_method']} of the series' averages. "
-               "Hover to see how many series reported; fewer series means a less certain value.")
+               "0 is the region's typical level; +1 is one typical spread above it. Hover to see how many "
+               "series reported; fewer series means a less certain value.")
+
+    _forecast_index(idx, period)
 
     st.markdown("**Quality check by series**")
-    st.dataframe(qa, hide_index=True, width="stretch")
+    qa_show = qa.copy()
+    qa_show["Step size (z)"] = qa["Step size (z)"].map(lambda v: "" if pd.isna(v) else f"{v:.2f}")
+    st.dataframe(qa_show, hide_index=True, width="stretch")
 
     st.markdown("**Look at one series**")
     pick = st.selectbox("Series", qa["Series"].tolist(), key="sz_pick",
@@ -150,3 +157,48 @@ def render_standardize(clean_df: pd.DataFrame, profile: dict, source_name: str):
         _download(qa, "quality_by_series.csv", "Download quality table")
     with d3:
         _download(idx, "combined_index.csv", "Download index")
+
+def _forecast_index(idx: pd.DataFrame, period: str):
+    """Forecast the combined index a few periods ahead, tested against a naive guess."""
+    st.markdown("**Forecast this index**")
+    if len(idx) < 12:
+        st.caption("Forecasting needs at least 12 periods of index values.")
+        return
+    unit = {"W": "week", "M": "month"}[period]
+    f1, f2 = st.columns([1, 2])
+    horizon = f1.number_input(f"{unit.capitalize()}s ahead", 1, 12, 4 if period == "W" else 3, key="sz_h")
+    if not f2.button("Forecast this index", key="sz_fc", type="primary"):
+        st.caption("Compares several forecasting methods on the most recent periods (held back, so the methods never "
+                   "see them), then forecasts with the one that did best.")
+        return
+    s = idx.set_index("period")["index"].astype(float).sort_index()
+    rule = "W-MON" if period == "W" else "MS"
+    s = s.resample(rule).mean().interpolate(limit_area="inside")
+    s.index.freq = None
+    try:
+        with st.spinner("Comparing forecasting methods..."):
+            fc = run_forecast(s, int(horizon), "Week" if period == "W" else "Month")
+    except Exception as e:
+        st.error(f"Forecast failed: {e}")
+        return
+    comp = fc["comparison"]
+    best = comp.iloc[0]
+    naive = comp[comp["Method"].str.startswith("Naive")]
+    if len(naive) and best["Method"] != naive.iloc[0]["Method"]:
+        gain = (1 - best["MAE"] / naive.iloc[0]["MAE"]) * 100 if naive.iloc[0]["MAE"] else 0
+        verdict = (f"It beat the simple guess (next {unit} = this {unit}) by {gain:.0f}% on the held-back {unit}s."
+                   if gain > 0 else "It was no better than the simple guess (next = this).")
+    else:
+        verdict = (f"No method beat the simple guess (next {unit} = this {unit}), so the forecast repeats the latest "
+                   "value. That is an honest baseline, not a failure: it is what better models must beat.")
+    st.success(f"**Best method: {best['Method']}**, typically off by {best['MAE']:.2f} index points on the last "
+               f"{fc['holdout']} {unit}s. {verdict}")
+    st.altair_chart(forecast_chart(fc["history"], fc["forecast"], "Index"), width="stretch")
+    st.caption("Shaded band = rough range, from how far off the method was on the held-back periods. "
+               "A guide, not a guarantee.")
+    out = fc["forecast"].copy()
+    out["Period"] = out["Period"].dt.strftime("%Y-%m-%d")
+    st.dataframe(out.round(2), hide_index=True, width="stretch")
+    with st.expander("Method comparison"):
+        st.dataframe(comp.drop(columns=["MAPE (%)"], errors="ignore").round(3), hide_index=True, width="stretch")
+    _download(out.round(3), "index_forecast.csv", "Download index forecast")
