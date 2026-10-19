@@ -36,7 +36,7 @@ ORDINAL_VOCABS = [
 ]
 
 SCALE_EXPLANATIONS = {
-    "nominal": "Categories with no order (e.g. agency). Count them; don't average them.",
+    "nominal": "Categories with no order (e.g. region or store). Count them; don't average them.",
     "ordinal": "Ordered categories (e.g. Low < Medium < High). Rank them; gaps aren't equal.",
     "interval": "Numbers with equal gaps but no true zero (e.g. dates, temperature °F).",
     "ratio": "Numbers with a true zero (e.g. cost, days). All math is meaningful.",
@@ -221,7 +221,7 @@ def crosstab(df: pd.DataFrame, a: str, b: str, normalize: str | None = None) -> 
 
 
 def group_summary(df: pd.DataFrame, group_col: str, value_col: str) -> pd.DataFrame:
-    """Summarize a numeric column within each category ('average cost by agency')."""
+    """Summarize a numeric column within each category ('average sales by store')."""
     g = df.groupby(group_col)[value_col]
     out = pd.DataFrame({
         "Count": g.count(), "Mean": g.mean(), "Median": g.median(),

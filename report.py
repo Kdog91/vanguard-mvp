@@ -115,7 +115,7 @@ def build_report(dataset_label: str, source_line: str, raw_df: pd.DataFrame, cle
     h.runs[0].font.color.rgb = NAVY
     p = doc.add_paragraph()
     p.add_run(dataset_label.replace("_", " ")).bold = True
-    doc.add_paragraph(f"{source_line}\nPrepared {date.today():%B %d, %Y} with GovData Analytics, "
+    doc.add_paragraph(f"{source_line}\nPrepared {date.today():%B %d, %Y} with Vanguard Analytics, "
                       "Vanguard Data Analytics LLC.")
 
     # ---- summary ----

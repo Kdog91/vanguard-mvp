@@ -92,7 +92,7 @@ def _post(body: dict, url: str, timeout: int = 60, retries: int = 2) -> dict:
     for attempt in range(retries + 1):
         req = urllib.request.Request(url, data=data, method="POST",
                                      headers={"Content-Type": "application/json",
-                                              "User-Agent": "VanguardDataAnalytics-GovData/1.0"})
+                                              "User-Agent": "VanguardAnalytics/1.0"})
         try:
             with urllib.request.urlopen(req, timeout=timeout) as resp:
                 return json.loads(resp.read().decode("utf-8"))

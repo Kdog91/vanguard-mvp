@@ -131,7 +131,7 @@ def auto_profile_columns(df: pd.DataFrame) -> dict:
         else:
             # Try datetime parse only if column name/content hints at a date
             # (avoids false-positive datetime parsing of generic ID/text columns)
-            looks_date_like = any(k in col.lower() for k in ("date", "time", "_dt", "timestamp"))
+            looks_date_like = any(k in col.lower() for k in ("date", "time", "_dt", "timestamp", "week", "month", "period", "day"))
             if looks_date_like:
                 try:
                     import warnings

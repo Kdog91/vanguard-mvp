@@ -1,5 +1,5 @@
 """
-GovData Analytics — MVP
+Vanguard Analytics: clean, describe, predict and forecast any tabular data.
 Universal data cleaner, descriptive analytics, model selector, forecasting,
 clustering, anomaly detection and significance tests.
 """
@@ -27,12 +27,14 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ON_CLOUD = HERE.replace("\\", "/").startswith("/mount/src")   # Streamlit Community Cloud: no access to the visitor's disk
 LOGO = os.path.join(HERE, "assets", "logo_mark.png")
 SAMPLES = {
-    "Contracts (305 rows)": "sample_contracts.csv",
-    "Awards over time (1,383 rows)": "sample_awards_timeseries.csv",
+    "Retail sales by store (2,316 rows)": "sample_retail_sales.csv",
+    "Clinic visits (1,641 rows)": "sample_clinic_visits.csv",
     "Multi-site measurements (401 rows)": "sample_multisite_measurements.csv",
+    "Government contracts (305 rows)": "sample_contracts.csv",
+    "Contract awards over time (1,383 rows)": "sample_awards_timeseries.csv",
 }
 
-st.set_page_config(page_title="Vanguard Data Analytics | GovData Analytics",
+st.set_page_config(page_title="Vanguard Analytics",
                    page_icon=LOGO if os.path.exists(LOGO) else None, layout="wide")
 
 st.markdown("""
@@ -56,7 +58,7 @@ head_logo, head_text = st.columns([1, 14], vertical_alignment="center")
 if os.path.exists(LOGO):
     head_logo.image(LOGO, width=64)
 head_text.markdown('<div class="vg-brand"><div><div class="name">Vanguard Data Analytics</div>'
-                   '<div class="by">GovData Analytics · clean, describe, predict and forecast from one file</div>'
+                   '<div class="by">Vanguard Analytics · clean, describe, predict and forecast any data file</div>'
                    '</div></div>', unsafe_allow_html=True)
 
 
@@ -99,7 +101,7 @@ with st.sidebar:
                                      help="CSV, TSV, TXT, Excel, JSON or Parquet, up to 200 MB.")
     sample_choice = st.selectbox("Or try sample data", ["None"] + list(SAMPLES), key="sample_choice",
                                  help="Made-up data that ships with the app, so you can see every feature work.")
-    with st.expander("Federal contract awards (USAspending.gov)"):
+    with st.expander("Public data: U.S. federal contract awards"):
         st.caption("Real awards from the U.S. Treasury's public database. No account needed.")
         usa_agency = st.selectbox("Awarding agency", usaspending.AGENCIES, key="usa_agency")
         _today = pd.Timestamp.today().normalize()
@@ -248,7 +250,7 @@ if uploaded_file or big or sample_path or usa:
         if _d.get("same_day"):
             _notes.append(f"**{_d['same_day']:,}** start and end on the same day (duration 0)")
         if _notes:
-            st.warning("Date problems in the government's records: " + "; ".join(_notes) + ".")
+            st.warning("Date problems in the source records: " + "; ".join(_notes) + ".")
         if _d.get("future_start"):
             st.info(f"**{_d['future_start']:,}** awards are scheduled to start after today: signed now, with work "
                     "beginning later. That is normal, not an error.")
@@ -569,10 +571,10 @@ if uploaded_file or big or sample_path or usa:
     # ===================== MODE 2: CLUSTERING =====================
     elif mode.startswith("Find hidden groups"):
         st.write("This mode groups similar rows together automatically — no target column needed. "
-                 "Useful for finding patterns like 'high-risk vendor clusters' without pre-labeling anything.")
+                 "Useful for finding customer segments, similar sites or risk groups without labeling anything first.")
 
         use_cats = st.checkbox("Also use category columns (not just numbers)", key="clu_cats",
-                               help="Off: group rows by their numeric columns only. On: categories such as agency "
+                               help="Off: group rows by their numeric columns only. On: categories such as region or store "
                                     "also count toward which rows are similar.")
         if st.button("Run Clustering", type="primary"):
             with st.spinner("Testing multiple cluster counts and scoring each with Silhouette Score..."):
@@ -607,7 +609,7 @@ if uploaded_file or big or sample_path or usa:
     # ===================== MODE 3: ANOMALY DETECTION =====================
     elif mode.startswith("Detect anomalies"):
         st.write("This mode flags statistical outliers — rows that look very different from the rest of "
-                 "the dataset. Useful for catching a single unusually large contract hidden among thousands "
+                 "the dataset. Useful for catching an unusual transaction, reading or record hidden among thousands "
                  "of normal ones.")
 
         contamination = st.slider(
@@ -643,7 +645,7 @@ if uploaded_file or big or sample_path or usa:
     # ===================== MODE 4: HYPOTHESIS TESTING =====================
     elif mode.startswith("Test statistical"):
         st.write("This mode checks whether a pattern is **statistically real or could be random chance** — "
-                 "useful before acting on a finding, e.g. 'do agencies really differ in average contract cost?'")
+                 "useful before acting on a finding, e.g. 'do stores really differ in average sales?'")
         numeric_cols = [c for c, t in profile.items() if t == "numeric"]
         categorical_cols = [c for c, t in profile.items() if t == "categorical"]
 
@@ -728,14 +730,14 @@ else:
                      "most recent periods."),
         ("Find patterns", "Groups similar rows, flags unusual ones, and tests whether a difference is real "
                           "or just chance."),
-        ("Large files", "Scans and cleans files with millions of rows from disk on a single machine; charts "
-                        "and models run on a random sample."),
+        ("Combine sources", "Makes data from different sites, stores, labs or methods comparable, flags bad "
+                            "readings and sudden shifts, and combines them into one index you can forecast."),
     ]
     for row in (cards[:3], cards[3:]):
         cols = st.columns(3)
         for col, (title, text) in zip(cols, row):
             col.markdown(f'<div class="vg-card"><h4>{title}</h4><p>{text}</p></div>', unsafe_allow_html=True)
         st.write("")
-    st.caption("Accepts CSV, TSV, TXT, Excel, JSON and Parquet. Runs on one computer; distributed processing, "
+    st.caption("Accepts CSV, TSV, TXT, Excel, JSON and Parquet, including files with millions of rows. Runs on one computer; distributed processing, "
                "neural networks and association rules are on the roadmap, not built yet. "
-               "Sample files are synthetic.")
+               "Works with data from any field: sales, health, operations, finance, public records. Sample files are synthetic.")
