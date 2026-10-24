@@ -12,13 +12,14 @@ BLUE = "#2a78d6"
 SENT_COLORS = alt.Scale(domain=["Negative", "Neutral", "Positive"], range=["#e34948", "#a3a29c", "#2a78d6"])
 
 
-def _bars(df: pd.DataFrame, label: str, value: str, title: str, color: str = BLUE):
+def _bars(df: pd.DataFrame, label: str, value: str, title: str, color: str = BLUE, label_title: str | None = None):
     d = pd.DataFrame({"Label": df[label].astype(str).values, "Value": df[value].values})
-    h = max(160, 24 * len(d))
+    name = label_title or label
     return alt.Chart(d).mark_bar(color=color, cornerRadiusTopRight=3, cornerRadiusBottomRight=3).encode(
-        y=alt.Y("Label:N", sort=None, title=None), x=alt.X("Value:Q", title=value),
-        tooltip=[alt.Tooltip("Label:N", title=label), alt.Tooltip("Value:Q", title=value, format=",.2f")],
-    ).properties(height=h, title=title)
+        y=alt.Y("Label:N", sort=None, title=None, axis=alt.Axis(labelOverlap=False, labelLimit=220)),
+        x=alt.X("Value:Q", title=value),
+        tooltip=[alt.Tooltip("Label:N", title=name), alt.Tooltip("Value:Q", title=value, format=",.2f")],
+    ).properties(height=alt.Step(24), title=title)
 
 
 # =============================== GROUP & SUMMARIZE ===============================
@@ -45,8 +46,10 @@ def render_group(df: pd.DataFrame, profile: dict):
                 period = c2.selectbox("Period", [p for p in grouping.PERIODS if p != "(use exact dates)"],
                                       index=2, key="gb_period")
         c3, c4 = st.columns(2)
-        values = c3.multiselect("Numbers to summarize", num, default=num[:1], key="gb_vals")
-        funcs = c4.multiselect("Calculations", list(grouping.FUNCS), default=["Total (sum)", "Average (mean)"],
+        money = [c for c in num if any(k in c.lower() for k in ("revenue", "sales", "amount", "cost", "price", "spend",
+                                                                  "balance", "obligat", "units", "visits", "value"))]
+        values = c3.multiselect("Numbers to summarize", num, default=(money or num)[:1], key="gb_vals")
+        funcs = c4.multiselect("Calculations", list(grouping.FUNCS), default=["Average (mean)", "Total (sum)"],
                                key="gb_funcs")
         if not by and not date_col:
             st.info("Pick a column to group by, or a date column and period.")
@@ -72,9 +75,9 @@ def render_group(df: pd.DataFrame, profile: dict):
                 ).properties(height=300), width="stretch")
             else:
                 top = plot.head(25)
-                st.altair_chart(_bars(top, "_label", metric, f"{metric} by group"
-                                      + (" (top 25)" if len(plot) > 25 else "")).encode(
-                    y=alt.Y("Label:N", sort=None, title=" | ".join(label_cols))), width="stretch")
+                grp = " | ".join(label_cols)
+                st.altair_chart(_bars(top, "_label", metric, f"{metric} by {grp}"
+                                      + (" (top 25)" if len(plot) > 25 else ""), label_title=grp), width="stretch")
 
     with tab_p:
         if not num:
