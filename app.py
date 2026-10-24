@@ -518,30 +518,23 @@ if uploaded_file or big or sample_path or usa or web:
                     st.download_button("Download cleaned file (Parquet)", f,
                                        file_name=os.path.basename(full["out_path"]))
 
-    # --- Step 3: Choose analysis mode (sidebar) ---
+    # --- Step 3: Choose analysis mode (sidebar), led by a plain-language goal picker ---
+    import guide
+    if st.session_state.get("mode") not in guide.MODES:
+        st.session_state["mode"] = "Explore & describe"
     with st.sidebar:
         st.markdown("### Analysis")
-        mode = st.radio(
-            "What do you want to do with this data?",
-            ["Explore & describe", "Business problem & KPIs", "Data pipeline", "Group & summarize", "Prepare & transform", "Predict a target variable",
-             "Forecast future values", "Find hidden groups", "Detect anomalies", "Test statistical significance",
-             "Combine & standardize sources", "Analyze text", "Find items bought together",
-             "Deep learning (Keras)"],
-            captions=["Frequency tables, statistics, charts",
-                      "Problem, requirements, KPIs, feature importance, Word brief",
-                      "Validate, bronze/silver/gold, PII, joins, SQL, schedule",
-                      "Group by, totals, averages, pivot tables",
-                      "Data quality, scale types, normalize, PCA",
-                      "Regression or classification", "Time series; needs a date column",
-                      "Clustering; no target needed", "Flag statistical outliers",
-                      "Is this pattern real, or just noise?",
-                      "Make sites, labs or methods comparable; one index",
-                      "Sentiment and common words in comments", "Cross-sell: what sells with what",
-                      "Neural networks, image CNN, deep Q-learning"],
-            label_visibility="collapsed",
-        )
+        show_adv = st.toggle("Show advanced tools", key="show_advanced",
+                             help="Clustering, data preparation, pipelines, combining sources and deep learning.")
+        options = guide.everyday() + (guide.advanced() if show_adv else [])
+        if st.session_state["mode"] not in options:
+            options = options + [st.session_state["mode"]]
+        mode = st.radio("What do you want to do with this data?", options, key="mode",
+                        captions=[guide.MODES[m][0] for m in options], label_visibility="collapsed")
     section("3 · Analysis")
+    guide.render_goal_picker(profile, clean_df)
     st.subheader(mode)
+    guide.render_help(mode)
 
     # ===================== COMBINE & STANDARDIZE =====================
     if mode.startswith("Combine"):
@@ -899,6 +892,9 @@ else:
     st.write("")
     st.markdown("#### Turn a raw data file into tested answers, without writing code.")
     st.write("Upload a file in the sidebar, or pick **Or try sample data** there to see it work straight away.")
+    import guide
+    guide.render_start_steps()
+    st.markdown("**What it can do**")
     cards = [
         ("Clean", "Fixes currency text, removes duplicates and identifier columns, fills gaps, flags outliers, "
                   "and reports every change it made."),

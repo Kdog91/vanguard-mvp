@@ -7,6 +7,10 @@ builds tested predictions and forecasts, and writes a shareable report.
 **Live demo:** https://vanguard-mvp-32gx8uhtqp3yelxnwahjdu.streamlit.app
 Built by Kevin Simmons, Vanguard Data Analytics LLC.
 
+## Getting started
+
+After a file loads, **What do you want to know?** offers plain-language goals (for example "Predict next month's numbers" or "See totals by group") that open the right tool, and hides goals the file cannot support. Each tool has a short **How to use this** panel. Everyday tools are listed first; **Show advanced tools** reveals clustering, preparation, pipelines, combining sources and deep learning.
+
 ## What it does
 
 | Step | What happens |
@@ -92,6 +96,7 @@ hosted app; DuckDB covers large files on one computer.
 - `parquet_tools.py`: Parquet compression, partitioned datasets, partition pruning, PySpark export
 - `importance.py`: target balance, correlation with the target, feature importance, Boruta
 - `kpi.py`, `problem_ui.py`: business problem steps, KPIs and the Word brief
+- `guide.py`: goal picker, help panels, everyday vs advanced tools
 - `use_cases.py`: "What can this data answer?"
 - `report.py`: Word report
 - `bigdata.py`: large-file mode (DuckDB)
