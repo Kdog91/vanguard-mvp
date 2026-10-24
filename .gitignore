@@ -4,3 +4,7 @@ __pycache__/
 __pycache__/
 
 big_awards_*
+
+.streamlit/secrets.toml
+
+.streamlit/secrets.toml

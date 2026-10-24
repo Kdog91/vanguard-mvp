@@ -58,6 +58,10 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+import legal
+if legal.route():
+    st.stop()
+
 head_logo, head_text = st.columns([1, 14], vertical_alignment="center")
 if os.path.exists(LOGO):
     head_logo.image(LOGO, width=64)
@@ -98,25 +102,35 @@ def _spool_upload(uploaded):
 
 
 # --- Data source (sidebar) ---
+import auth
 with st.sidebar:
+    auth.render_sidebar()
+    legal.footer_links()
+    _own = auth.can_use_own_data()
     st.markdown("### Data")
-    uploaded_file = st.file_uploader("Upload a file",
-                                     type=["csv", "tsv", "txt", "xlsx", "xls", "json", "jsonl", "ndjson", "parquet", "orc"],
-                                     help="CSV, TSV, TXT, Excel, JSON, Parquet or ORC, up to 200 MB.")
-    with st.form("url_form", border=False):
-        url_in = st.text_input("Or load from a web address", key="url_in",
-                               placeholder="https://raw.githubusercontent.com/.../data.csv",
-                               help="Like pd.read_csv(url): a link straight to a CSV, Excel, JSON or Parquet file. "
-                                    "GitHub page links are converted to the raw file automatically.")
-        url_go = st.form_submit_button("Load from web")
-    if url_go and url_in.strip():
-        try:
-            with st.spinner("Downloading..."):
-                st.session_state["url_data"] = {"df": load_url(url_in), "url": url_in.strip()}
-        except Exception as e:
-            st.error(f"Could not load that address: {e}")
-    from db_ui import render_sidebar_loader
-    render_sidebar_loader()
+    uploaded_file = None
+    url_go, url_in = False, ""
+    if not _own:
+        auth.render_locked()
+        st.session_state.pop("url_data", None)
+    if _own:
+        uploaded_file = st.file_uploader("Upload a file",
+                                         type=["csv", "tsv", "txt", "xlsx", "xls", "json", "jsonl", "ndjson", "parquet", "orc"],
+                                         help="CSV, TSV, TXT, Excel, JSON, Parquet or ORC, up to 200 MB.")
+        with st.form("url_form", border=False):
+            url_in = st.text_input("Or load from a web address", key="url_in",
+                                   placeholder="https://raw.githubusercontent.com/.../data.csv",
+                                   help="Like pd.read_csv(url): a link straight to a CSV, Excel, JSON or Parquet file. "
+                                        "GitHub page links are converted to the raw file automatically.")
+            url_go = st.form_submit_button("Load from web")
+        if url_go and url_in.strip():
+            try:
+                with st.spinner("Downloading..."):
+                    st.session_state["url_data"] = {"df": load_url(url_in), "url": url_in.strip()}
+            except Exception as e:
+                st.error(f"Could not load that address: {e}")
+        from db_ui import render_sidebar_loader
+        render_sidebar_loader()
     if "url_data" in st.session_state:
         st.caption(f"Loaded: {st.session_state['url_data']['url'][:70]}")
         if st.button("Clear loaded data", key="url_clear"):
@@ -166,7 +180,7 @@ with st.sidebar:
     local_path, sample_rows = "", 20_000
     if ON_CLOUD:
         st.caption("Files with millions of rows: run the app on your own computer to read them straight from disk.")
-    else:
+    elif _own:
         with st.expander("Very large file (millions of rows)"):
             local_path = st.text_input(
                 "Full path to the file", placeholder=r"C:\Users\you\data\big_file.csv",

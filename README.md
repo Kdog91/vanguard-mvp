@@ -11,6 +11,13 @@ Built by Kevin Simmons, Vanguard Data Analytics LLC.
 
 After a file loads, **What do you want to know?** offers plain-language goals (for example "Predict next month's numbers" or "See totals by group") that open the right tool, and hides goals the file cannot support. Each tool has a short **How to use this** panel. Everyday tools are listed first; **Show advanced tools** reveals clustering, preparation, pipelines, combining sources and deep learning.
 
+## Sign-in
+
+Sample data and public USAspending data work for everyone. Loading your own data (upload, web address,
+database, large file) requires **Sign in with Google**. Optional `[access]` rules in Secrets limit it to
+approved emails or domains. Setup is described at the top of `auth.py`. Without an `[auth]` section the app
+runs open, for local development.
+
 ## What it does
 
 | Step | What happens |
@@ -96,6 +103,7 @@ hosted app; DuckDB covers large files on one computer.
 - `parquet_tools.py`: Parquet compression, partitioned datasets, partition pruning, PySpark export
 - `importance.py`: target balance, correlation with the target, feature importance, Boruta
 - `kpi.py`, `problem_ui.py`: business problem steps, KPIs and the Word brief
+- `auth.py`: Google sign-in and access rules
 - `guide.py`: goal picker, help panels, everyday vs advanced tools
 - `use_cases.py`: "What can this data answer?"
 - `report.py`: Word report
