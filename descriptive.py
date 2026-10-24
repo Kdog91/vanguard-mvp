@@ -334,7 +334,89 @@ def transform(series: pd.Series, method: str) -> pd.Series:
             raise ValueError("Box-Cox needs strictly positive values.")
         out, _ = stats.boxcox(s.dropna())
         return pd.Series(out, index=s.dropna().index).reindex(s.index)
+    if method == "Yeo-Johnson":            # like Box-Cox, but works with zero and negative values
+        from sklearn.preprocessing import PowerTransformer
+        v = s.dropna()
+        out = PowerTransformer(method="yeo-johnson").fit_transform(v.to_frame()).ravel()
+        return pd.Series(out, index=v.index).reindex(s.index)
+    if method == "Quantile → normal":     # maps the ranks onto a bell curve (Gaussian mapping)
+        from sklearn.preprocessing import QuantileTransformer
+        v = s.dropna()
+        qt = QuantileTransformer(output_distribution="normal", n_quantiles=min(1000, len(v)), random_state=42)
+        out = qt.fit_transform(v.to_frame()).ravel()
+        return pd.Series(out, index=v.index).reindex(s.index)
     raise ValueError(method)
+
+
+GAUSSIAN_METHODS = ["Yeo-Johnson", "Quantile → normal", "Box-Cox"]
+
+
+def normality(series: pd.Series) -> dict:
+    """Skewness, excess kurtosis and a normality test (D'Agostino K², up to 5,000 values)."""
+    v = series.dropna().astype(float)
+    if len(v) > 5000:
+        v = v.sample(5000, random_state=42)
+    p = float(stats.normaltest(v).pvalue) if len(v) >= 20 and v.nunique() > 2 else np.nan
+    return {"Skewness": round(float(v.skew()), 3), "Excess kurtosis": round(float(v.kurt()), 3),
+            "Normality p-value": round(p, 4) if not np.isnan(p) else np.nan}
+
+
+def fit_gaussian(train: pd.DataFrame, cols: list, method: str = "Yeo-Johnson") -> dict:
+    """Learn the Gaussian-mapping parameters on training rows only. Returns {column: (method, fitted transformer)}."""
+    from sklearn.preprocessing import PowerTransformer, QuantileTransformer
+    fitted = {}
+    for c in cols:
+        v = pd.to_numeric(train[c], errors="coerce").dropna()
+        if v.nunique() <= 2:
+            continue
+        m = "Yeo-Johnson" if method == "Box-Cox" and (v <= 0).any() else method
+        if m == "Quantile → normal":
+            t = QuantileTransformer(output_distribution="normal", n_quantiles=min(1000, len(v)), random_state=42)
+        else:
+            t = PowerTransformer(method="box-cox" if m == "Box-Cox" else "yeo-johnson")
+        fitted[c] = (m, t.fit(v.to_frame()))
+    return fitted
+
+
+def apply_gaussian(df: pd.DataFrame, fitted: dict) -> pd.DataFrame:
+    """Apply parameters learned on training data to any data (test rows or a new evaluation file)."""
+    out = df.copy()
+    for c, (m, t) in fitted.items():
+        if c not in out.columns:
+            continue
+        v = pd.to_numeric(out[c], errors="coerce")
+        ok = v.notna() & (v > 0 if m == "Box-Cox" else True)
+        res = pd.Series(np.nan, index=out.index)
+        if ok.any():
+            res[ok] = t.transform(v[ok].to_frame()).ravel()
+        out[c] = res.round(5)
+    return out
+
+
+def fitted_params(fitted: dict) -> pd.DataFrame:
+    rows = []
+    for c, (m, t) in fitted.items():
+        lam = getattr(t, "lambdas_", None)
+        rows.append({"Column": c, "Method": m, "Lambda (λ)": round(float(lam[0]), 4) if lam is not None else "–"})
+    return pd.DataFrame(rows)
+
+
+def map_to_gaussian(df: pd.DataFrame, cols: list, method: str = "Yeo-Johnson"):
+    """Map every chosen numeric column to a Gaussian shape; returns new data and a before/after table."""
+    out, rows = df.copy(), []
+    for c in cols:
+        if df[c].nunique() <= 2:
+            rows.append({"Column": c, "Note": "skipped: only 2 values"})
+            continue
+        m = method
+        if m == "Box-Cox" and (df[c] <= 0).any():
+            m = "Yeo-Johnson"
+        new = transform(df[c], m)
+        b, a = normality(df[c]), normality(new)
+        out[c] = new.round(5)
+        rows.append({"Column": c, "Method": m, "Skew before": b["Skewness"], "Skew after": a["Skewness"],
+                     "Normality p before": b["Normality p-value"], "Normality p after": a["Normality p-value"]})
+    return out, pd.DataFrame(rows)
 
 
 # ---------------------------- dimensionality reduction ----------------------------

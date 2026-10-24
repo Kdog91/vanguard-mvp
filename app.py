@@ -10,7 +10,8 @@ import os
 import time
 import tempfile
 
-from data_cleaner import load_file, clean_dataframe
+from data_cleaner import (load_file, load_url, clean_dataframe, set_header, rename_columns, missing_table,
+                          MISSING_STRATEGIES, TYPE_CHOICES)
 from model_selector import run_pipeline, detect_problem_type
 from unsupervised import run_clustering, run_anomaly_detection
 from explore_ui import render_explore, render_prepare
@@ -32,6 +33,9 @@ SAMPLES = {
     "Multi-site measurements (401 rows)": "sample_multisite_measurements.csv",
     "Government contracts (305 rows)": "sample_contracts.csv",
     "Contract awards over time (1,383 rows)": "sample_awards_timeseries.csv",
+    "Customer reviews (1,200 rows, text)": "sample_customer_reviews.csv",
+    "Store orders (7,176 rows, items per order)": "sample_store_orders.csv",
+    "Bank marketing (4,521 rows, subscribed yes/no)": "sample_bank_marketing.csv",
 }
 
 st.set_page_config(page_title="Vanguard Analytics",
@@ -57,8 +61,8 @@ st.markdown("""
 head_logo, head_text = st.columns([1, 14], vertical_alignment="center")
 if os.path.exists(LOGO):
     head_logo.image(LOGO, width=64)
-head_text.markdown('<div class="vg-brand"><div><div class="name">Vanguard Data Analytics</div>'
-                   '<div class="by">Vanguard Analytics · clean, describe, predict and forecast any data file</div>'
+head_text.markdown('<div class="vg-brand"><div><div class="name">Vanguard Analytics</div>'
+                   '<div class="by">by Vanguard Data Analytics LLC · clean, describe, predict and forecast any data file</div>'
                    '</div></div>', unsafe_allow_html=True)
 
 
@@ -97,8 +101,27 @@ def _spool_upload(uploaded):
 with st.sidebar:
     st.markdown("### Data")
     uploaded_file = st.file_uploader("Upload a file",
-                                     type=["csv", "tsv", "txt", "xlsx", "xls", "json", "jsonl", "ndjson", "parquet"],
-                                     help="CSV, TSV, TXT, Excel, JSON or Parquet, up to 200 MB.")
+                                     type=["csv", "tsv", "txt", "xlsx", "xls", "json", "jsonl", "ndjson", "parquet", "orc"],
+                                     help="CSV, TSV, TXT, Excel, JSON, Parquet or ORC, up to 200 MB.")
+    with st.form("url_form", border=False):
+        url_in = st.text_input("Or load from a web address", key="url_in",
+                               placeholder="https://raw.githubusercontent.com/.../data.csv",
+                               help="Like pd.read_csv(url): a link straight to a CSV, Excel, JSON or Parquet file. "
+                                    "GitHub page links are converted to the raw file automatically.")
+        url_go = st.form_submit_button("Load from web")
+    if url_go and url_in.strip():
+        try:
+            with st.spinner("Downloading..."):
+                st.session_state["url_data"] = {"df": load_url(url_in), "url": url_in.strip()}
+        except Exception as e:
+            st.error(f"Could not load that address: {e}")
+    from db_ui import render_sidebar_loader
+    render_sidebar_loader()
+    if "url_data" in st.session_state:
+        st.caption(f"Loaded: {st.session_state['url_data']['url'][:70]}")
+        if st.button("Clear loaded data", key="url_clear"):
+            del st.session_state["url_data"]
+            st.rerun()
     sample_choice = st.selectbox("Or try sample data", ["None"] + list(SAMPLES), key="sample_choice",
                                  help="Made-up data that ships with the app, so you can see every feature work.")
     with st.expander("Public data: U.S. federal contract awards"):
@@ -156,9 +179,10 @@ with st.sidebar:
                      "of this many rows so they finish in reasonable time. More rows = slower: comparing models "
                      "on 50,000 rows can take several minutes.")
 
-usa = st.session_state.get("usa_data") if (uploaded_file is None and not local_path) else None
+web = st.session_state.get("url_data") if (uploaded_file is None and not local_path) else None
+usa = st.session_state.get("usa_data") if (uploaded_file is None and not local_path and web is None) else None
 sample_path = None
-if uploaded_file is None and not local_path and usa is None and sample_choice != "None":
+if uploaded_file is None and not local_path and usa is None and web is None and sample_choice != "None":
     sample_path = os.path.join(HERE, SAMPLES[sample_choice])
     if not os.path.exists(sample_path):
         st.error(f"Sample file {SAMPLES[sample_choice]} is missing from the app folder.")
@@ -189,7 +213,7 @@ if big_path:
     if summary["rows"] > bigdata.LARGE_ROW_THRESHOLD or local_path:
         big = {"path": big_path, "stamp": stamp, "summary": summary}
 
-if uploaded_file or big or sample_path or usa:
+if uploaded_file or big or sample_path or usa or web:
     section("1 · Your data")
     if big:
         summary = big["summary"]
@@ -205,7 +229,10 @@ if uploaded_file or big or sample_path or usa:
                 "Full-file cleaning and forecasting totals use every row.")
     else:
         try:
-            if usa:
+            if web:
+                raw_df = web["df"].copy()
+                raw_df.attrs = dict(web["df"].attrs)
+            elif usa:
                 raw_df = usa["df"].copy()
             elif sample_path:
                 with open(sample_path, "rb") as fh:
@@ -218,7 +245,9 @@ if uploaded_file or big or sample_path or usa:
 
     # A short name for this dataset, used to name every downloaded file (e.g. Department_of_Defense_2025-10-12_to_2026-10-12)
     import re as _re_lbl
-    if usa:
+    if web:
+        _lbl = os.path.splitext(os.path.basename(web["url"].split("?")[0]))[0] or "web_data"
+    elif usa:
         _lbl = f"{usa['info']['agency']}_{usa['info']['start_date']}_to_{usa['info']['end_date']}"
     elif sample_path:
         _lbl = os.path.splitext(os.path.basename(sample_path))[0]
@@ -260,7 +289,7 @@ if uploaded_file or big or sample_path or usa:
         st.download_button("Download these awards as CSV", raw_df.to_csv(index=False).encode("utf-8"),
                            file_name=f"{st.session_state['dataset_label']}_awards_raw.csv", mime="text/csv", key="usa_dl")
     elif not big:
-        src_name = os.path.basename(sample_path) if sample_path else uploaded_file.name
+        src_name = (web["url"] if web else os.path.basename(sample_path) if sample_path else uploaded_file.name)
         st.markdown(f"**{src_name}** · loaded {raw_df.shape[0]:,} rows × {raw_df.shape[1]} columns"
                     + (" · sample data (synthetic)" if sample_path else ""))
     if raw_df.shape[1] < 2 or len(raw_df) < 3:
@@ -268,13 +297,53 @@ if uploaded_file or big or sample_path or usa:
                    f"{len(raw_df):,} rows and {raw_df.shape[1]} column{'s' if raw_df.shape[1] != 1 else ''}). "
                    "The app works best with one row per record and one column per field, such as a CSV or "
                    "spreadsheet export. Results below may not be meaningful.")
+    # --- Column names: detect a missing header row, let the user switch it and type real names ---
+    _ds = st.session_state["dataset_label"]
+    for _note in raw_df.attrs.get("import_notes", []):
+        st.info(_note)
+    if not big:
+        with st.expander("Fix column names", expanded=not raw_df.attrs.get("header_from_file", True)):
+            _auto_header = raw_df.attrs.get("header_from_file", True)
+            _first_is_data = st.checkbox("The first row is data, not column names", value=not _auto_header,
+                                         key=f"hdr_{_ds}",
+                                         help="Some files (for example many UCI datasets) have no header row.")
+            if _first_is_data == _auto_header:      # the user switched it
+                raw_df = set_header(raw_df, _first_is_data)
+            _names = st.text_area("Column names, separated by commas (optional)", key=f"names_{_ds}",
+                                  placeholder=", ".join(map(str, raw_df.columns[:6])) + ", ...",
+                                  help=f"Type {raw_df.shape[1]} names in order to rename every column.")
+            if _names.strip():
+                raw_df, _msg = rename_columns(raw_df, _names)
+                (st.success if _msg.startswith("Renamed") else st.warning)(_msg)
     with st.expander("Preview raw data"):
         st.dataframe(raw_df.head(20))
 
     # --- Step 2: Clean ---
     section("2 · Automated cleaning")
-    with st.spinner("Cleaning data..."):
-        clean_df, profile, report, outlier_summary, dropped_identifiers = clean_dataframe(raw_df)
+    _ov_key = f"overrides::{_ds}"
+    _overrides = st.session_state.get(_ov_key, {})
+    with st.expander("Cleaning choices: missing values and column types", expanded=bool(_overrides)):
+        _miss_tbl = missing_table(raw_df)
+        if _miss_tbl.empty:
+            st.caption("No missing values in this file (after treating '?', 'N/A', 'null' and similar as missing).")
+        else:
+            st.markdown(f"**Missing values before cleaning** ({int(_miss_tbl['Missing'].sum()):,} gaps in "
+                        f"{len(_miss_tbl)} columns; '?', 'N/A', 'null' and similar count as missing)")
+            st.dataframe(_miss_tbl, hide_index=True, width="stretch", height=min(250, 38 + 35 * len(_miss_tbl)))
+        missing_choice = st.selectbox("How to handle missing values", MISSING_STRATEGIES, key=f"miss_{_ds}",
+                                      help="Automatic is a safe default. Dropping rows loses data and can skew results "
+                                           "if gaps are not random. Forward fill suits readings taken over time.")
+    try:
+        with st.spinner("Cleaning data..."):
+            _auto = clean_dataframe(raw_df) if _overrides else None
+            clean_df, profile, report, outlier_summary, dropped_identifiers = clean_dataframe(
+                raw_df, missing_choice, _overrides)
+    except ValueError as e:
+        st.error(str(e))
+        st.stop()
+    _auto_profile = dict((_auto or (None, profile))[1])
+    for _c in (_auto or (None, None, None, None, dropped_identifiers))[4]:
+        _auto_profile.setdefault(_c, "identifier")
 
     import re as _re
     filled = sum(int(m.group(1)) for line in report for m in [_re.match(r"Filled (\d+) missing", line)] if m)
@@ -282,12 +351,13 @@ if uploaded_file or big or sample_path or usa:
     m1, m2, m3, m4, m5 = st.columns(5)
     m1.metric("Rows after cleaning", f"{clean_df.shape[0]:,}")
     m2.metric("Columns kept", f"{clean_df.shape[1]} of {raw_df.shape[1]}")
-    m3.metric("Rows removed", f"{len(raw_df) - len(clean_df):,}", help="Duplicate and completely empty rows.")
+    m3.metric("Rows removed", f"{len(raw_df) - len(clean_df):,}", help="Duplicate and completely empty rows, "
+                                                                      "plus rows with gaps if you chose to drop them.")
     m4.metric("Missing values filled", f"{filled:,}")
     m5.metric("Outliers flagged", f"{flagged:,}", help="Flagged with the 1.5 × IQR rule. They are kept, not removed.")
     st.write("")
 
-    col1, col2 = st.columns([2, 1])
+    col1, col2 = st.columns([3, 2])
     with col1:
         with st.expander("Cleaning report", expanded=True):
             for line in report:
@@ -295,12 +365,82 @@ if uploaded_file or big or sample_path or usa:
             if not report:
                 st.write("No cleaning actions were necessary — data was already tidy.")
     with col2:
-        st.write("**Column types detected:**")
-        profile_df = pd.DataFrame(list(profile.items()), columns=["Column", "Type"])
-        st.dataframe(profile_df, hide_index=True, height=250)
+        st.write("**Column types** (change any that are wrong)")
+        _shown = {c: _overrides.get(c, _auto_profile.get(c)) for c in raw_df.columns if c in _auto_profile}
+        _shown = {c: ("identifier (removed)" if t == "identifier" else t) for c, t in _shown.items()}
+        _types_df = pd.DataFrame({"Column": list(_shown), "Type": list(_shown.values()),
+                                  "Example": [str(raw_df[c].dropna().iloc[0])[:30] if raw_df[c].notna().any() else ""
+                                              for c in _shown]})
+        _edited = st.data_editor(
+            _types_df, hide_index=True, width="stretch", height=min(320, 38 + 35 * len(_types_df)),
+            disabled=["Column", "Example"], key=f"types_{_ds}",
+            column_config={"Type": st.column_config.SelectboxColumn("Type", options=TYPE_CHOICES, required=True)})
+        _new_ov = {}
+        for _c, _t in zip(_edited["Column"], _edited["Type"]):
+            _auto_t = _auto_profile.get(_c)
+            _auto_t = "identifier (removed)" if _auto_t == "identifier" else _auto_t
+            if _t != _auto_t:
+                _new_ov[_c] = _t
+        if _new_ov != _overrides:
+            st.session_state[_ov_key] = _new_ov
+            st.rerun()
+        st.caption("numeric = to_numeric · categorical = astype('category') · datetime = to_datetime · "
+                   "text = free text · drop column = leave it out." + (" Changed by you: " + ", ".join(_overrides)
+                                                                    if _overrides else ""))
 
     with st.expander("Preview cleaned data"):
         st.dataframe(clean_df.head(20))
+
+    # --- What can this data answer? ---
+    import use_cases
+    with st.expander("What can this data answer?", expanded=False):
+        st.caption("Common business questions, checked against the columns in this file.")
+        st.dataframe(use_cases.suggest(raw_df, clean_df, profile), hide_index=True, width="stretch")
+
+    # --- Export the cleaned data, and a record of how it was made ---
+    import io as _io, json as _json, hashlib as _hl, sklearn as _skl
+    _stem = st.session_state["dataset_label"]
+    with st.expander("Download cleaned data"):
+        e1, e2, e3, e4, e5, e6 = st.columns(6)
+        e1.download_button("CSV", clean_df.to_csv(index=False).encode("utf-8"), file_name=f"{_stem}_cleaned.csv",
+                           mime="text/csv", key="exp_csv")
+        _xl = _io.BytesIO()
+        clean_df.to_excel(_xl, index=False)
+        e2.download_button("Excel", _xl.getvalue(), file_name=f"{_stem}_cleaned.xlsx", key="exp_xlsx",
+                           mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        e3.download_button("JSON", clean_df.to_json(orient="records", date_format="iso", indent=1).encode("utf-8"),
+                           file_name=f"{_stem}_cleaned.json", mime="application/json", key="exp_json")
+        _pq = _io.BytesIO()
+        clean_df.to_parquet(_pq, index=False)
+        e4.download_button("Parquet", _pq.getvalue(), file_name=f"{_stem}_cleaned.parquet", key="exp_pq",
+                           mime="application/octet-stream")
+        _record = {
+            "app": "Vanguard Analytics (update 18)", "created": pd.Timestamp.now().isoformat(timespec="seconds"),
+            "source": (web["url"] if web else os.path.basename(sample_path) if sample_path
+                       else uploaded_file.name if uploaded_file is not None else _stem),
+            "input_rows": int(len(raw_df)), "input_columns": int(raw_df.shape[1]),
+            "input_fingerprint": _hl.sha256(pd.util.hash_pandas_object(raw_df.astype(str), index=False)
+                                            .values.tobytes()).hexdigest(),
+            "column_names": [str(c) for c in raw_df.columns],
+            "settings": {"missing_values": missing_choice, "column_type_changes": _overrides,
+                         "outlier_rule": "1.5 x IQR, flagged not removed", "random_seed": 42},
+            "cleaning_steps": report, "output_rows": int(len(clean_df)), "column_types": profile,
+            "library_versions": {"pandas": pd.__version__, "numpy": np.__version__, "scikit-learn": _skl.__version__},
+        }
+        try:
+            _orc = _io.BytesIO()
+            from pipeline import _safe_table as _st
+            _st(clean_df).to_orc(_orc, index=False)
+            e5.download_button("ORC", _orc.getvalue(), file_name=f"{_stem}_cleaned.orc", key="exp_orc",
+                               mime="application/octet-stream")
+        except Exception:
+            e5.caption("ORC n/a")
+        e6.download_button("Record (JSON)", _json.dumps(_record, indent=2, default=str).encode("utf-8"),
+                           file_name=f"{_stem}_reproducibility_record.json", mime="application/json", key="exp_rec",
+                           help="Everything needed to repeat this cleaning: source, a fingerprint of the input, "
+                                "your settings, every step, the random seed and library versions.")
+        st.caption("The record lets you (or a reviewer) repeat the exact same cleaning later and check the input "
+                   "file has not changed: same fingerprint, same settings, same result.")
 
     # --- One-click Word report ---
     _rep_key = f"report::{st.session_state['dataset_label']}::{raw_df.shape}::{clean_df.shape}"
@@ -383,14 +523,21 @@ if uploaded_file or big or sample_path or usa:
         st.markdown("### Analysis")
         mode = st.radio(
             "What do you want to do with this data?",
-            ["Explore & describe", "Prepare & transform", "Predict a target variable", "Forecast future values",
-             "Find hidden groups", "Detect anomalies", "Test statistical significance",
-             "Combine & standardize sources"],
-            captions=["Frequency tables, statistics, charts", "Data quality, scale types, normalize, PCA",
+            ["Explore & describe", "Business problem & KPIs", "Data pipeline", "Group & summarize", "Prepare & transform", "Predict a target variable",
+             "Forecast future values", "Find hidden groups", "Detect anomalies", "Test statistical significance",
+             "Combine & standardize sources", "Analyze text", "Find items bought together",
+             "Deep learning (Keras)"],
+            captions=["Frequency tables, statistics, charts",
+                      "Problem, requirements, KPIs, feature importance, Word brief",
+                      "Validate, bronze/silver/gold, PII, joins, SQL, schedule",
+                      "Group by, totals, averages, pivot tables",
+                      "Data quality, scale types, normalize, PCA",
                       "Regression or classification", "Time series; needs a date column",
                       "Clustering; no target needed", "Flag statistical outliers",
                       "Is this pattern real, or just noise?",
-                      "Make sites, labs or methods comparable; one index"],
+                      "Make sites, labs or methods comparable; one index",
+                      "Sentiment and common words in comments", "Cross-sell: what sells with what",
+                      "Neural networks, image CNN, deep Q-learning"],
             label_visibility="collapsed",
         )
     section("3 · Analysis")
@@ -400,6 +547,37 @@ if uploaded_file or big or sample_path or usa:
     if mode.startswith("Combine"):
         from standardize_ui import render_standardize
         render_standardize(clean_df, profile, st.session_state.get("dataset_label", "data"))
+
+    # ===================== UPDATE 18 MODES =====================
+    elif mode.startswith("Business problem"):
+        from problem_ui import render_problem
+        render_problem(raw_df, clean_df, profile, {
+            "source": _record["source"], "rows_in": _record["input_rows"], "cols_in": _record["input_columns"],
+            "missing": missing_choice, "overrides": _overrides, "rows_out": len(clean_df),
+            "cols_out": clean_df.shape[1], "fingerprint": _record["input_fingerprint"], "report": report})
+
+    elif mode.startswith("Data pipeline"):
+        from pipeline_ui import render_pipeline
+        render_pipeline(raw_df, clean_df, profile, {
+            "source": _record["source"], "fingerprint": _record["input_fingerprint"], "loaded_at": _record["created"],
+            "report": report, "missing": missing_choice, "overrides": _overrides, "label": _stem,
+            "auto_profile": _auto_profile})
+
+    elif mode.startswith("Group"):
+        from analysis_ui import render_group
+        render_group(clean_df, profile)
+
+    elif mode.startswith("Analyze text"):
+        from analysis_ui import render_text
+        render_text(clean_df, profile)
+
+    elif mode.startswith("Deep learning"):
+        from deep_ui import render_deep
+        render_deep(clean_df, profile, _stem)
+
+    elif mode.startswith("Find items"):
+        from analysis_ui import render_basket
+        render_basket(raw_df)
 
     # ===================== EXPLORE & DESCRIBE =====================
     elif mode.startswith("Explore"):
@@ -455,6 +633,8 @@ if uploaded_file or big or sample_path or usa:
 
                 results = output["results"]
                 best = output["best_model"]
+                st.session_state["model_done"] = {"target": target_col, "best": best,
+                                                  "type": output["problem_type"], "models": len(results)}
 
                 if output["problem_type"] == "regression":
                     summary_rows = []
@@ -724,7 +904,7 @@ else:
                   "and reports every change it made."),
         ("Describe", "Frequency tables, summary statistics, cross-tabulations, correlation, and charts chosen "
                      "to fit each column's type."),
-        ("Predict", "Compares up to eight models on data they have not seen, with cross-validation, and "
+        ("Predict", "Compares up to ten models (including a neural network and SVM) on data they have not seen, with cross-validation, and "
                     "reports which one did best."),
         ("Forecast", "Projects a dated number forward, using whichever of seven methods best predicted your "
                      "most recent periods."),
@@ -732,12 +912,23 @@ else:
                           "or just chance."),
         ("Combine sources", "Makes data from different sites, stores, labs or methods comparable, flags bad "
                             "readings and sudden shifts, and combines them into one index you can forecast."),
+        ("Business problem & KPIs", "Write the problem statement and requirements, measure KPIs such as churn "
+                                    "rate and its trend, and export a Word brief for the client."),
+        ("Deep learning", "Train Keras neural networks on tables, CNNs on images and deep Q-learning agents, "
+                          "with a fairness check and a FastAPI + Docker export."),
+        ("Data pipeline", "Quality gates, bronze/silver/gold tables, private-data masking, joins, SQL, and a "
+                          "saved pipeline you can re-run on a schedule."),
+        ("Analyze text", "Scores comments and reviews as positive, neutral or negative and finds the words "
+                         "and phrases people use most."),
+        ("Bought together", "Finds which items sell together, with support, confidence and lift, to suggest "
+                            "cross-sells and bundles."),
     ]
-    for row in (cards[:3], cards[3:]):
+    for row in (cards[:3], cards[3:6], cards[6:9], cards[9:]):
         cols = st.columns(3)
         for col, (title, text) in zip(cols, row):
             col.markdown(f'<div class="vg-card"><h4>{title}</h4><p>{text}</p></div>', unsafe_allow_html=True)
         st.write("")
-    st.caption("Accepts CSV, TSV, TXT, Excel, JSON and Parquet, including files with millions of rows. Runs on one computer; distributed processing, "
-               "neural networks and association rules are on the roadmap, not built yet. "
+    st.caption("Accepts CSV, TSV, TXT, Excel, JSON and Parquet from your computer or a web address, including files "
+               "with millions of rows. Runs on one computer (DuckDB), not a Spark or Hadoop cluster; "
+               "audio and video are not supported. "
                "Works with data from any field: sales, health, operations, finance, public records. Sample files are synthetic.")

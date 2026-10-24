@@ -16,6 +16,9 @@ forecasting lives in forecasting.py.
 """
 import pandas as pd
 import numpy as np
+from sklearn.neural_network import MLPClassifier, MLPRegressor
+from sklearn.svm import SVC, SVR
+from sklearn.compose import TransformedTargetRegressor
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.linear_model import (
     LinearRegression, LogisticRegression, RidgeCV, LassoCV, ElasticNetCV
@@ -96,7 +99,12 @@ def run_regression_models(X, y):
         "Decision Tree Regressor": DecisionTreeRegressor(random_state=42, max_depth=8),
         "Random Forest Regressor": RandomForestRegressor(random_state=42, n_estimators=200, max_depth=10, n_jobs=-1),
         "Gradient Boosting Regressor": GradientBoostingRegressor(random_state=42, n_estimators=200, max_depth=3, learning_rate=0.05, subsample=0.8),
+        "Neural Network (MLP) Regressor": TransformedTargetRegressor(   # target scaled too, as these models need
+            MLPRegressor(hidden_layer_sizes=(64, 32), max_iter=600, early_stopping=True, random_state=42),
+            transformer=StandardScaler()),
     }
+    if len(X) <= 10000:                       # support vector machines slow down sharply on large data
+        models["Support Vector Machine (SVR)"] = TransformedTargetRegressor(SVR(C=1.0), transformer=StandardScaler())
 
     results = {}
     for name, model in models.items():
@@ -152,7 +160,10 @@ def run_classification_models(X, y):
         "Decision Tree Classifier": DecisionTreeClassifier(random_state=42, max_depth=8),
         "Random Forest Classifier": RandomForestClassifier(random_state=42, n_estimators=200, max_depth=10, n_jobs=-1),
         "Gradient Boosting Classifier": GradientBoostingClassifier(random_state=42, n_estimators=200, max_depth=3, learning_rate=0.05, subsample=0.8),
+        "Neural Network (MLP) Classifier": MLPClassifier(hidden_layer_sizes=(64, 32), max_iter=600, early_stopping=True, random_state=42),
     }
+    if len(X) <= 10000:                       # support vector machines slow down sharply on large data
+        models["Support Vector Machine (SVC)"] = SVC(C=1.0, random_state=42)
 
     results = {}
     for name, model in models.items():

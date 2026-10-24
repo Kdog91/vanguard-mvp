@@ -1,0 +1,1201 @@
+review_id,review_date,store,category,rating,review_text,tenure_months,monthly_spend,churned
+R10140,2025-01-01,Northgate,Electronics,4,"Fast delivery, exactly what I ordered",14,61.78,No
+R11067,2025-01-01,Northgate,Clothing,5,"Amazing customer support, solved my issue fast. clean store and great selection",62,116.83,No
+R10170,2025-01-02,Eastside,Grocery,5,,55,130.07,No
+R10183,2025-01-03,Westfield,Toys,5,"Fast delivery, exactly what I ordered. product works perfectly, highly recommend",47,210.37,No
+R10881,2025-01-03,Eastside,Clothing,3,"It was okay, nothing special. store was open when listed",64,70.91,No
+R10889,2025-01-03,Westfield,Garden,3,"It was okay, nothing special",2,82.39,No
+R11073,2025-01-03,Eastside,Toys,3,Ordered online and picked it up. product arrived on the expected date,37,108.41,No
+R10474,2025-01-04,Eastside,Home,2,Very slow delivery and no updates. overpriced and poor quality,68,44.7,No
+R10787,2025-01-04,Riverside,Garden,5,Easy checkout and quick pickup. easy checkout and quick pickup,36,121.0,Yes
+R10808,2025-01-04,Northgate,Garden,3,Ordered online and picked it up,16,72.22,No
+R10886,2025-01-04,Northgate,Home,5,"Fast delivery, exactly what I ordered. love the quality, will buy again",68,46.36,Yes
+R10487,2025-01-06,Riverside,Garden,2,The product broke after one week,62,78.52,Yes
+R10613,2025-01-06,Northgate,Toys,5,Excellent value for the price,41,124.28,No
+R10215,2025-01-07,Northgate,Electronics,5,"Love the quality, will buy again. easy checkout and quick pickup",15,126.49,No
+R10084,2025-01-08,Eastside,Clothing,3,Product arrived on the expected date,58,87.93,No
+R10164,2025-01-08,Riverside,Home,4,"Product works perfectly, highly recommend. fast delivery, exactly what i ordered",41,108.76,Yes
+R10396,2025-01-08,Downtown,Grocery,5,"Fast delivery, exactly what I ordered",26,131.32,No
+R10404,2025-01-08,Riverside,Grocery,4,"Love the quality, will buy again",32,45.95,No
+R10454,2025-01-08,Riverside,Garden,5,"Amazing customer support, solved my issue fast. easy checkout and quick pickup",29,53.12,Yes
+R11128,2025-01-08,Northgate,Grocery,3,Average experience overall. rude staff and long wait times,27,125.66,No
+R10481,2025-01-09,Westfield,Garden,3,Store was open when listed,63,77.53,Yes
+R11147,2025-01-09,Riverside,Electronics,5,"The staff were very helpful and kind. fast delivery, exactly what i ordered",25,73.94,No
+R10243,2025-01-10,Riverside,Garden,4,"Product works perfectly, highly recommend. love the quality, will buy again",21,30.95,No
+R10437,2025-01-10,Riverside,Home,3,Store was open when listed. rude staff and long wait times,65,176.57,No
+R10604,2025-01-10,Westfield,Home,3,,12,58.53,No
+R10262,2025-01-11,Riverside,Garden,4,The staff were very helpful and kind,24,57.1,No
+R10602,2025-01-12,Riverside,Grocery,5,"Fast delivery, exactly what I ordered. the staff were very helpful and kind",40,102.27,No
+R10650,2025-01-12,Eastside,Toys,5,,62,40.44,No
+R11111,2025-01-12,Downtown,Clothing,4,"Fast delivery, exactly what I ordered",27,59.75,No
+R10134,2025-01-13,Downtown,Toys,3,Prices are about the same as other stores,33,61.68,No
+R10572,2025-01-13,Westfield,Grocery,3,"It was okay, nothing special. average experience overall",19,53.9,No
+R10673,2025-01-13,Downtown,Garden,3,Product arrived on the expected date. very slow delivery and no updates,28,182.56,Yes
+R10840,2025-01-13,Downtown,Garden,4,The staff were very helpful and kind,46,38.42,No
+R10621,2025-01-14,Westfield,Toys,4,The staff were very helpful and kind,2,118.48,No
+R10876,2025-01-14,Riverside,Electronics,5,The staff were very helpful and kind,43,47.9,No
+R10919,2025-01-14,Riverside,Electronics,3,Prices are about the same as other stores,51,40.73,No
+R10005,2025-01-15,Eastside,Toys,4,"The staff were very helpful and kind. fast delivery, exactly what i ordered",63,85.71,No
+R10162,2025-01-15,Eastside,Clothing,1,Wrong item shipped and the refund took weeks,70,152.92,Yes
+R10366,2025-01-16,Westfield,Garden,1,,13,160.29,Yes
+R11055,2025-01-16,Riverside,Garden,2,Very slow delivery and no updates,5,169.14,Yes
+R11193,2025-01-16,Riverside,Grocery,3,"It was okay, nothing special. product arrived on the expected date",38,119.46,No
+R10557,2025-01-17,Northgate,Electronics,2,Item was damaged when it arrived,18,67.94,No
+R10716,2025-01-17,Northgate,Electronics,4,"Product works perfectly, highly recommend",51,92.92,No
+R10377,2025-01-18,Downtown,Home,3,Prices are about the same as other stores. prices are about the same as other stores,30,111.63,No
+R10350,2025-01-19,Eastside,Toys,4,"Fast delivery, exactly what I ordered",17,67.95,Yes
+R10099,2025-01-20,Downtown,Electronics,4,The staff were very helpful and kind,58,8.75,No
+R10150,2025-01-20,Northgate,Electronics,4,Clean store and great selection,37,175.83,No
+R10276,2025-01-21,Eastside,Electronics,4,The staff were very helpful and kind. great service and friendly staff,39,194.39,No
+R10281,2025-01-21,Eastside,Electronics,3,Prices are about the same as other stores,64,78.65,Yes
+R10328,2025-01-22,Riverside,Toys,2,Website kept crashing during checkout,37,89.92,Yes
+R10425,2025-01-22,Northgate,Toys,4,"Amazing customer support, solved my issue fast",66,91.6,No
+R10917,2025-01-23,Eastside,Garden,2,Rude staff and long wait times,24,59.81,No
+R10434,2025-01-25,Eastside,Grocery,3,"Average experience overall. it was okay, nothing special",27,42.76,No
+R10575,2025-01-25,Westfield,Clothing,4,"Product works perfectly, highly recommend",13,89.91,No
+R10955,2025-01-25,Westfield,Home,5,Clean store and great selection. easy checkout and quick pickup,58,88.75,No
+R10293,2025-01-26,Westfield,Clothing,4,Excellent value for the price,27,133.32,No
+R10853,2025-01-26,Northgate,Home,4,The staff were very helpful and kind,47,143.7,Yes
+R10978,2025-01-26,Riverside,Toys,5,"Amazing customer support, solved my issue fast",27,79.98,No
+R11167,2025-01-26,Downtown,Electronics,4,"Amazing customer support, solved my issue fast",58,67.53,No
+R10014,2025-01-27,Northgate,Toys,4,"Excellent value for the price. love the quality, will buy again",36,47.9,No
+R10739,2025-01-27,Downtown,Toys,5,Easy checkout and quick pickup,35,61.52,No
+R10932,2025-01-27,Northgate,Garden,5,Clean store and great selection,27,223.4,No
+R11140,2025-01-27,Westfield,Grocery,3,Store was open when listed,38,58.59,Yes
+R10792,2025-01-28,Eastside,Grocery,2,Item was damaged when it arrived,3,86.26,No
+R10885,2025-01-28,Eastside,Garden,5,Great service and friendly staff,28,69.9,No
+R11101,2025-01-28,Westfield,Clothing,3,"It was okay, nothing special. it was okay, nothing special",46,86.51,Yes
+R11109,2025-01-30,Northgate,Toys,3,Product arrived on the expected date,40,118.59,No
+R10009,2025-01-31,Downtown,Electronics,4,"Clean store and great selection. love the quality, will buy again",37,105.89,Yes
+R10264,2025-01-31,Riverside,Clothing,5,Great service and friendly staff,48,103.39,No
+R10802,2025-01-31,Eastside,Grocery,1,Overpriced and poor quality,68,78.3,No
+R10363,2025-02-01,Riverside,Garden,2,Wrong item shipped and the refund took weeks. very slow delivery and no updates,48,70.32,Yes
+R10103,2025-02-02,Downtown,Home,4,Easy checkout and quick pickup,44,91.86,No
+R10353,2025-02-02,Riverside,Home,3,"It was okay, nothing special",37,147.48,Yes
+R10965,2025-02-02,Riverside,Clothing,2,The product broke after one week. the product broke after one week,24,131.81,No
+R11012,2025-02-02,Downtown,Grocery,5,"Amazing customer support, solved my issue fast",30,50.6,No
+R10636,2025-02-03,Eastside,Grocery,2,Item was damaged when it arrived,63,138.74,No
+R10820,2025-02-03,Downtown,Garden,3,Product arrived on the expected date. product arrived on the expected date,37,221.87,No
+R10331,2025-02-04,Downtown,Home,5,"Love the quality, will buy again",46,115.43,Yes
+R10811,2025-02-04,Northgate,Toys,5,The staff were very helpful and kind,32,124.58,No
+R11138,2025-02-04,Eastside,Electronics,5,Excellent value for the price. clean store and great selection,66,125.57,No
+R11112,2025-02-05,Northgate,Garden,3,Ordered online and picked it up,19,116.49,No
+R10118,2025-02-06,Northgate,Electronics,4,"Product works perfectly, highly recommend",70,76.09,No
+R10355,2025-02-06,Riverside,Electronics,5,Easy checkout and quick pickup,36,72.33,No
+R10455,2025-02-06,Westfield,Grocery,2,"Terrible customer service, nobody answered",25,99.96,No
+R10547,2025-02-06,Riverside,Garden,4,"Product works perfectly, highly recommend",50,63.26,Yes
+R10308,2025-02-07,Downtown,Garden,2,"Wrong item shipped and the refund took weeks. long lines at checkout, very frustrating",47,48.72,No
+R10142,2025-02-08,Westfield,Electronics,4,"Love the quality, will buy again",38,39.03,Yes
+R10780,2025-02-08,Downtown,Toys,2,Overpriced and poor quality,67,103.39,No
+R11060,2025-02-08,Northgate,Toys,3,"It was okay, nothing special. great service and friendly staff",50,82.43,No
+R11075,2025-02-08,Westfield,Toys,2,Website kept crashing during checkout,67,116.96,Yes
+R10058,2025-02-09,Riverside,Electronics,4,"Love the quality, will buy again",25,152.13,No
+R10277,2025-02-09,Eastside,Garden,3,Product arrived on the expected date,4,74.51,No
+R10464,2025-02-09,Downtown,Grocery,4,Excellent value for the price. easy checkout and quick pickup,70,56.53,Yes
+R10080,2025-02-10,Westfield,Home,3,Prices are about the same as other stores,39,80.41,Yes
+R10460,2025-02-10,Westfield,Home,1,Website kept crashing during checkout,12,88.02,Yes
+R10534,2025-02-10,Eastside,Home,5,"Amazing customer support, solved my issue fast",66,119.94,No
+R10655,2025-02-10,Northgate,Grocery,4,Easy checkout and quick pickup,24,118.73,Yes
+R11187,2025-02-12,Riverside,Clothing,4,"Fast delivery, exactly what I ordered. great service and friendly staff",52,181.94,Yes
+R10835,2025-02-13,Downtown,Garden,4,,68,102.62,No
+R10100,2025-02-14,Eastside,Toys,2,Item was damaged when it arrived. very slow delivery and no updates,43,28.75,Yes
+R10249,2025-02-14,Northgate,Electronics,3,Product arrived on the expected date,56,150.35,No
+R10712,2025-02-15,Eastside,Home,1,Very slow delivery and no updates,42,56.79,No
+R10401,2025-02-16,Downtown,Electronics,3,Ordered online and picked it up,65,101.29,Yes
+R11168,2025-02-17,Riverside,Garden,4,"Fast delivery, exactly what I ordered",12,111.63,No
+R10662,2025-02-18,Downtown,Home,4,"Product works perfectly, highly recommend",70,142.98,No
+R10962,2025-02-18,Downtown,Home,2,The product broke after one week,13,62.03,Yes
+R10324,2025-02-19,Downtown,Clothing,1,Item was damaged when it arrived,52,125.33,Yes
+R10354,2025-02-19,Eastside,Clothing,2,The product broke after one week,10,61.3,Yes
+R10196,2025-02-20,Downtown,Toys,5,"Product works perfectly, highly recommend",46,49.13,No
+R10562,2025-02-20,Eastside,Toys,1,"Long lines at checkout, very frustrating. rude staff and long wait times",40,124.75,Yes
+R11041,2025-02-20,Downtown,Clothing,3,Product arrived on the expected date,33,94.01,No
+R11141,2025-02-20,Northgate,Clothing,3,Store was open when listed,34,55.79,Yes
+R10379,2025-02-21,Westfield,Home,2,The product broke after one week,13,186.25,Yes
+R10453,2025-02-21,Westfield,Home,5,"Love the quality, will buy again",38,232.32,Yes
+R10859,2025-02-21,Downtown,Garden,4,"Excellent value for the price. love the quality, will buy again",53,78.22,No
+R11139,2025-02-21,Northgate,Garden,5,"Love the quality, will buy again",23,155.24,No
+R10036,2025-02-22,Eastside,Grocery,3,"It was okay, nothing special",40,226.39,No
+R10029,2025-02-23,Northgate,Toys,1,The product broke after one week,11,61.89,Yes
+R10200,2025-02-23,Westfield,Clothing,3,,65,122.86,Yes
+R10596,2025-02-23,Northgate,Grocery,4,Great service and friendly staff,64,43.64,Yes
+R10904,2025-02-23,Eastside,Electronics,1,Wrong item shipped and the refund took weeks,71,124.51,No
+R10953,2025-02-25,Northgate,Home,4,Easy checkout and quick pickup. excellent value for the price,22,69.45,No
+R11030,2025-02-25,Riverside,Electronics,2,"Terrible customer service, nobody answered",23,124.88,Yes
+R11136,2025-02-25,Westfield,Clothing,1,,70,63.54,Yes
+R10723,2025-02-26,Downtown,Clothing,3,Store was open when listed. very slow delivery and no updates,32,45.83,Yes
+R10902,2025-02-27,Northgate,Grocery,1,Rude staff and long wait times,17,162.07,Yes
+R10877,2025-02-28,Downtown,Home,4,Clean store and great selection,3,44.2,Yes
+R11034,2025-02-28,Downtown,Toys,5,The staff were very helpful and kind. the staff were very helpful and kind,61,162.95,No
+R10849,2025-03-01,Northgate,Home,2,,40,137.6,No
+R10275,2025-03-03,Eastside,Toys,4,"Amazing customer support, solved my issue fast. clean store and great selection",31,116.22,No
+R10398,2025-03-03,Downtown,Electronics,2,Wrong item shipped and the refund took weeks,22,129.55,Yes
+R10987,2025-03-03,Downtown,Grocery,3,Store was open when listed,18,65.3,No
+R10817,2025-03-05,Westfield,Toys,1,Website kept crashing during checkout. the product broke after one week,38,59.87,Yes
+R10336,2025-03-08,Northgate,Electronics,3,Ordered online and picked it up. very slow delivery and no updates,46,39.69,Yes
+R10527,2025-03-08,Northgate,Home,5,Clean store and great selection,47,42.74,No
+R10321,2025-03-09,Westfield,Clothing,2,Item was damaged when it arrived. rude staff and long wait times,2,86.48,No
+R10598,2025-03-09,Eastside,Toys,2,The product broke after one week,7,49.04,Yes
+R10683,2025-03-09,Downtown,Electronics,5,The staff were very helpful and kind. excellent value for the price,29,220.45,No
+R11161,2025-03-09,Downtown,Home,5,"Amazing customer support, solved my issue fast",30,144.98,No
+R10765,2025-03-10,Westfield,Clothing,4,"Product works perfectly, highly recommend",30,118.8,No
+R10120,2025-03-11,Eastside,Clothing,4,Great service and friendly staff,48,109.19,No
+R10197,2025-03-11,Riverside,Home,2,Wrong item shipped and the refund took weeks. overpriced and poor quality,19,80.9,Yes
+R10449,2025-03-11,Eastside,Home,4,"Fast delivery, exactly what I ordered",46,146.6,No
+R10821,2025-03-11,Eastside,Toys,3,Product arrived on the expected date,59,24.69,No
+R10856,2025-03-11,Downtown,Toys,5,"Love the quality, will buy again",19,104.57,No
+R11052,2025-03-11,Downtown,Home,3,Store was open when listed,29,67.69,No
+R10525,2025-03-12,Westfield,Garden,2,"Long lines at checkout, very frustrating",45,82.01,No
+R10373,2025-03-13,Eastside,Clothing,1,Rude staff and long wait times,54,65.24,Yes
+R11078,2025-03-13,Northgate,Clothing,4,Clean store and great selection. easy checkout and quick pickup,31,96.25,No
+R10179,2025-03-14,Northgate,Grocery,3,Ordered online and picked it up,32,131.23,Yes
+R10599,2025-03-14,Westfield,Clothing,2,Website kept crashing during checkout,3,154.16,No
+R10157,2025-03-15,Westfield,Garden,1,Website kept crashing during checkout,45,113.68,Yes
+R10184,2025-03-15,Downtown,Clothing,2,Website kept crashing during checkout,63,115.91,Yes
+R11014,2025-03-16,Eastside,Electronics,2,Overpriced and poor quality,28,137.77,No
+R10590,2025-03-18,Westfield,Electronics,4,"Product works perfectly, highly recommend",44,177.16,No
+R10912,2025-03-18,Westfield,Grocery,5,"Product works perfectly, highly recommend. clean store and great selection",31,35.86,No
+R10219,2025-03-19,Eastside,Electronics,2,"Terrible customer service, nobody answered",58,73.49,Yes
+R10414,2025-03-19,Northgate,Garden,4,Easy checkout and quick pickup,41,108.17,No
+R11064,2025-03-19,Downtown,Garden,2,"Long lines at checkout, very frustrating",43,217.24,Yes
+R10135,2025-03-20,Westfield,Garden,1,Wrong item shipped and the refund took weeks,41,98.71,Yes
+R10270,2025-03-20,Westfield,Garden,2,Wrong item shipped and the refund took weeks,34,66.66,Yes
+R10344,2025-03-20,Westfield,Toys,5,"Fast delivery, exactly what I ordered. great service and friendly staff",42,157.08,No
+R10393,2025-03-21,Eastside,Toys,2,Item was damaged when it arrived,46,44.62,No
+R10801,2025-03-21,Northgate,Grocery,4,"Fast delivery, exactly what I ordered",38,96.84,Yes
+R11102,2025-03-21,Downtown,Electronics,4,Easy checkout and quick pickup. great service and friendly staff,26,91.76,No
+R10004,2025-03-22,Eastside,Clothing,2,"Long lines at checkout, very frustrating. rude staff and long wait times",34,86.39,Yes
+R11149,2025-03-22,Westfield,Grocery,3,"Store was open when listed. fast delivery, exactly what i ordered",65,87.02,No
+R10721,2025-03-23,Downtown,Grocery,4,"Product works perfectly, highly recommend. great service and friendly staff",1,150.53,No
+R10784,2025-03-24,Northgate,Toys,4,Easy checkout and quick pickup. the staff were very helpful and kind,25,225.06,No
+R10975,2025-03-25,Riverside,Clothing,3,Average experience overall,8,166.74,Yes
+R10652,2025-03-26,Riverside,Home,4,Excellent value for the price,36,159.12,Yes
+R10745,2025-03-26,Riverside,Grocery,3,Product arrived on the expected date. store was open when listed,15,76.9,Yes
+R10096,2025-03-27,Westfield,Home,3,"Store was open when listed. fast delivery, exactly what i ordered",15,58.41,Yes
+R10332,2025-03-27,Northgate,Toys,2,"Terrible customer service, nobody answered",46,110.77,Yes
+R10112,2025-03-28,Riverside,Toys,4,Great service and friendly staff,21,96.74,Yes
+R10905,2025-03-28,Northgate,Grocery,5,,45,41.4,No
+R10983,2025-03-28,Eastside,Clothing,5,Clean store and great selection,47,72.92,No
+R11023,2025-03-28,Downtown,Garden,1,"Item was damaged when it arrived. terrible customer service, nobody answered",64,101.86,Yes
+R10070,2025-03-29,Downtown,Electronics,4,The staff were very helpful and kind. great service and friendly staff,40,106.37,No
+R10129,2025-03-30,Westfield,Grocery,2,Rude staff and long wait times,69,42.67,No
+R10588,2025-03-30,Eastside,Home,3,Product arrived on the expected date,33,77.89,No
+R10729,2025-03-30,Riverside,Garden,2,Very slow delivery and no updates. website kept crashing during checkout,26,44.0,No
+R10791,2025-03-30,Northgate,Home,5,"Amazing customer support, solved my issue fast",31,145.05,No
+R10361,2025-03-31,Northgate,Grocery,5,"Clean store and great selection. amazing customer support, solved my issue fast",59,45.99,No
+R10536,2025-03-31,Downtown,Garden,3,Average experience overall,33,64.35,No
+R10130,2025-04-01,Westfield,Toys,3,Prices are about the same as other stores. prices are about the same as other stores,23,37.13,Yes
+R10523,2025-04-02,Northgate,Grocery,3,"Ordered online and picked it up. it was okay, nothing special",63,217.34,No
+R10999,2025-04-04,Downtown,Home,2,Website kept crashing during checkout. rude staff and long wait times,39,43.03,Yes
+R10030,2025-04-05,Eastside,Clothing,1,Overpriced and poor quality,45,71.33,Yes
+R10065,2025-04-06,Westfield,Garden,4,Excellent value for the price,11,127.95,No
+R10155,2025-04-06,Riverside,Grocery,5,Excellent value for the price,2,164.65,Yes
+R10591,2025-04-06,Westfield,Electronics,2,Website kept crashing during checkout,59,157.08,No
+R10672,2025-04-08,Westfield,Clothing,2,"Long lines at checkout, very frustrating",1,64.61,No
+R10920,2025-04-08,Westfield,Electronics,3,Prices are about the same as other stores. rude staff and long wait times,29,172.32,Yes
+R10550,2025-04-09,Riverside,Clothing,4,"Amazing customer support, solved my issue fast",65,59.96,Yes
+R10684,2025-04-09,Northgate,Home,2,Item was damaged when it arrived. wrong item shipped and the refund took weeks,11,159.04,No
+R10577,2025-04-10,Downtown,Home,2,"Long lines at checkout, very frustrating",45,70.73,No
+R10227,2025-04-12,Northgate,Grocery,4,"Product works perfectly, highly recommend. the staff were very helpful and kind",52,72.04,No
+R10702,2025-04-12,Northgate,Toys,4,Easy checkout and quick pickup,64,108.48,No
+R10843,2025-04-13,Eastside,Toys,2,"Terrible customer service, nobody answered. item was damaged when it arrived",60,128.11,Yes
+R10423,2025-04-14,Westfield,Grocery,3,"It was okay, nothing special",45,61.02,Yes
+R11022,2025-04-15,Downtown,Grocery,4,"Fast delivery, exactly what I ordered",29,36.25,No
+R10131,2025-04-16,Westfield,Home,3,Store was open when listed,8,167.04,No
+R10640,2025-04-16,Eastside,Home,5,Great service and friendly staff,49,58.98,No
+R11124,2025-04-17,Riverside,Grocery,5,Great service and friendly staff. great service and friendly staff,57,210.5,No
+R10051,2025-04-18,Riverside,Garden,5,"Fast delivery, exactly what I ordered",53,138.02,Yes
+R10505,2025-04-19,Downtown,Clothing,2,Very slow delivery and no updates,10,88.46,Yes
+R10922,2025-04-20,Westfield,Garden,3,"It was okay, nothing special. rude staff and long wait times",39,90.86,No
+R10925,2025-04-20,Riverside,Toys,5,"Amazing customer support, solved my issue fast",24,118.26,No
+R10439,2025-04-22,Northgate,Clothing,3,Ordered online and picked it up. prices are about the same as other stores,17,125.06,No
+R10710,2025-04-22,Riverside,Home,4,"The staff were very helpful and kind. love the quality, will buy again",25,48.34,No
+R10728,2025-04-23,Northgate,Clothing,3,Prices are about the same as other stores,53,82.55,No
+R10400,2025-04-24,Eastside,Grocery,3,Product arrived on the expected date. rude staff and long wait times,9,94.54,Yes
+R10508,2025-04-24,Riverside,Garden,2,Overpriced and poor quality,16,127.11,No
+R10825,2025-04-24,Downtown,Electronics,4,"Product works perfectly, highly recommend. fast delivery, exactly what i ordered",54,34.02,No
+R10898,2025-04-24,Westfield,Electronics,2,Very slow delivery and no updates. website kept crashing during checkout,35,44.27,Yes
+R10034,2025-04-25,Eastside,Garden,4,"Great service and friendly staff. amazing customer support, solved my issue fast",54,57.61,No
+R10158,2025-04-25,Riverside,Clothing,3,Ordered online and picked it up,41,29.54,Yes
+R10347,2025-04-25,Downtown,Grocery,3,"Prices are about the same as other stores. fast delivery, exactly what i ordered",58,127.38,No
+R10478,2025-04-25,Westfield,Electronics,3,Prices are about the same as other stores. store was open when listed,23,229.94,Yes
+R10529,2025-04-25,Downtown,Toys,3,Store was open when listed. product arrived on the expected date,37,41.32,No
+R10633,2025-04-25,Westfield,Toys,4,"Product works perfectly, highly recommend",18,40.08,Yes
+R10314,2025-04-26,Downtown,Toys,4,"Product works perfectly, highly recommend. excellent value for the price",44,122.23,No
+R10929,2025-04-26,Westfield,Toys,2,Very slow delivery and no updates,62,124.61,No
+R11131,2025-04-26,Downtown,Garden,4,Great service and friendly staff,59,134.52,No
+R10168,2025-04-27,Riverside,Home,5,The staff were very helpful and kind,28,86.62,No
+R10571,2025-04-27,Eastside,Clothing,5,"Fast delivery, exactly what I ordered",18,82.76,Yes
+R10647,2025-04-27,Downtown,Toys,5,The staff were very helpful and kind,49,80.4,No
+R10290,2025-04-28,Northgate,Garden,4,"Love the quality, will buy again",31,117.97,Yes
+R10897,2025-04-28,Eastside,Garden,3,Store was open when listed. very slow delivery and no updates,51,94.55,Yes
+R11074,2025-04-28,Westfield,Clothing,2,Overpriced and poor quality,4,100.3,Yes
+R11164,2025-04-28,Westfield,Grocery,4,"Fast delivery, exactly what I ordered",9,92.55,No
+R10191,2025-04-29,Westfield,Clothing,3,Prices are about the same as other stores,67,99.43,Yes
+R10639,2025-04-29,Westfield,Toys,2,Overpriced and poor quality,51,16.72,Yes
+R10125,2025-04-30,Eastside,Electronics,5,"Product works perfectly, highly recommend",67,158.13,No
+R10496,2025-04-30,Northgate,Grocery,4,,21,128.17,No
+R10288,2025-05-01,Riverside,Garden,5,"Love the quality, will buy again. the staff were very helpful and kind",62,187.39,No
+R10492,2025-05-01,Westfield,Home,5,"Easy checkout and quick pickup. fast delivery, exactly what i ordered",32,167.91,No
+R11182,2025-05-01,Northgate,Toys,4,Clean store and great selection,38,136.87,Yes
+R10606,2025-05-02,Riverside,Electronics,2,Rude staff and long wait times,32,86.8,Yes
+R11093,2025-05-02,Northgate,Toys,4,Great service and friendly staff,70,223.72,No
+R10077,2025-05-03,Westfield,Toys,2,"Long lines at checkout, very frustrating",15,33.8,No
+R10351,2025-05-03,Downtown,Grocery,3,Average experience overall. average experience overall,35,79.5,No
+R10946,2025-05-06,Westfield,Garden,5,,3,90.77,No
+R11005,2025-05-06,Riverside,Electronics,5,"Amazing customer support, solved my issue fast. easy checkout and quick pickup",41,77.67,No
+R11059,2025-05-06,Eastside,Garden,2,The product broke after one week. very slow delivery and no updates,34,55.91,Yes
+R10555,2025-05-07,Northgate,Clothing,5,"Product works perfectly, highly recommend. great service and friendly staff",41,90.64,No
+R10222,2025-05-08,Westfield,Electronics,4,"Love the quality, will buy again. excellent value for the price",44,59.14,No
+R10429,2025-05-08,Northgate,Toys,3,Store was open when listed,56,32.27,No
+R10628,2025-05-08,Northgate,Electronics,3,Average experience overall. ordered online and picked it up,58,182.24,Yes
+R10635,2025-05-08,Northgate,Electronics,3,Average experience overall. very slow delivery and no updates,71,65.9,Yes
+R10701,2025-05-08,Eastside,Home,2,Rude staff and long wait times. wrong item shipped and the refund took weeks,46,99.55,Yes
+R10973,2025-05-08,Eastside,Toys,3,Ordered online and picked it up,5,53.63,Yes
+R10365,2025-05-09,Eastside,Grocery,2,"Overpriced and poor quality. long lines at checkout, very frustrating",69,35.6,Yes
+R10415,2025-05-09,Westfield,Toys,3,Product arrived on the expected date,60,29.12,Yes
+R10659,2025-05-09,Downtown,Electronics,5,"Product works perfectly, highly recommend",66,59.72,No
+R10280,2025-05-11,Northgate,Clothing,4,Excellent value for the price,66,173.53,No
+R10756,2025-05-11,Downtown,Grocery,5,Excellent value for the price,59,62.95,No
+R10238,2025-05-12,Downtown,Grocery,4,"Product works perfectly, highly recommend. excellent value for the price",69,87.0,No
+R11090,2025-05-14,Downtown,Garden,2,"Long lines at checkout, very frustrating",39,154.41,No
+R11028,2025-05-15,Downtown,Toys,2,Website kept crashing during checkout,57,110.01,No
+R10537,2025-05-17,Eastside,Grocery,2,"Long lines at checkout, very frustrating",52,122.06,Yes
+R11048,2025-05-17,Eastside,Electronics,4,"Amazing customer support, solved my issue fast. amazing customer support, solved my issue fast",56,98.79,No
+R10322,2025-05-18,Westfield,Clothing,5,Easy checkout and quick pickup,7,78.89,No
+R10317,2025-05-20,Riverside,Grocery,5,Great service and friendly staff,47,38.95,No
+R11121,2025-05-20,Eastside,Home,4,Clean store and great selection,25,108.96,No
+R10137,2025-05-21,Northgate,Garden,5,Great service and friendly staff,51,33.0,No
+R10645,2025-05-21,Eastside,Toys,3,Average experience overall,17,91.64,No
+R10315,2025-05-22,Downtown,Toys,3,Store was open when listed. product arrived on the expected date,2,153.7,Yes
+R10819,2025-05-22,Riverside,Clothing,5,The staff were very helpful and kind,22,157.49,No
+R10850,2025-05-22,Downtown,Clothing,3,Average experience overall,62,48.71,Yes
+R10149,2025-05-23,Eastside,Grocery,3,Ordered online and picked it up,23,41.26,No
+R10399,2025-05-23,Riverside,Electronics,3,Average experience overall,41,43.55,Yes
+R10413,2025-05-23,Westfield,Garden,3,Product arrived on the expected date,51,43.61,No
+R10586,2025-05-23,Riverside,Clothing,5,"Product works perfectly, highly recommend. amazing customer support, solved my issue fast",16,62.16,Yes
+R10083,2025-05-25,Northgate,Electronics,5,"Amazing customer support, solved my issue fast",69,54.58,No
+R10049,2025-05-26,Westfield,Grocery,4,"Product works perfectly, highly recommend",31,99.85,No
+R10372,2025-05-26,Northgate,Garden,4,Great service and friendly staff. excellent value for the price,7,174.58,No
+R10734,2025-05-26,Westfield,Toys,2,Overpriced and poor quality. the product broke after one week,4,108.53,No
+R10506,2025-05-27,Eastside,Home,3,Store was open when listed,39,159.15,Yes
+R10706,2025-05-27,Riverside,Clothing,2,The product broke after one week,37,117.46,Yes
+R10772,2025-05-27,Downtown,Electronics,4,Great service and friendly staff,7,107.77,No
+R10781,2025-05-27,Westfield,Toys,3,Store was open when listed,60,95.87,Yes
+R11106,2025-05-29,Northgate,Toys,1,Overpriced and poor quality,37,66.71,Yes
+R10229,2025-05-31,Downtown,Clothing,4,Great service and friendly staff. the staff were very helpful and kind,67,219.24,No
+R10744,2025-05-31,Downtown,Electronics,5,"Fast delivery, exactly what I ordered. the staff were very helpful and kind",60,64.24,No
+R10250,2025-06-01,Downtown,Toys,3,Ordered online and picked it up. very slow delivery and no updates,18,71.21,No
+R10459,2025-06-02,Downtown,Grocery,4,The staff were very helpful and kind,16,85.46,No
+R10190,2025-06-03,Westfield,Electronics,4,Great service and friendly staff,25,59.85,No
+R10711,2025-06-03,Eastside,Home,1,Rude staff and long wait times,25,70.32,Yes
+R11036,2025-06-03,Riverside,Toys,4,Great service and friendly staff,2,72.01,No
+R11195,2025-06-03,Eastside,Clothing,3,Product arrived on the expected date,27,173.32,Yes
+R10533,2025-06-04,Eastside,Garden,3,"It was okay, nothing special",21,47.83,Yes
+R10544,2025-06-04,Northgate,Home,2,The product broke after one week. the product broke after one week,69,58.68,Yes
+R10778,2025-06-04,Downtown,Clothing,3,Prices are about the same as other stores. ordered online and picked it up,16,79.49,No
+R10023,2025-06-05,Riverside,Garden,3,"It was okay, nothing special. very slow delivery and no updates",26,86.17,Yes
+R10545,2025-06-06,Eastside,Home,4,"Fast delivery, exactly what I ordered",63,107.33,No
+R10984,2025-06-06,Northgate,Home,3,Average experience overall,25,127.6,No
+R10518,2025-06-07,Downtown,Toys,4,"Amazing customer support, solved my issue fast",70,96.67,Yes
+R10559,2025-06-08,Westfield,Garden,4,Clean store and great selection,56,112.42,Yes
+R10715,2025-06-08,Northgate,Garden,4,Clean store and great selection,6,135.75,No
+R10956,2025-06-08,Northgate,Garden,5,Excellent value for the price,67,122.55,No
+R10102,2025-06-09,Eastside,Home,5,"Amazing customer support, solved my issue fast. the staff were very helpful and kind",33,36.83,Yes
+R10225,2025-06-09,Northgate,Electronics,5,The staff were very helpful and kind,22,172.31,No
+R10467,2025-06-10,Eastside,Toys,2,The product broke after one week,63,55.31,No
+R11118,2025-06-10,Riverside,Electronics,5,"Excellent value for the price. product works perfectly, highly recommend",41,149.05,No
+R10694,2025-06-11,Riverside,Electronics,5,"Great service and friendly staff. love the quality, will buy again",27,123.1,No
+R10848,2025-06-11,Westfield,Toys,3,Prices are about the same as other stores,2,71.85,No
+R10346,2025-06-12,Downtown,Electronics,3,,47,100.23,No
+R10689,2025-06-14,Eastside,Grocery,3,Ordered online and picked it up,46,46.77,Yes
+R10992,2025-06-14,Northgate,Clothing,4,Great service and friendly staff. clean store and great selection,45,41.34,No
+R10263,2025-06-15,Riverside,Home,5,Excellent value for the price,60,105.4,No
+R10663,2025-06-15,Westfield,Grocery,3,Average experience overall. store was open when listed,37,80.5,No
+R10829,2025-06-15,Northgate,Garden,3,Prices are about the same as other stores. great service and friendly staff,56,124.13,Yes
+R10883,2025-06-15,Riverside,Clothing,5,"Easy checkout and quick pickup. amazing customer support, solved my issue fast",34,89.24,No
+R10254,2025-06-16,Northgate,Clothing,2,The product broke after one week. wrong item shipped and the refund took weeks,41,19.25,Yes
+R10358,2025-06-16,Riverside,Home,4,"Fast delivery, exactly what I ordered",24,114.63,No
+R10517,2025-06-16,Downtown,Home,4,Excellent value for the price,55,96.67,Yes
+R10788,2025-06-16,Westfield,Garden,5,"Amazing customer support, solved my issue fast",6,16.47,No
+R10167,2025-06-17,Westfield,Electronics,4,"Love the quality, will buy again",67,34.53,Yes
+R10253,2025-06-17,Downtown,Home,3,Prices are about the same as other stores,64,74.94,Yes
+R10676,2025-06-17,Eastside,Home,3,Prices are about the same as other stores,63,173.41,Yes
+R10556,2025-06-18,Riverside,Garden,5,Easy checkout and quick pickup,50,60.63,Yes
+R10719,2025-06-18,Northgate,Toys,4,Excellent value for the price,40,128.17,No
+R11159,2025-06-18,Eastside,Home,2,"Terrible customer service, nobody answered",6,68.35,No
+R10063,2025-06-19,Westfield,Grocery,2,Item was damaged when it arrived,8,67.38,No
+R10337,2025-06-19,Northgate,Clothing,5,Excellent value for the price,27,54.71,No
+R10435,2025-06-19,Downtown,Home,3,Ordered online and picked it up. rude staff and long wait times,24,72.72,Yes
+R10582,2025-06-19,Northgate,Toys,3,Average experience overall. ordered online and picked it up,59,118.87,Yes
+R10760,2025-06-19,Northgate,Grocery,4,"Easy checkout and quick pickup. amazing customer support, solved my issue fast",35,109.13,No
+R10420,2025-06-20,Northgate,Home,4,The staff were very helpful and kind,36,89.7,Yes
+R10374,2025-06-21,Downtown,Garden,4,The staff were very helpful and kind. easy checkout and quick pickup,24,40.42,No
+R10033,2025-06-22,Riverside,Home,4,The staff were very helpful and kind. easy checkout and quick pickup,42,64.5,Yes
+R10198,2025-06-22,Downtown,Clothing,5,The staff were very helpful and kind. great service and friendly staff,65,74.24,No
+R10294,2025-06-22,Riverside,Clothing,4,"Excellent value for the price. fast delivery, exactly what i ordered",41,104.11,Yes
+R10914,2025-06-23,Westfield,Garden,3,Product arrived on the expected date,34,107.48,No
+R10081,2025-06-24,Westfield,Garden,3,Ordered online and picked it up. ordered online and picked it up,14,61.32,No
+R10654,2025-06-24,Northgate,Clothing,5,"Amazing customer support, solved my issue fast",20,117.3,No
+R10713,2025-06-24,Eastside,Clothing,2,"Long lines at checkout, very frustrating",53,42.55,Yes
+R10248,2025-06-25,Westfield,Clothing,3,Product arrived on the expected date,18,117.69,No
+R10108,2025-06-26,Westfield,Electronics,3,Ordered online and picked it up,34,61.05,No
+R10165,2025-06-26,Riverside,Electronics,5,"Fast delivery, exactly what I ordered",8,78.5,No
+R10390,2025-06-26,Eastside,Grocery,1,The product broke after one week. the product broke after one week,5,143.71,Yes
+R10958,2025-06-26,Westfield,Garden,4,"Love the quality, will buy again",22,49.31,No
+R10307,2025-06-27,Riverside,Electronics,5,Excellent value for the price. the staff were very helpful and kind,41,246.59,No
+R11158,2025-06-27,Downtown,Electronics,2,Rude staff and long wait times,35,134.79,Yes
+R10618,2025-06-28,Northgate,Home,3,"It was okay, nothing special",71,122.71,No
+R11156,2025-06-28,Northgate,Toys,4,Easy checkout and quick pickup,2,106.32,Yes
+R10804,2025-06-29,Westfield,Clothing,3,"It was okay, nothing special",24,84.26,No
+R10138,2025-07-01,Downtown,Home,4,"Easy checkout and quick pickup. amazing customer support, solved my issue fast",26,67.48,No
+R10445,2025-07-01,Eastside,Toys,4,"Fast delivery, exactly what I ordered. easy checkout and quick pickup",41,25.56,No
+R10494,2025-07-01,Northgate,Grocery,1,Item was damaged when it arrived,30,145.3,Yes
+R10040,2025-07-03,Northgate,Home,4,"Amazing customer support, solved my issue fast",7,83.88,No
+R10156,2025-07-03,Northgate,Home,4,"Amazing customer support, solved my issue fast",27,54.28,Yes
+R10175,2025-07-03,Downtown,Clothing,3,"It was okay, nothing special",54,150.91,Yes
+R10668,2025-07-03,Eastside,Home,3,,24,52.4,No
+R10832,2025-07-03,Eastside,Electronics,2,Item was damaged when it arrived,45,219.77,Yes
+R10738,2025-07-05,Northgate,Clothing,4,The staff were very helpful and kind,22,62.39,No
+R10993,2025-07-05,Westfield,Electronics,2,Website kept crashing during checkout,28,111.11,No
+R10796,2025-07-06,Eastside,Clothing,3,,28,150.03,No
+R10230,2025-07-07,Northgate,Toys,4,,6,103.27,No
+R10707,2025-07-07,Eastside,Grocery,1,Website kept crashing during checkout,6,118.21,Yes
+R10448,2025-07-08,Northgate,Home,4,"Amazing customer support, solved my issue fast",43,64.82,No
+R10045,2025-07-12,Downtown,Home,3,Ordered online and picked it up,7,113.96,Yes
+R10833,2025-07-12,Riverside,Clothing,5,Great service and friendly staff,7,96.43,Yes
+R11017,2025-07-12,Westfield,Grocery,2,The product broke after one week. rude staff and long wait times,64,97.51,Yes
+R10471,2025-07-13,Eastside,Clothing,5,The staff were very helpful and kind,19,58.29,No
+R10699,2025-07-14,Westfield,Grocery,5,The staff were very helpful and kind,1,47.21,No
+R10903,2025-07-14,Riverside,Electronics,5,Great service and friendly staff,62,180.79,No
+R10998,2025-07-14,Westfield,Home,2,Wrong item shipped and the refund took weeks,63,67.95,Yes
+R11009,2025-07-14,Northgate,Electronics,3,Average experience overall,50,60.6,No
+R10762,2025-07-16,Downtown,Grocery,2,Website kept crashing during checkout,69,79.21,Yes
+R10916,2025-07-16,Downtown,Clothing,4,"Product works perfectly, highly recommend",35,211.75,No
+R10690,2025-07-17,Riverside,Garden,5,"Love the quality, will buy again",26,146.48,No
+R10759,2025-07-17,Westfield,Toys,1,,22,104.92,Yes
+R11032,2025-07-17,Downtown,Home,3,Store was open when listed,33,65.02,Yes
+R11035,2025-07-17,Westfield,Electronics,4,Clean store and great selection,23,84.88,No
+R10942,2025-07-18,Westfield,Home,4,"Fast delivery, exactly what I ordered",26,103.39,No
+R10617,2025-07-19,Westfield,Garden,2,Rude staff and long wait times,36,245.54,Yes
+R10313,2025-07-20,Eastside,Garden,3,Store was open when listed,16,122.63,Yes
+R10563,2025-07-20,Northgate,Electronics,2,Website kept crashing during checkout,27,105.67,Yes
+R10747,2025-07-20,Northgate,Garden,1,"Item was damaged when it arrived. terrible customer service, nobody answered",59,82.19,Yes
+R10906,2025-07-20,Downtown,Grocery,4,"Product works perfectly, highly recommend",32,135.24,No
+R10516,2025-07-21,Northgate,Garden,3,Prices are about the same as other stores,24,25.93,Yes
+R10609,2025-07-21,Eastside,Home,3,Product arrived on the expected date. very slow delivery and no updates,43,139.69,Yes
+R10664,2025-07-21,Downtown,Electronics,5,"Fast delivery, exactly what I ordered",36,28.02,Yes
+R11163,2025-07-22,Riverside,Clothing,4,The staff were very helpful and kind,50,136.0,Yes
+R10378,2025-07-23,Northgate,Home,4,"Product works perfectly, highly recommend. love the quality, will buy again",29,26.54,No
+R10503,2025-07-23,Northgate,Toys,2,Overpriced and poor quality,65,101.64,No
+R10718,2025-07-23,Riverside,Garden,3,Average experience overall,71,127.22,No
+R11002,2025-07-23,Riverside,Grocery,3,Store was open when listed,50,133.17,Yes
+R10424,2025-07-24,Northgate,Home,5,"Love the quality, will buy again",10,138.21,No
+R10298,2025-07-25,Eastside,Clothing,3,"It was okay, nothing special",46,82.49,Yes
+R10935,2025-07-25,Downtown,Garden,4,"Clean store and great selection. fast delivery, exactly what i ordered",32,175.63,No
+R10126,2025-07-26,Westfield,Electronics,5,The staff were very helpful and kind,24,138.94,No
+R10017,2025-07-27,Northgate,Electronics,1,Website kept crashing during checkout. very slow delivery and no updates,36,64.51,No
+R10705,2025-07-27,Riverside,Garden,4,Easy checkout and quick pickup,43,89.69,No
+R11091,2025-07-27,Westfield,Home,2,"Terrible customer service, nobody answered",33,69.75,Yes
+R10069,2025-07-28,Westfield,Garden,3,"It was okay, nothing special. it was okay, nothing special",5,83.96,No
+R10154,2025-07-29,Riverside,Clothing,4,"Fast delivery, exactly what I ordered",22,127.13,Yes
+R10151,2025-07-30,Downtown,Garden,3,"It was okay, nothing special",22,63.71,No
+R10223,2025-07-30,Westfield,Garden,4,,38,77.76,No
+R10603,2025-08-02,Downtown,Toys,4,"Product works perfectly, highly recommend",26,89.32,No
+R10830,2025-08-03,Northgate,Electronics,1,Overpriced and poor quality,51,119.99,Yes
+R10638,2025-08-04,Riverside,Toys,3,"It was okay, nothing special",17,254.61,No
+R10657,2025-08-04,Westfield,Electronics,2,"Long lines at checkout, very frustrating. item was damaged when it arrived",21,89.02,No
+R10793,2025-08-05,Riverside,Clothing,5,"Amazing customer support, solved my issue fast",34,150.61,No
+R10458,2025-08-06,Riverside,Home,5,"Easy checkout and quick pickup. amazing customer support, solved my issue fast",23,115.98,No
+R10630,2025-08-07,Downtown,Garden,5,Easy checkout and quick pickup,37,140.81,Yes
+R11004,2025-08-07,Eastside,Electronics,1,Item was damaged when it arrived,32,136.97,Yes
+R11016,2025-08-07,Downtown,Toys,3,"It was okay, nothing special",27,85.83,No
+R10252,2025-08-08,Riverside,Electronics,4,"Love the quality, will buy again",60,113.74,Yes
+R10334,2025-08-08,Riverside,Grocery,3,Average experience overall,70,56.65,No
+R10724,2025-08-08,Northgate,Electronics,3,Product arrived on the expected date. rude staff and long wait times,24,110.48,No
+R11145,2025-08-08,Eastside,Toys,3,Prices are about the same as other stores,57,51.82,No
+R10148,2025-08-10,Northgate,Garden,5,Easy checkout and quick pickup,54,81.15,No
+R10483,2025-08-10,Downtown,Grocery,4,"Amazing customer support, solved my issue fast",15,18.86,No
+R10210,2025-08-11,Downtown,Grocery,3,Store was open when listed,29,50.09,No
+R10306,2025-08-11,Westfield,Toys,4,Easy checkout and quick pickup. excellent value for the price,55,83.83,No
+R10339,2025-08-11,Westfield,Clothing,1,The product broke after one week,62,42.89,Yes
+R10526,2025-08-11,Eastside,Home,3,Ordered online and picked it up. rude staff and long wait times,69,105.17,Yes
+R10971,2025-08-11,Eastside,Home,4,"Love the quality, will buy again",32,54.55,Yes
+R11061,2025-08-11,Northgate,Electronics,2,Overpriced and poor quality. rude staff and long wait times,52,76.44,Yes
+R11085,2025-08-11,Downtown,Grocery,4,"Fast delivery, exactly what I ordered",63,77.65,No
+R11146,2025-08-11,Riverside,Grocery,5,"Love the quality, will buy again",61,40.55,No
+R10050,2025-08-12,Downtown,Grocery,4,"Amazing customer support, solved my issue fast",30,39.45,No
+R11188,2025-08-12,Riverside,Home,4,"Product works perfectly, highly recommend",12,75.84,No
+R10692,2025-08-13,Westfield,Toys,4,"Amazing customer support, solved my issue fast",47,98.28,No
+R10972,2025-08-13,Northgate,Electronics,4,The staff were very helpful and kind,65,129.33,No
+R10524,2025-08-14,Northgate,Garden,4,Clean store and great selection,67,68.67,No
+R10839,2025-08-15,Riverside,Home,4,"Amazing customer support, solved my issue fast",42,88.57,No
+R10510,2025-08-18,Westfield,Toys,5,The staff were very helpful and kind,59,52.8,No
+R11025,2025-08-18,Eastside,Grocery,3,Store was open when listed. product arrived on the expected date,4,172.14,Yes
+R10062,2025-08-19,Northgate,Garden,5,"Amazing customer support, solved my issue fast. product works perfectly, highly recommend",56,126.99,No
+R10858,2025-08-19,Eastside,Grocery,4,"Fast delivery, exactly what I ordered. the staff were very helpful and kind",71,318.51,No
+R10093,2025-08-20,Downtown,Clothing,2,Item was damaged when it arrived,48,102.79,Yes
+R10228,2025-08-20,Eastside,Garden,4,Great service and friendly staff. clean store and great selection,7,139.61,No
+R10349,2025-08-20,Downtown,Toys,3,Ordered online and picked it up. rude staff and long wait times,57,102.25,No
+R10430,2025-08-21,Downtown,Clothing,5,"Fast delivery, exactly what I ordered. excellent value for the price",39,55.77,No
+R10094,2025-08-22,Northgate,Clothing,3,Ordered online and picked it up,63,139.34,No
+R10540,2025-08-22,Northgate,Home,1,Website kept crashing during checkout. overpriced and poor quality,5,151.49,Yes
+R10185,2025-08-24,Northgate,Toys,3,Average experience overall,13,59.42,Yes
+R10814,2025-08-24,Eastside,Toys,4,"Fast delivery, exactly what I ordered. the staff were very helpful and kind",71,88.81,No
+R10172,2025-08-25,Riverside,Clothing,1,"Terrible customer service, nobody answered. terrible customer service, nobody answered",70,82.33,Yes
+R10950,2025-08-25,Northgate,Home,3,"It was okay, nothing special. fast delivery, exactly what i ordered",43,77.24,No
+R11110,2025-08-25,Westfield,Toys,3,Prices are about the same as other stores,41,137.57,Yes
+R11184,2025-08-25,Riverside,Garden,1,The product broke after one week,7,63.43,Yes
+R10468,2025-08-26,Westfield,Toys,2,Very slow delivery and no updates,65,208.7,No
+R10867,2025-08-26,Riverside,Toys,4,"Fast delivery, exactly what I ordered. product works perfectly, highly recommend",43,64.45,Yes
+R11046,2025-08-26,Northgate,Garden,2,Overpriced and poor quality. rude staff and long wait times,14,135.88,Yes
+R10403,2025-08-27,Eastside,Toys,2,Very slow delivery and no updates. item was damaged when it arrived,60,104.95,Yes
+R10957,2025-08-27,Northgate,Electronics,3,Ordered online and picked it up,1,112.31,Yes
+R11079,2025-08-27,Eastside,Clothing,2,The product broke after one week,32,125.27,Yes
+R10241,2025-08-28,Westfield,Toys,2,"Terrible customer service, nobody answered. very slow delivery and no updates",11,138.86,No
+R10996,2025-08-28,Riverside,Toys,2,"Wrong item shipped and the refund took weeks. terrible customer service, nobody answered",11,42.06,Yes
+R10381,2025-08-29,Riverside,Electronics,5,"Fast delivery, exactly what I ordered",15,43.66,No
+R11008,2025-08-29,Riverside,Grocery,4,"Love the quality, will buy again",23,44.61,No
+R10152,2025-08-30,Riverside,Electronics,2,Rude staff and long wait times. item was damaged when it arrived,65,195.39,No
+R10286,2025-08-30,Eastside,Toys,3,Prices are about the same as other stores,30,52.0,No
+R10386,2025-08-30,Riverside,Garden,3,"It was okay, nothing special. great service and friendly staff",38,68.21,Yes
+R10615,2025-08-31,Northgate,Electronics,2,"Long lines at checkout, very frustrating",33,257.12,Yes
+R11152,2025-08-31,Riverside,Clothing,5,"Product works perfectly, highly recommend",22,44.05,No
+R11099,2025-09-01,Westfield,Garden,2,Item was damaged when it arrived,33,209.47,No
+R10380,2025-09-02,Northgate,Garden,5,"Love the quality, will buy again",25,82.4,No
+R10394,2025-09-02,Eastside,Toys,2,Wrong item shipped and the refund took weeks,9,39.61,Yes
+R11003,2025-09-02,Northgate,Toys,2,Very slow delivery and no updates. wrong item shipped and the refund took weeks,65,50.31,Yes
+R11130,2025-09-03,Downtown,Home,4,Great service and friendly staff,20,83.09,No
+R10893,2025-09-04,Downtown,Home,4,Clean store and great selection. easy checkout and quick pickup,28,61.74,Yes
+R10055,2025-09-05,Riverside,Home,4,Clean store and great selection. great service and friendly staff,30,37.73,Yes
+R10060,2025-09-05,Riverside,Grocery,4,Easy checkout and quick pickup,5,41.11,No
+R10283,2025-09-05,Downtown,Home,1,Very slow delivery and no updates. website kept crashing during checkout,37,78.58,Yes
+R10371,2025-09-05,Downtown,Clothing,5,Easy checkout and quick pickup. excellent value for the price,27,43.28,No
+R10443,2025-09-05,Riverside,Toys,4,"Excellent value for the price. love the quality, will buy again",35,89.49,No
+R10624,2025-09-05,Eastside,Electronics,3,"Prices are about the same as other stores. fast delivery, exactly what i ordered",28,39.49,Yes
+R10661,2025-09-05,Downtown,Home,4,Clean store and great selection,18,23.46,No
+R10803,2025-09-05,Westfield,Grocery,5,Clean store and great selection,65,81.3,No
+R10242,2025-09-06,Westfield,Toys,5,"Product works perfectly, highly recommend",63,168.01,No
+R11115,2025-09-06,Downtown,Grocery,3,Prices are about the same as other stores,71,208.24,No
+R10892,2025-09-07,Eastside,Grocery,2,"Long lines at checkout, very frustrating",37,125.63,Yes
+R10237,2025-09-08,Riverside,Toys,4,The staff were very helpful and kind,70,130.25,No
+R10500,2025-09-08,Northgate,Home,4,"Fast delivery, exactly what I ordered",33,199.0,No
+R11178,2025-09-09,Riverside,Clothing,5,Easy checkout and quick pickup,15,151.09,No
+R10370,2025-09-10,Northgate,Electronics,3,"It was okay, nothing special",7,79.62,Yes
+R10090,2025-09-11,Westfield,Electronics,1,"Terrible customer service, nobody answered. very slow delivery and no updates",40,100.48,Yes
+R10452,2025-09-12,Northgate,Electronics,3,Store was open when listed. prices are about the same as other stores,33,104.95,Yes
+R11062,2025-09-12,Northgate,Garden,3,"It was okay, nothing special",21,71.16,No
+R10304,2025-09-13,Westfield,Home,3,Product arrived on the expected date,56,148.06,No
+R10623,2025-09-13,Riverside,Grocery,3,"It was okay, nothing special. store was open when listed",27,79.61,No
+R10691,2025-09-14,Eastside,Home,5,Easy checkout and quick pickup,1,110.43,Yes
+R10790,2025-09-14,Northgate,Grocery,3,Ordered online and picked it up,50,69.87,No
+R10952,2025-09-15,Westfield,Grocery,3,,35,104.38,No
+R10737,2025-09-16,Northgate,Clothing,5,Excellent value for the price,37,116.42,No
+R10018,2025-09-17,Eastside,Home,3,Store was open when listed,48,25.37,No
+R10671,2025-09-17,Eastside,Electronics,1,Rude staff and long wait times,45,100.42,Yes
+R10240,2025-09-18,Eastside,Electronics,3,Product arrived on the expected date. very slow delivery and no updates,63,129.35,No
+R10318,2025-09-18,Downtown,Garden,4,Excellent value for the price,20,98.05,No
+R11077,2025-09-18,Downtown,Garden,2,Rude staff and long wait times,60,195.76,Yes
+R10826,2025-09-19,Northgate,Grocery,2,Very slow delivery and no updates,24,124.81,No
+R10907,2025-09-20,Riverside,Electronics,3,"Product arrived on the expected date. it was okay, nothing special",47,48.71,Yes
+R10204,2025-09-21,Northgate,Garden,2,Rude staff and long wait times. overpriced and poor quality,36,143.4,No
+R10234,2025-09-21,Northgate,Garden,5,Excellent value for the price,35,70.68,No
+R10750,2025-09-21,Northgate,Garden,3,Product arrived on the expected date,46,26.43,No
+R10114,2025-09-22,Downtown,Grocery,4,Easy checkout and quick pickup. the staff were very helpful and kind,50,112.97,Yes
+R10257,2025-09-22,Downtown,Grocery,4,"Amazing customer support, solved my issue fast. product works perfectly, highly recommend",27,82.15,No
+R10670,2025-09-22,Westfield,Grocery,3,Store was open when listed,14,107.48,Yes
+R10967,2025-09-23,Northgate,Clothing,4,"Product works perfectly, highly recommend. clean store and great selection",29,64.18,No
+R10115,2025-09-24,Downtown,Electronics,4,Easy checkout and quick pickup,33,56.55,No
+R10479,2025-09-24,Northgate,Home,4,"Fast delivery, exactly what I ordered",32,151.76,No
+R10698,2025-09-24,Westfield,Home,1,Overpriced and poor quality. wrong item shipped and the refund took weeks,57,126.46,Yes
+R10700,2025-09-25,Eastside,Grocery,3,"Average experience overall. it was okay, nothing special",71,249.41,Yes
+R11114,2025-09-25,Westfield,Clothing,5,Excellent value for the price,29,157.07,No
+R10610,2025-09-27,Downtown,Garden,5,Easy checkout and quick pickup,6,122.09,No
+R11122,2025-09-27,Westfield,Clothing,4,The staff were very helpful and kind,52,94.46,No
+R10181,2025-09-28,Westfield,Home,3,"It was okay, nothing special. rude staff and long wait times",49,126.98,No
+R10693,2025-09-28,Westfield,Toys,2,Very slow delivery and no updates,2,95.66,No
+R10871,2025-09-30,Northgate,Garden,2,"Long lines at checkout, very frustrating",69,151.9,Yes
+R10939,2025-09-30,Downtown,Home,2,"Long lines at checkout, very frustrating. long lines at checkout, very frustrating",21,47.93,No
+R10977,2025-09-30,Eastside,Electronics,1,Very slow delivery and no updates. very slow delivery and no updates,4,79.92,Yes
+R10412,2025-10-01,Westfield,Electronics,2,Overpriced and poor quality,33,91.94,No
+R10287,2025-10-02,Eastside,Grocery,2,Website kept crashing during checkout,55,71.73,Yes
+R10258,2025-10-03,Eastside,Grocery,3,Average experience overall,27,61.73,Yes
+R10274,2025-10-03,Westfield,Grocery,3,Ordered online and picked it up. great service and friendly staff,6,57.74,No
+R10174,2025-10-04,Eastside,Grocery,1,"Terrible customer service, nobody answered. terrible customer service, nobody answered",51,58.91,Yes
+R10220,2025-10-05,Eastside,Electronics,3,Ordered online and picked it up. very slow delivery and no updates,19,92.08,No
+R10231,2025-10-05,Northgate,Electronics,4,Easy checkout and quick pickup. clean store and great selection,55,133.52,Yes
+R10565,2025-10-05,Westfield,Grocery,4,Clean store and great selection,8,175.11,No
+R11117,2025-10-05,Eastside,Grocery,4,"Clean store and great selection. fast delivery, exactly what i ordered",10,108.39,No
+R10177,2025-10-07,Riverside,Toys,5,"Love the quality, will buy again. excellent value for the price",66,72.01,No
+R10742,2025-10-07,Eastside,Electronics,4,"Love the quality, will buy again. love the quality, will buy again",35,76.65,No
+R10910,2025-10-10,Downtown,Clothing,2,"Long lines at checkout, very frustrating",67,162.09,No
+R10163,2025-10-11,Downtown,Grocery,4,"Product works perfectly, highly recommend. amazing customer support, solved my issue fast",28,44.75,No
+R10758,2025-10-12,Westfield,Clothing,3,Ordered online and picked it up,1,139.35,Yes
+R10994,2025-10-12,Eastside,Toys,3,"It was okay, nothing special",22,90.48,No
+R10968,2025-10-13,Downtown,Garden,3,"It was okay, nothing special",50,74.45,Yes
+R11042,2025-10-13,Northgate,Home,3,"It was okay, nothing special. fast delivery, exactly what i ordered",20,96.68,Yes
+R11151,2025-10-13,Westfield,Electronics,3,Prices are about the same as other stores. prices are about the same as other stores,50,36.22,Yes
+R10560,2025-10-14,Eastside,Toys,4,,2,83.78,No
+R10016,2025-10-15,Downtown,Garden,3,Average experience overall,36,169.43,No
+R10579,2025-10-15,Downtown,Garden,3,Prices are about the same as other stores,38,43.83,Yes
+R11047,2025-10-15,Riverside,Electronics,3,Store was open when listed,43,30.8,Yes
+R10770,2025-10-16,Northgate,Toys,1,"Terrible customer service, nobody answered. wrong item shipped and the refund took weeks",60,151.03,Yes
+R11199,2025-10-16,Riverside,Electronics,4,Easy checkout and quick pickup,24,176.99,Yes
+R10497,2025-10-20,Northgate,Clothing,4,"Amazing customer support, solved my issue fast. easy checkout and quick pickup",22,9.06,No
+R11037,2025-10-20,Westfield,Toys,4,"Product works perfectly, highly recommend. clean store and great selection",44,106.76,No
+R10367,2025-10-21,Eastside,Home,4,Excellent value for the price,61,20.88,No
+R10421,2025-10-21,Northgate,Toys,4,Great service and friendly staff,1,70.7,No
+R11129,2025-10-22,Northgate,Grocery,4,"Amazing customer support, solved my issue fast",28,78.95,No
+R10047,2025-10-23,Eastside,Electronics,4,"Fast delivery, exactly what I ordered. fast delivery, exactly what i ordered",48,256.86,No
+R10145,2025-10-23,Eastside,Electronics,3,Product arrived on the expected date,3,191.67,No
+R10278,2025-10-23,Riverside,Garden,4,Excellent value for the price,62,87.35,No
+R10375,2025-10-23,Northgate,Garden,3,"Prices are about the same as other stores. fast delivery, exactly what i ordered",35,101.41,No
+R10641,2025-10-23,Northgate,Electronics,2,"The product broke after one week. terrible customer service, nobody answered",54,169.9,Yes
+R10343,2025-10-25,Eastside,Clothing,5,Great service and friendly staff,56,252.48,No
+R11176,2025-10-25,Northgate,Home,3,Store was open when listed,55,112.09,No
+R10042,2025-10-26,Northgate,Electronics,2,"Terrible customer service, nobody answered",49,134.11,No
+R10484,2025-10-26,Northgate,Home,4,Easy checkout and quick pickup,5,158.12,No
+R10006,2025-10-27,Northgate,Grocery,5,Great service and friendly staff,18,70.44,No
+R10025,2025-10-28,Riverside,Grocery,5,"Amazing customer support, solved my issue fast. clean store and great selection",46,79.49,No
+R10297,2025-10-28,Downtown,Garden,4,Easy checkout and quick pickup. easy checkout and quick pickup,60,125.34,No
+R10340,2025-10-29,Eastside,Home,1,Very slow delivery and no updates,59,100.42,No
+R10498,2025-10-29,Northgate,Garden,3,Store was open when listed,10,123.72,Yes
+R10776,2025-10-29,Northgate,Electronics,2,Wrong item shipped and the refund took weeks,23,152.65,No
+R10890,2025-10-29,Eastside,Toys,3,Product arrived on the expected date. prices are about the same as other stores,3,96.94,No
+R10076,2025-10-30,Downtown,Grocery,2,Website kept crashing during checkout,46,101.07,Yes
+R10123,2025-10-31,Riverside,Garden,3,Store was open when listed,25,171.03,Yes
+R10233,2025-10-31,Riverside,Grocery,5,Great service and friendly staff,24,135.05,No
+R10383,2025-11-02,Riverside,Garden,5,Easy checkout and quick pickup,34,50.62,No
+R10046,2025-11-04,Riverside,Garden,3,"Store was open when listed. it was okay, nothing special",50,174.88,Yes
+R10203,2025-11-05,Eastside,Garden,2,The product broke after one week,56,191.64,No
+R10305,2025-11-05,Eastside,Home,1,"Very slow delivery and no updates. terrible customer service, nobody answered",9,36.57,Yes
+R10687,2025-11-05,Riverside,Garden,4,"Excellent value for the price. product works perfectly, highly recommend",44,118.95,Yes
+R10176,2025-11-06,Eastside,Home,4,"Amazing customer support, solved my issue fast",19,216.94,No
+R10359,2025-11-06,Riverside,Electronics,2,"Long lines at checkout, very frustrating",49,118.82,Yes
+R10854,2025-11-06,Eastside,Garden,1,Wrong item shipped and the refund took weeks,35,100.89,Yes
+R10991,2025-11-06,Westfield,Home,1,Overpriced and poor quality. overpriced and poor quality,14,67.55,Yes
+R10027,2025-11-07,Eastside,Electronics,4,"Excellent value for the price. amazing customer support, solved my issue fast",8,119.23,No
+R11125,2025-11-07,Northgate,Clothing,3,"Ordered online and picked it up. it was okay, nothing special",23,59.68,No
+R10071,2025-11-08,Downtown,Home,2,Rude staff and long wait times. very slow delivery and no updates,64,173.53,No
+R10218,2025-11-08,Northgate,Toys,4,"Product works perfectly, highly recommend",24,305.61,No
+R10345,2025-11-08,Westfield,Garden,1,"Long lines at checkout, very frustrating",45,30.42,Yes
+R10470,2025-11-08,Riverside,Electronics,4,"Amazing customer support, solved my issue fast",47,162.9,Yes
+R10553,2025-11-08,Northgate,Toys,5,"Easy checkout and quick pickup. amazing customer support, solved my issue fast",24,49.32,No
+R11127,2025-11-08,Eastside,Toys,2,Overpriced and poor quality,28,266.6,No
+R10669,2025-11-09,Northgate,Toys,3,Average experience overall,47,136.4,Yes
+R10875,2025-11-09,Westfield,Electronics,5,"Amazing customer support, solved my issue fast",11,159.76,No
+R11063,2025-11-10,Northgate,Clothing,3,Average experience overall,1,82.63,No
+R10109,2025-11-11,Riverside,Home,3,"It was okay, nothing special. ordered online and picked it up",66,79.62,No
+R10480,2025-11-11,Riverside,Home,5,"Product works perfectly, highly recommend",39,70.69,No
+R10295,2025-11-13,Northgate,Home,2,"Item was damaged when it arrived. terrible customer service, nobody answered",19,41.06,Yes
+R10607,2025-11-13,Eastside,Grocery,2,Wrong item shipped and the refund took weeks. rude staff and long wait times,31,131.38,Yes
+R10888,2025-11-13,Eastside,Grocery,2,Overpriced and poor quality. item was damaged when it arrived,1,89.72,No
+R10289,2025-11-14,Downtown,Home,2,Rude staff and long wait times,56,34.96,No
+R10327,2025-11-14,Riverside,Home,5,The staff were very helpful and kind,46,104.9,Yes
+R10570,2025-11-15,Northgate,Toys,3,Store was open when listed,28,98.46,No
+R10159,2025-11-16,Downtown,Garden,4,"Fast delivery, exactly what I ordered",25,102.29,Yes
+R10473,2025-11-16,Eastside,Clothing,4,"Amazing customer support, solved my issue fast",65,25.31,No
+R10088,2025-11-17,Riverside,Toys,2,Item was damaged when it arrived,6,83.28,Yes
+R10261,2025-11-17,Riverside,Garden,3,Average experience overall,13,86.87,Yes
+R11173,2025-11-17,Westfield,Electronics,3,,17,170.48,No
+R10543,2025-11-19,Northgate,Electronics,4,,49,47.14,No
+R11142,2025-11-19,Northgate,Toys,5,Excellent value for the price. the staff were very helpful and kind,3,65.81,No
+R10192,2025-11-20,Downtown,Electronics,3,Store was open when listed. product arrived on the expected date,23,51.01,No
+R10311,2025-11-20,Downtown,Clothing,1,"Terrible customer service, nobody answered. rude staff and long wait times",19,84.9,Yes
+R10592,2025-11-20,Downtown,Toys,3,Average experience overall,28,89.75,No
+R10104,2025-11-21,Downtown,Home,1,Wrong item shipped and the refund took weeks,7,94.31,Yes
+R11088,2025-11-21,Westfield,Electronics,4,Excellent value for the price. clean store and great selection,44,98.69,Yes
+R11096,2025-11-21,Eastside,Garden,1,Overpriced and poor quality,48,128.68,Yes
+R11098,2025-11-21,Eastside,Electronics,2,Overpriced and poor quality. very slow delivery and no updates,57,57.51,No
+R10209,2025-11-24,Westfield,Grocery,2,Item was damaged when it arrived,18,41.07,No
+R10887,2025-11-24,Eastside,Clothing,3,Ordered online and picked it up,8,92.96,No
+R10569,2025-11-25,Riverside,Electronics,3,Product arrived on the expected date,38,38.73,Yes
+R10949,2025-11-25,Westfield,Garden,4,"The staff were very helpful and kind. fast delivery, exactly what i ordered",1,79.25,Yes
+R10296,2025-11-27,Downtown,Grocery,2,"Long lines at checkout, very frustrating",55,72.52,Yes
+R10637,2025-11-27,Eastside,Garden,4,"Amazing customer support, solved my issue fast",12,51.68,No
+R10872,2025-11-27,Downtown,Home,4,"Fast delivery, exactly what I ordered. clean store and great selection",10,124.92,Yes
+R10741,2025-11-28,Eastside,Clothing,2,"Terrible customer service, nobody answered",38,93.7,Yes
+R11026,2025-11-30,Riverside,Garden,2,Very slow delivery and no updates. wrong item shipped and the refund took weeks,32,44.19,Yes
+R10213,2025-12-01,Eastside,Home,4,"Fast delivery, exactly what I ordered",9,79.22,No
+R10658,2025-12-01,Westfield,Toys,5,"Fast delivery, exactly what I ordered. clean store and great selection",41,81.99,No
+R11007,2025-12-02,Westfield,Clothing,3,Store was open when listed,65,94.43,No
+R10757,2025-12-03,Northgate,Garden,2,Overpriced and poor quality,32,48.28,No
+R10824,2025-12-03,Downtown,Garden,3,Product arrived on the expected date. ordered online and picked it up,17,85.28,Yes
+R10224,2025-12-05,Eastside,Clothing,2,"Long lines at checkout, very frustrating. wrong item shipped and the refund took weeks",25,22.77,No
+R10491,2025-12-05,Riverside,Clothing,2,"Long lines at checkout, very frustrating",30,58.58,Yes
+R10816,2025-12-06,Westfield,Toys,5,"Love the quality, will buy again",49,21.52,No
+R11010,2025-12-06,Riverside,Grocery,3,"It was okay, nothing special",15,69.87,No
+R10554,2025-12-07,Riverside,Electronics,2,Overpriced and poor quality,1,102.17,No
+R10267,2025-12-08,Westfield,Clothing,4,"Product works perfectly, highly recommend",71,176.57,No
+R10466,2025-12-08,Riverside,Clothing,2,Item was damaged when it arrived. item was damaged when it arrived,12,124.17,Yes
+R10989,2025-12-09,Westfield,Toys,1,Website kept crashing during checkout,9,102.6,Yes
+R11069,2025-12-09,Riverside,Garden,2,Very slow delivery and no updates. website kept crashing during checkout,4,35.24,Yes
+R10054,2025-12-10,Westfield,Clothing,3,Product arrived on the expected date,16,81.42,Yes
+R10360,2025-12-10,Northgate,Electronics,1,Wrong item shipped and the refund took weeks,49,106.51,Yes
+R10316,2025-12-11,Northgate,Electronics,2,"Long lines at checkout, very frustrating",36,53.72,No
+R11038,2025-12-11,Northgate,Toys,3,Product arrived on the expected date. rude staff and long wait times,44,64.42,No
+R10020,2025-12-12,Riverside,Clothing,1,Wrong item shipped and the refund took weeks,5,63.58,Yes
+R10335,2025-12-12,Riverside,Garden,4,"Product works perfectly, highly recommend",43,58.56,No
+R10583,2025-12-12,Eastside,Electronics,3,"It was okay, nothing special. prices are about the same as other stores",30,102.5,Yes
+R10626,2025-12-13,Westfield,Home,4,Excellent value for the price,10,61.61,No
+R10067,2025-12-14,Westfield,Home,5,"Product works perfectly, highly recommend. love the quality, will buy again",50,139.86,No
+R10106,2025-12-14,Eastside,Clothing,4,Clean store and great selection,31,158.51,No
+R10024,2025-12-15,Riverside,Electronics,3,Average experience overall,61,153.92,No
+R10188,2025-12-15,Riverside,Grocery,4,Clean store and great selection,35,25.4,No
+R10879,2025-12-16,Westfield,Clothing,2,The product broke after one week,49,188.87,Yes
+R10146,2025-12-17,Eastside,Grocery,1,"Terrible customer service, nobody answered",6,110.49,Yes
+R10427,2025-12-17,Riverside,Clothing,5,Excellent value for the price. great service and friendly staff,40,86.03,No
+R10409,2025-12-18,Westfield,Home,5,Easy checkout and quick pickup,31,100.4,No
+R10688,2025-12-18,Downtown,Electronics,3,Ordered online and picked it up. prices are about the same as other stores,33,130.76,No
+R10194,2025-12-19,Northgate,Home,3,Ordered online and picked it up. ordered online and picked it up,30,108.49,No
+R10446,2025-12-19,Downtown,Clothing,4,Clean store and great selection,9,116.34,No
+R10447,2025-12-19,Riverside,Toys,5,Great service and friendly staff,29,85.57,No
+R10775,2025-12-19,Downtown,Garden,4,The staff were very helpful and kind,16,42.06,Yes
+R11070,2025-12-19,Downtown,Garden,3,Prices are about the same as other stores,27,98.18,Yes
+R10436,2025-12-21,Downtown,Toys,5,Excellent value for the price,32,73.96,No
+R10266,2025-12-23,Eastside,Toys,3,Prices are about the same as other stores,50,80.92,Yes
+R10773,2025-12-23,Eastside,Garden,2,"Terrible customer service, nobody answered",58,104.96,Yes
+R10000,2025-12-26,Westfield,Grocery,2,Item was damaged when it arrived. the product broke after one week,50,75.52,Yes
+R10566,2025-12-26,Northgate,Grocery,5,Easy checkout and quick pickup,57,59.09,No
+R10614,2025-12-27,Northgate,Electronics,3,"Ordered online and picked it up. it was okay, nothing special",35,196.94,No
+R10959,2025-12-27,Downtown,Garden,5,Easy checkout and quick pickup. easy checkout and quick pickup,36,147.38,No
+R10160,2025-12-28,Northgate,Grocery,2,"Website kept crashing during checkout. long lines at checkout, very frustrating",59,40.76,No
+R10642,2025-12-29,Northgate,Toys,1,"Long lines at checkout, very frustrating",66,121.16,No
+R10259,2026-01-01,Downtown,Garden,5,"Fast delivery, exactly what I ordered. amazing customer support, solved my issue fast",43,67.36,No
+R10169,2026-01-02,Riverside,Garden,3,"It was okay, nothing special. prices are about the same as other stores",30,164.81,No
+R10382,2026-01-03,Riverside,Garden,5,"Product works perfectly, highly recommend. clean store and great selection",7,99.03,No
+R10976,2026-01-03,Eastside,Garden,2,Overpriced and poor quality,15,88.76,No
+R10010,2026-01-04,Westfield,Toys,3,Average experience overall. great service and friendly staff,51,141.18,Yes
+R10092,2026-01-05,Northgate,Grocery,3,"It was okay, nothing special",46,80.16,Yes
+R10900,2026-01-05,Eastside,Garden,3,Average experience overall. product arrived on the expected date,23,146.57,Yes
+R10178,2026-01-06,Eastside,Grocery,1,"Very slow delivery and no updates. long lines at checkout, very frustrating",17,94.82,No
+R10405,2026-01-06,Northgate,Toys,5,"Love the quality, will buy again",37,69.42,No
+R10431,2026-01-06,Riverside,Electronics,3,Product arrived on the expected date,23,76.82,Yes
+R10091,2026-01-07,Eastside,Toys,3,"Prices are about the same as other stores. it was okay, nothing special",35,115.35,No
+R10105,2026-01-07,Downtown,Grocery,4,"Product works perfectly, highly recommend. amazing customer support, solved my issue fast",5,67.31,Yes
+R11165,2026-01-07,Downtown,Grocery,5,Easy checkout and quick pickup,26,43.27,No
+R10507,2026-01-08,Eastside,Grocery,2,"Overpriced and poor quality. terrible customer service, nobody answered",69,30.77,No
+R10857,2026-01-09,Downtown,Toys,5,"Love the quality, will buy again",65,157.35,No
+R10476,2026-01-10,Downtown,Garden,2,The product broke after one week. item was damaged when it arrived,26,99.99,Yes
+R10842,2026-01-10,Downtown,Toys,2,"Terrible customer service, nobody answered",35,69.85,Yes
+R10985,2026-01-10,Westfield,Clothing,2,Very slow delivery and no updates. wrong item shipped and the refund took weeks,27,66.48,Yes
+R10079,2026-01-11,Eastside,Toys,4,Clean store and great selection,41,46.42,No
+R10272,2026-01-11,Riverside,Clothing,3,Product arrived on the expected date. product arrived on the expected date,59,99.66,No
+R10708,2026-01-12,Riverside,Toys,5,Excellent value for the price. the staff were very helpful and kind,47,128.41,No
+R11181,2026-01-12,Westfield,Garden,5,"Fast delivery, exactly what I ordered",56,89.83,No
+R10111,2026-01-13,Northgate,Home,3,Average experience overall,38,130.27,No
+R10485,2026-01-13,Riverside,Electronics,5,The staff were very helpful and kind,12,146.91,No
+R10514,2026-01-13,Northgate,Toys,2,Wrong item shipped and the refund took weeks. overpriced and poor quality,71,90.39,No
+R10631,2026-01-14,Downtown,Garden,2,Rude staff and long wait times,70,97.19,No
+R10740,2026-01-14,Riverside,Clothing,3,Product arrived on the expected date,24,71.81,Yes
+R10144,2026-01-15,Westfield,Grocery,3,"Store was open when listed. fast delivery, exactly what i ordered",35,64.23,No
+R10675,2026-01-15,Northgate,Garden,4,Clean store and great selection,64,80.51,No
+R10777,2026-01-17,Riverside,Toys,4,"Amazing customer support, solved my issue fast",20,43.35,No
+R10535,2026-01-18,Riverside,Garden,3,Prices are about the same as other stores,17,89.98,No
+R10815,2026-01-19,Westfield,Toys,3,"It was okay, nothing special. fast delivery, exactly what i ordered",41,80.14,Yes
+R10837,2026-01-19,Downtown,Toys,4,The staff were very helpful and kind,14,121.17,No
+R10186,2026-01-20,Northgate,Electronics,3,Store was open when listed. store was open when listed,30,63.76,Yes
+R11006,2026-01-20,Northgate,Garden,5,Clean store and great selection,50,79.03,No
+R10301,2026-01-25,Eastside,Grocery,5,"Product works perfectly, highly recommend. amazing customer support, solved my issue fast",62,150.19,No
+R10309,2026-01-25,Riverside,Clothing,3,Prices are about the same as other stores,15,153.34,No
+R10538,2026-01-25,Downtown,Home,2,Item was damaged when it arrived,30,62.29,No
+R10966,2026-01-25,Downtown,Electronics,2,"Long lines at checkout, very frustrating",42,101.16,No
+R11015,2026-01-25,Riverside,Garden,1,The product broke after one week,12,120.25,Yes
+R10806,2026-01-27,Westfield,Grocery,4,Clean store and great selection,40,102.24,No
+R10882,2026-01-27,Downtown,Home,3,Store was open when listed,9,52.47,No
+R11197,2026-01-27,Riverside,Home,4,Excellent value for the price,48,91.22,No
+R10206,2026-01-28,Downtown,Home,2,Website kept crashing during checkout. overpriced and poor quality,23,60.26,Yes
+R10207,2026-01-28,Northgate,Toys,4,"Fast delivery, exactly what I ordered",56,40.21,Yes
+R11065,2026-01-28,Northgate,Home,5,"Clean store and great selection. fast delivery, exactly what i ordered",1,159.98,Yes
+R11179,2026-01-28,Downtown,Electronics,5,"Love the quality, will buy again. fast delivery, exactly what i ordered",16,33.65,Yes
+R11192,2026-01-28,Downtown,Clothing,5,Easy checkout and quick pickup,3,126.89,No
+R10001,2026-01-29,Eastside,Electronics,2,Wrong item shipped and the refund took weeks,53,154.52,No
+R10330,2026-01-29,Eastside,Garden,5,The staff were very helpful and kind,1,158.59,No
+R10541,2026-01-29,Riverside,Electronics,3,"It was okay, nothing special",14,145.08,Yes
+R10774,2026-01-29,Eastside,Garden,1,Very slow delivery and no updates,39,112.07,No
+R10836,2026-01-30,Downtown,Home,2,"Terrible customer service, nobody answered",37,210.68,No
+R11045,2026-01-30,Northgate,Garden,4,"Easy checkout and quick pickup. fast delivery, exactly what i ordered",60,33.79,No
+R10392,2026-01-31,Downtown,Garden,3,Ordered online and picked it up,12,121.57,Yes
+R10845,2026-01-31,Riverside,Garden,4,"Product works perfectly, highly recommend",7,70.37,No
+R11104,2026-01-31,Eastside,Electronics,1,Website kept crashing during checkout,71,126.87,Yes
+R10141,2026-02-01,Eastside,Garden,5,"Fast delivery, exactly what I ordered. fast delivery, exactly what i ordered",54,78.09,No
+R10823,2026-02-02,Riverside,Home,4,"Fast delivery, exactly what I ordered. love the quality, will buy again",1,32.85,No
+R10934,2026-02-02,Downtown,Toys,4,Easy checkout and quick pickup. clean store and great selection,48,143.9,No
+R11071,2026-02-02,Northgate,Electronics,4,Clean store and great selection,63,64.08,No
+R10528,2026-02-03,Westfield,Clothing,4,"Product works perfectly, highly recommend",59,73.93,Yes
+R10389,2026-02-04,Northgate,Clothing,3,Product arrived on the expected date. ordered online and picked it up,28,154.78,No
+R11154,2026-02-04,Downtown,Garden,5,"Love the quality, will buy again",7,152.32,No
+R10587,2026-02-05,Riverside,Garden,5,Great service and friendly staff,45,129.96,No
+R11076,2026-02-05,Westfield,Garden,4,"Product works perfectly, highly recommend. excellent value for the price",69,117.23,No
+R10199,2026-02-06,Westfield,Home,5,"Product works perfectly, highly recommend",68,121.47,Yes
+R10417,2026-02-08,Downtown,Garden,1,"Terrible customer service, nobody answered",26,52.45,Yes
+R10456,2026-02-08,Eastside,Clothing,4,"Product works perfectly, highly recommend",14,71.13,No
+R11143,2026-02-08,Northgate,Clothing,4,"Great service and friendly staff. fast delivery, exactly what i ordered",14,97.97,No
+R10086,2026-02-09,Riverside,Home,5,"Great service and friendly staff. product works perfectly, highly recommend",39,111.35,No
+R10861,2026-02-09,Riverside,Clothing,5,"Product works perfectly, highly recommend",7,77.11,No
+R10605,2026-02-10,Westfield,Electronics,4,"Fast delivery, exactly what I ordered",30,87.18,No
+R11097,2026-02-10,Riverside,Electronics,1,"Long lines at checkout, very frustrating. wrong item shipped and the refund took weeks",3,39.22,Yes
+R10121,2026-02-11,Northgate,Home,3,Store was open when listed,21,166.33,Yes
+R11039,2026-02-11,Westfield,Grocery,2,Website kept crashing during checkout. the product broke after one week,25,72.76,Yes
+R11105,2026-02-11,Eastside,Toys,1,"Terrible customer service, nobody answered",27,45.36,Yes
+R10089,2026-02-12,Westfield,Electronics,3,"Ordered online and picked it up. it was okay, nothing special",32,81.21,No
+R10469,2026-02-12,Riverside,Garden,2,Overpriced and poor quality. rude staff and long wait times,13,15.99,Yes
+R10656,2026-02-12,Riverside,Grocery,2,The product broke after one week,31,169.92,Yes
+R11029,2026-02-12,Riverside,Toys,1,Item was damaged when it arrived,15,93.05,Yes
+R11084,2026-02-13,Westfield,Grocery,4,"Love the quality, will buy again",14,49.9,Yes
+R11043,2026-02-14,Westfield,Electronics,3,Prices are about the same as other stores. great service and friendly staff,13,71.8,No
+R10041,2026-02-15,Downtown,Grocery,5,"Excellent value for the price. product works perfectly, highly recommend",61,120.87,No
+R10043,2026-02-15,Northgate,Electronics,3,Average experience overall,5,94.41,Yes
+R11083,2026-02-15,Eastside,Toys,2,Overpriced and poor quality. overpriced and poor quality,56,147.23,No
+R10068,2026-02-16,Eastside,Grocery,1,"Long lines at checkout, very frustrating. the product broke after one week",57,47.83,Yes
+R10171,2026-02-16,Downtown,Electronics,5,,24,67.99,No
+R10532,2026-02-16,Westfield,Garden,2,"Long lines at checkout, very frustrating",17,51.04,Yes
+R11068,2026-02-16,Downtown,Clothing,5,"Product works perfectly, highly recommend. product works perfectly, highly recommend",15,126.98,No
+R11189,2026-02-16,Northgate,Grocery,5,"Fast delivery, exactly what I ordered",22,155.36,Yes
+R10232,2026-02-17,Northgate,Clothing,2,"Item was damaged when it arrived. long lines at checkout, very frustrating",60,68.56,Yes
+R10608,2026-02-17,Riverside,Clothing,5,Easy checkout and quick pickup,5,71.92,No
+R10979,2026-02-17,Northgate,Electronics,4,The staff were very helpful and kind. clean store and great selection,35,112.51,No
+R10625,2026-02-18,Downtown,Home,3,Prices are about the same as other stores,40,140.67,No
+R11113,2026-02-18,Eastside,Grocery,2,Wrong item shipped and the refund took weeks,27,67.23,Yes
+R11180,2026-02-18,Westfield,Toys,3,Store was open when listed,33,255.6,Yes
+R10986,2026-02-20,Westfield,Clothing,5,"Product works perfectly, highly recommend",47,101.34,No
+R10913,2026-02-21,Eastside,Garden,1,"Long lines at checkout, very frustrating",22,38.37,Yes
+R10012,2026-02-24,Downtown,Electronics,4,Easy checkout and quick pickup. excellent value for the price,37,100.92,No
+R10251,2026-02-24,Downtown,Garden,2,"Long lines at checkout, very frustrating",26,182.25,Yes
+R10385,2026-02-24,Westfield,Toys,3,"Prices are about the same as other stores. it was okay, nothing special",37,99.96,No
+R10805,2026-02-24,Northgate,Grocery,5,Excellent value for the price,68,163.57,No
+R10847,2026-02-24,Riverside,Clothing,4,Clean store and great selection. excellent value for the price,38,66.59,No
+R10960,2026-02-24,Westfield,Grocery,4,"Love the quality, will buy again",7,59.63,No
+R10075,2026-02-25,Westfield,Electronics,2,Rude staff and long wait times,49,113.69,No
+R10395,2026-02-26,Westfield,Clothing,2,"Terrible customer service, nobody answered",67,80.22,Yes
+R10530,2026-02-26,Riverside,Toys,3,Ordered online and picked it up. prices are about the same as other stores,50,70.64,Yes
+R10681,2026-02-26,Riverside,Toys,3,Average experience overall. store was open when listed,43,151.53,No
+R10703,2026-02-26,Eastside,Clothing,3,"It was okay, nothing special. store was open when listed",55,133.45,No
+R10936,2026-02-26,Downtown,Home,4,"Amazing customer support, solved my issue fast",29,30.78,Yes
+R10990,2026-02-26,Riverside,Electronics,4,Clean store and great selection,33,105.35,No
+R10384,2026-02-27,Downtown,Clothing,3,Ordered online and picked it up,15,123.14,Yes
+R10649,2026-02-27,Downtown,Toys,2,Website kept crashing during checkout. overpriced and poor quality,39,228.01,No
+R10852,2026-02-28,Downtown,Home,4,"Product works perfectly, highly recommend. excellent value for the price",43,193.69,No
+R10660,2026-03-01,Eastside,Electronics,4,Easy checkout and quick pickup. easy checkout and quick pickup,1,196.02,Yes
+R10678,2026-03-01,Downtown,Electronics,3,"It was okay, nothing special. store was open when listed",25,148.82,No
+R10997,2026-03-01,Eastside,Garden,4,Great service and friendly staff,3,214.04,No
+R10488,2026-03-03,Westfield,Clothing,2,Very slow delivery and no updates,53,88.73,No
+R10667,2026-03-03,Riverside,Toys,5,,4,29.37,No
+R10646,2026-03-04,Downtown,Home,5,The staff were very helpful and kind,49,188.57,No
+R10755,2026-03-04,Westfield,Home,3,Average experience overall,64,89.4,No
+R10937,2026-03-04,Riverside,Home,5,Great service and friendly staff,33,142.48,No
+R10239,2026-03-05,Northgate,Clothing,5,Excellent value for the price. easy checkout and quick pickup,6,221.89,No
+R10441,2026-03-05,Downtown,Electronics,5,Clean store and great selection,20,38.9,No
+R10504,2026-03-05,Riverside,Garden,5,Excellent value for the price,33,161.94,No
+R10666,2026-03-05,Westfield,Electronics,3,"It was okay, nothing special",32,67.5,No
+R11057,2026-03-05,Westfield,Clothing,4,The staff were very helpful and kind,34,99.22,Yes
+R10087,2026-03-06,Riverside,Garden,3,Average experience overall. prices are about the same as other stores,29,39.53,No
+R10501,2026-03-07,Riverside,Home,3,"It was okay, nothing special",13,66.69,No
+R11185,2026-03-07,Westfield,Clothing,5,Excellent value for the price,70,84.43,No
+R10189,2026-03-08,Northgate,Toys,3,Prices are about the same as other stores,62,76.49,No
+R10338,2026-03-08,Eastside,Toys,4,Easy checkout and quick pickup. clean store and great selection,15,112.81,No
+R10542,2026-03-08,Eastside,Clothing,4,"Love the quality, will buy again. product works perfectly, highly recommend",16,36.87,Yes
+R10769,2026-03-08,Downtown,Home,4,,10,87.37,No
+R10212,2026-03-10,Downtown,Garden,4,Clean store and great selection,27,123.68,Yes
+R10749,2026-03-10,Eastside,Garden,4,Clean store and great selection,47,107.6,No
+R10864,2026-03-10,Riverside,Home,4,Easy checkout and quick pickup,15,57.18,No
+R11080,2026-03-11,Westfield,Clothing,4,The staff were very helpful and kind,11,174.17,No
+R10021,2026-03-12,Northgate,Garden,3,Ordered online and picked it up,46,41.88,No
+R10520,2026-03-13,Downtown,Home,3,"It was okay, nothing special",64,164.73,Yes
+R10863,2026-03-13,Eastside,Electronics,4,The staff were very helpful and kind,5,55.31,No
+R10943,2026-03-13,Eastside,Toys,1,Very slow delivery and no updates,4,49.2,Yes
+R11058,2026-03-13,Downtown,Electronics,5,The staff were very helpful and kind,10,150.75,No
+R10008,2026-03-14,Riverside,Toys,5,"Amazing customer support, solved my issue fast. fast delivery, exactly what i ordered",27,52.28,No
+R10053,2026-03-14,Riverside,Grocery,3,Prices are about the same as other stores,3,144.43,Yes
+R10812,2026-03-14,Eastside,Clothing,3,,54,86.86,No
+R10273,2026-03-15,Riverside,Garden,2,"Terrible customer service, nobody answered",71,126.35,Yes
+R10548,2026-03-15,Northgate,Toys,3,Store was open when listed,33,76.78,Yes
+R10732,2026-03-15,Northgate,Toys,3,Prices are about the same as other stores,53,84.25,No
+R10521,2026-03-16,Downtown,Toys,4,Excellent value for the price,56,156.49,No
+R11108,2026-03-16,Riverside,Garden,3,Ordered online and picked it up,26,133.79,No
+R10463,2026-03-18,Eastside,Toys,3,"Prices are about the same as other stores. it was okay, nothing special",27,151.43,Yes
+R10709,2026-03-18,Northgate,Garden,4,Easy checkout and quick pickup. excellent value for the price,47,74.78,No
+R10927,2026-03-18,Downtown,Home,3,"Prices are about the same as other stores. it was okay, nothing special",67,47.75,No
+R10512,2026-03-19,Eastside,Grocery,4,Excellent value for the price,56,74.01,Yes
+R11177,2026-03-19,Downtown,Clothing,2,The product broke after one week,58,94.11,Yes
+R10221,2026-03-20,Downtown,Clothing,3,Store was open when listed. ordered online and picked it up,69,250.13,No
+R10388,2026-03-20,Eastside,Electronics,1,"Terrible customer service, nobody answered",1,55.65,Yes
+R10981,2026-03-20,Northgate,Home,4,Clean store and great selection,47,77.52,No
+R10182,2026-03-21,Westfield,Electronics,4,The staff were very helpful and kind,16,261.61,Yes
+R10450,2026-03-21,Westfield,Electronics,1,Website kept crashing during checkout,13,126.22,Yes
+R11019,2026-03-21,Westfield,Clothing,4,Clean store and great selection,57,61.05,No
+R10119,2026-03-22,Riverside,Grocery,4,"Amazing customer support, solved my issue fast",71,81.91,No
+R10941,2026-03-22,Downtown,Electronics,3,"It was okay, nothing special",57,52.06,Yes
+R10519,2026-03-23,Eastside,Clothing,4,"Clean store and great selection. love the quality, will buy again",49,155.8,No
+R10193,2026-03-25,Eastside,Garden,1,,12,124.74,Yes
+R11148,2026-03-25,Downtown,Electronics,4,"Love the quality, will buy again",30,63.53,No
+R10426,2026-03-26,Downtown,Electronics,3,Product arrived on the expected date. ordered online and picked it up,51,33.01,No
+R10677,2026-03-26,Westfield,Garden,4,,1,90.79,No
+R10695,2026-03-26,Riverside,Clothing,3,Average experience overall,53,136.48,Yes
+R10299,2026-03-27,Northgate,Toys,5,,51,45.78,No
+R10432,2026-03-27,Eastside,Toys,1,Item was damaged when it arrived,6,48.63,No
+R10589,2026-03-28,Eastside,Grocery,5,"Amazing customer support, solved my issue fast. easy checkout and quick pickup",26,97.82,Yes
+R11191,2026-03-30,Riverside,Electronics,4,"Product works perfectly, highly recommend. excellent value for the price",36,109.34,No
+R10362,2026-04-03,Eastside,Clothing,2,"Long lines at checkout, very frustrating",55,63.84,Yes
+R10931,2026-04-03,Riverside,Electronics,4,"Fast delivery, exactly what I ordered",25,157.34,No
+R10117,2026-04-04,Eastside,Grocery,3,Prices are about the same as other stores,13,104.65,No
+R10442,2026-04-04,Westfield,Electronics,3,Ordered online and picked it up,56,170.81,Yes
+R10686,2026-04-04,Riverside,Electronics,4,"Amazing customer support, solved my issue fast",52,125.64,Yes
+R10226,2026-04-05,Northgate,Home,4,"Product works perfectly, highly recommend",64,73.96,Yes
+R10891,2026-04-05,Downtown,Clothing,4,"Fast delivery, exactly what I ordered",71,192.72,No
+R11018,2026-04-06,Downtown,Grocery,4,"Love the quality, will buy again",41,149.57,No
+R10180,2026-04-07,Riverside,Clothing,4,"Product works perfectly, highly recommend. easy checkout and quick pickup",57,130.06,No
+R10235,2026-04-07,Downtown,Grocery,2,"Item was damaged when it arrived. terrible customer service, nobody answered",62,85.16,No
+R10945,2026-04-07,Riverside,Clothing,5,Clean store and great selection,38,117.71,No
+R10581,2026-04-08,Eastside,Clothing,2,Very slow delivery and no updates. rude staff and long wait times,13,30.56,Yes
+R10685,2026-04-08,Riverside,Garden,4,"Fast delivery, exactly what I ordered",9,122.62,No
+R10205,2026-04-09,Riverside,Home,2,Rude staff and long wait times,26,36.45,Yes
+R10731,2026-04-09,Northgate,Clothing,3,Average experience overall. average experience overall,14,146.89,Yes
+R11011,2026-04-09,Downtown,Home,3,Product arrived on the expected date,34,80.08,No
+R11120,2026-04-11,Riverside,Home,4,The staff were very helpful and kind,3,158.9,No
+R10059,2026-04-12,Westfield,Home,3,Store was open when listed. ordered online and picked it up,20,82.58,Yes
+R10007,2026-04-14,Riverside,Electronics,2,"Terrible customer service, nobody answered",36,185.14,No
+R10082,2026-04-14,Eastside,Grocery,2,"Very slow delivery and no updates. long lines at checkout, very frustrating",14,135.66,No
+R10116,2026-04-14,Downtown,Home,4,"The staff were very helpful and kind. product works perfectly, highly recommend",56,88.59,No
+R10451,2026-04-14,Westfield,Clothing,1,Rude staff and long wait times,52,20.38,Yes
+R10284,2026-04-15,Riverside,Grocery,3,Product arrived on the expected date,26,48.33,Yes
+R10402,2026-04-16,Eastside,Clothing,4,"Fast delivery, exactly what I ordered. easy checkout and quick pickup",33,137.04,No
+R11072,2026-04-16,Riverside,Clothing,4,"Love the quality, will buy again",29,125.6,No
+R10097,2026-04-17,Northgate,Clothing,2,Overpriced and poor quality. wrong item shipped and the refund took weeks,61,137.77,Yes
+R10208,2026-04-18,Downtown,Home,5,Clean store and great selection,16,121.25,No
+R10969,2026-04-18,Eastside,Grocery,4,"Amazing customer support, solved my issue fast",43,37.77,No
+R10411,2026-04-19,Westfield,Clothing,4,Great service and friendly staff,4,77.24,Yes
+R10416,2026-04-19,Westfield,Electronics,3,Average experience overall,63,164.77,Yes
+R10428,2026-04-19,Westfield,Home,5,Clean store and great selection,5,127.63,No
+R10682,2026-04-19,Eastside,Home,4,"Product works perfectly, highly recommend",61,45.3,No
+R10764,2026-04-19,Westfield,Garden,5,Great service and friendly staff. great service and friendly staff,51,105.85,No
+R10933,2026-04-19,Eastside,Toys,3,Store was open when listed,53,73.75,No
+R10325,2026-04-20,Downtown,Electronics,5,"Product works perfectly, highly recommend. great service and friendly staff",10,192.56,No
+R10143,2026-04-21,Northgate,Grocery,4,"Love the quality, will buy again",52,66.83,Yes
+R10357,2026-04-21,Westfield,Grocery,4,"Love the quality, will buy again",35,37.68,No
+R10407,2026-04-21,Riverside,Clothing,3,Average experience overall,51,59.88,No
+R10768,2026-04-21,Riverside,Garden,4,"Product works perfectly, highly recommend",54,87.28,No
+R10855,2026-04-21,Eastside,Grocery,3,Product arrived on the expected date. store was open when listed,49,118.3,No
+R11050,2026-04-21,Eastside,Electronics,4,"Love the quality, will buy again",24,69.53,Yes
+R10477,2026-04-22,Eastside,Grocery,1,Very slow delivery and no updates. the product broke after one week,65,75.18,Yes
+R10236,2026-04-23,Eastside,Clothing,3,Product arrived on the expected date,14,108.95,Yes
+R10674,2026-04-24,Westfield,Toys,4,"Love the quality, will buy again. the staff were very helpful and kind",20,43.55,No
+R10697,2026-04-24,Northgate,Grocery,5,Clean store and great selection,10,108.88,No
+R10629,2026-04-25,Northgate,Garden,2,The product broke after one week. overpriced and poor quality,43,88.88,No
+R10951,2026-04-25,Northgate,Electronics,5,"Excellent value for the price. love the quality, will buy again",21,63.12,No
+R10246,2026-04-26,Northgate,Home,3,Product arrived on the expected date,66,159.05,No
+R11040,2026-04-26,Westfield,Clothing,5,The staff were very helpful and kind,35,79.84,No
+R10153,2026-04-27,Riverside,Garden,4,"Amazing customer support, solved my issue fast",30,124.72,No
+R10616,2026-04-27,Eastside,Electronics,2,"Long lines at checkout, very frustrating",16,155.38,Yes
+R10057,2026-04-28,Northgate,Garden,3,Ordered online and picked it up. great service and friendly staff,66,165.76,No
+R10475,2026-04-29,Eastside,Grocery,1,Overpriced and poor quality,24,89.86,Yes
+R10748,2026-04-29,Westfield,Toys,2,Website kept crashing during checkout,19,170.49,No
+R10813,2026-04-29,Downtown,Electronics,3,Store was open when listed. average experience overall,57,177.23,Yes
+R10265,2026-05-01,Eastside,Toys,2,"Long lines at checkout, very frustrating",13,34.68,Yes
+R10894,2026-05-01,Northgate,Toys,5,"Amazing customer support, solved my issue fast",44,93.88,No
+R11170,2026-05-02,Downtown,Toys,4,"Love the quality, will buy again",37,79.81,No
+R10680,2026-05-03,Downtown,Clothing,3,"Store was open when listed. it was okay, nothing special",66,70.96,Yes
+R11157,2026-05-03,Northgate,Grocery,4,"Fast delivery, exactly what I ordered",35,82.08,No
+R10039,2026-05-04,Eastside,Electronics,4,"Amazing customer support, solved my issue fast",17,192.38,No
+R10356,2026-05-06,Riverside,Home,2,"Long lines at checkout, very frustrating",6,95.43,Yes
+R11086,2026-05-07,Eastside,Home,3,Ordered online and picked it up,34,81.61,No
+R10499,2026-05-08,Downtown,Clothing,5,Easy checkout and quick pickup,11,78.66,No
+R10612,2026-05-08,Northgate,Home,5,Excellent value for the price,7,58.25,No
+R10746,2026-05-08,Riverside,Electronics,5,"Fast delivery, exactly what I ordered",16,108.57,No
+R10909,2026-05-08,Downtown,Electronics,3,Ordered online and picked it up. prices are about the same as other stores,29,52.16,Yes
+R11024,2026-05-08,Eastside,Garden,4,Excellent value for the price,62,97.13,No
+R10714,2026-05-09,Westfield,Clothing,2,Website kept crashing during checkout. overpriced and poor quality,21,33.23,Yes
+R10786,2026-05-09,Riverside,Electronics,1,The product broke after one week. rude staff and long wait times,39,157.6,Yes
+R10915,2026-05-09,Riverside,Electronics,4,"The staff were very helpful and kind. fast delivery, exactly what i ordered",24,89.94,Yes
+R11001,2026-05-09,Northgate,Clothing,4,"Easy checkout and quick pickup. love the quality, will buy again",52,136.41,No
+R10593,2026-05-10,Westfield,Home,2,Website kept crashing during checkout,1,169.13,No
+R10085,2026-05-11,Downtown,Grocery,1,Rude staff and long wait times,42,93.74,Yes
+R10101,2026-05-11,Westfield,Toys,3,,33,75.35,No
+R10107,2026-05-11,Eastside,Electronics,4,Excellent value for the price,4,126.97,Yes
+R10961,2026-05-11,Westfield,Garden,1,Very slow delivery and no updates. very slow delivery and no updates,33,55.55,Yes
+R11013,2026-05-12,Riverside,Home,5,"Fast delivery, exactly what I ordered",5,141.39,No
+R10406,2026-05-13,Eastside,Garden,4,Excellent value for the price,55,125.43,No
+R10752,2026-05-13,Riverside,Toys,2,Overpriced and poor quality,43,54.58,Yes
+R10187,2026-05-14,Downtown,Grocery,3,Average experience overall. rude staff and long wait times,5,54.67,No
+R10896,2026-05-14,Downtown,Electronics,3,Average experience overall,60,104.85,No
+R11107,2026-05-14,Riverside,Garden,3,Ordered online and picked it up. rude staff and long wait times,67,138.01,No
+R11116,2026-05-14,Northgate,Clothing,4,"Fast delivery, exactly what I ordered",42,67.76,No
+R10110,2026-05-15,Eastside,Electronics,3,Average experience overall,16,24.93,Yes
+R10564,2026-05-15,Eastside,Electronics,1,Overpriced and poor quality,34,149.92,No
+R10838,2026-05-15,Westfield,Clothing,4,"Fast delivery, exactly what I ordered. excellent value for the price",64,44.35,Yes
+R10037,2026-05-17,Riverside,Electronics,4,"Amazing customer support, solved my issue fast. excellent value for the price",53,255.18,No
+R11054,2026-05-17,Riverside,Electronics,3,Ordered online and picked it up,40,83.21,No
+R10032,2026-05-18,Riverside,Garden,2,Overpriced and poor quality,53,58.72,No
+R11119,2026-05-18,Westfield,Electronics,4,Clean store and great selection,57,53.22,Yes
+R11137,2026-05-18,Riverside,Toys,5,"Love the quality, will buy again",10,98.83,No
+R10268,2026-05-20,Northgate,Grocery,4,"Love the quality, will buy again",4,116.65,No
+R10312,2026-05-20,Downtown,Grocery,1,Very slow delivery and no updates,62,77.89,Yes
+R10921,2026-05-20,Eastside,Clothing,5,"Love the quality, will buy again",24,63.88,No
+R10947,2026-05-20,Downtown,Grocery,5,Easy checkout and quick pickup. easy checkout and quick pickup,4,45.06,No
+R10064,2026-05-21,Downtown,Home,3,Prices are about the same as other stores,42,170.95,Yes
+R10214,2026-05-21,Downtown,Electronics,5,"Clean store and great selection. product works perfectly, highly recommend",45,99.16,No
+R10323,2026-05-21,Northgate,Clothing,4,"Fast delivery, exactly what I ordered",65,149.8,No
+R10391,2026-05-21,Downtown,Grocery,3,Prices are about the same as other stores,12,59.9,No
+R10502,2026-05-22,Downtown,Grocery,3,Prices are about the same as other stores,64,102.39,No
+R10873,2026-05-22,Westfield,Clothing,3,Average experience overall. very slow delivery and no updates,52,75.53,No
+R10326,2026-05-24,Northgate,Home,3,"It was okay, nothing special. rude staff and long wait times",32,17.92,No
+R10874,2026-05-24,Northgate,Electronics,4,Excellent value for the price. excellent value for the price,41,38.74,No
+R10651,2026-05-25,Riverside,Electronics,4,"Product works perfectly, highly recommend",43,70.76,No
+R10166,2026-05-26,Downtown,Toys,2,Website kept crashing during checkout. overpriced and poor quality,38,83.65,Yes
+R10319,2026-05-27,Eastside,Clothing,3,Average experience overall,27,54.36,No
+R10611,2026-05-27,Northgate,Grocery,4,"Fast delivery, exactly what I ordered. the staff were very helpful and kind",39,131.86,No
+R10895,2026-05-27,Riverside,Toys,3,Product arrived on the expected date. product arrived on the expected date,25,116.67,Yes
+R10980,2026-05-27,Downtown,Electronics,1,Website kept crashing during checkout. overpriced and poor quality,43,92.92,Yes
+R11169,2026-05-27,Riverside,Clothing,4,,19,55.77,No
+R10342,2026-05-28,Eastside,Grocery,3,Product arrived on the expected date,34,158.61,No
+R10851,2026-05-28,Eastside,Home,2,"Long lines at checkout, very frustrating",47,104.1,No
+R10930,2026-05-28,Downtown,Electronics,3,Product arrived on the expected date,71,56.43,No
+R11162,2026-05-29,Northgate,Electronics,3,"It was okay, nothing special. store was open when listed",8,81.75,Yes
+R10601,2026-05-30,Eastside,Home,3,Store was open when listed,39,132.67,No
+R10255,2026-05-31,Eastside,Garden,2,"The product broke after one week. long lines at checkout, very frustrating",3,104.56,Yes
+R10127,2026-06-01,Northgate,Home,4,"Amazing customer support, solved my issue fast. clean store and great selection",28,97.95,No
+R11021,2026-06-01,Riverside,Electronics,3,Store was open when listed. rude staff and long wait times,55,60.04,No
+R10056,2026-06-03,Eastside,Electronics,1,Wrong item shipped and the refund took weeks. item was damaged when it arrived,40,107.04,No
+R11044,2026-06-03,Westfield,Home,5,"Product works perfectly, highly recommend. clean store and great selection",1,107.8,No
+R11174,2026-06-03,Westfield,Grocery,3,Prices are about the same as other stores. very slow delivery and no updates,2,61.79,Yes
+R10031,2026-06-04,Riverside,Garden,4,"The staff were very helpful and kind. fast delivery, exactly what i ordered",29,72.65,No
+R10539,2026-06-04,Westfield,Home,2,Very slow delivery and no updates,20,59.76,No
+R10622,2026-06-04,Northgate,Grocery,2,"Terrible customer service, nobody answered",26,123.02,No
+R10901,2026-06-04,Riverside,Electronics,3,Ordered online and picked it up,32,44.68,No
+R10352,2026-06-05,Westfield,Toys,2,Item was damaged when it arrived,23,130.44,No
+R11126,2026-06-05,Northgate,Garden,3,"It was okay, nothing special",43,73.81,No
+R10736,2026-06-06,Riverside,Toys,4,Easy checkout and quick pickup,8,62.45,No
+R11089,2026-06-06,Riverside,Home,1,Wrong item shipped and the refund took weeks. overpriced and poor quality,64,77.01,Yes
+R10211,2026-06-07,Eastside,Garden,1,"Terrible customer service, nobody answered",46,56.03,Yes
+R10789,2026-06-07,Eastside,Clothing,3,"It was okay, nothing special. prices are about the same as other stores",20,122.65,No
+R10963,2026-06-07,Northgate,Electronics,3,Ordered online and picked it up,15,145.87,No
+R10113,2026-06-09,Eastside,Garden,1,Rude staff and long wait times,28,50.26,Yes
+R10522,2026-06-09,Northgate,Toys,2,The product broke after one week,46,116.77,No
+R10074,2026-06-10,Westfield,Electronics,3,Ordered online and picked it up,27,116.42,No
+R10482,2026-06-10,Westfield,Toys,2,,41,62.74,No
+R10552,2026-06-10,Northgate,Home,4,The staff were very helpful and kind,35,63.28,Yes
+R10751,2026-06-10,Riverside,Toys,5,"Product works perfectly, highly recommend",42,28.32,No
+R11095,2026-06-10,Eastside,Home,2,Item was damaged when it arrived,12,116.27,No
+R10073,2026-06-11,Northgate,Electronics,3,"It was okay, nothing special",32,59.37,Yes
+R10282,2026-06-11,Riverside,Toys,1,Rude staff and long wait times. very slow delivery and no updates,68,77.92,Yes
+R10866,2026-06-11,Westfield,Clothing,4,The staff were very helpful and kind. great service and friendly staff,27,70.98,No
+R10002,2026-06-12,Riverside,Toys,4,"Easy checkout and quick pickup. product works perfectly, highly recommend",45,97.85,No
+R10245,2026-06-12,Westfield,Home,2,Rude staff and long wait times,25,77.31,No
+R10696,2026-06-12,Downtown,Home,5,Easy checkout and quick pickup,10,106.47,No
+R10061,2026-06-13,Westfield,Clothing,3,Average experience overall,65,79.57,No
+R10779,2026-06-15,Westfield,Clothing,3,Average experience overall. average experience overall,31,36.01,No
+R10597,2026-06-17,Riverside,Garden,5,Clean store and great selection,19,99.78,No
+R11134,2026-06-17,Westfield,Grocery,5,"Product works perfectly, highly recommend",15,27.02,No
+R10038,2026-06-18,Downtown,Clothing,2,The product broke after one week,26,93.62,No
+R10066,2026-06-18,Riverside,Toys,3,Ordered online and picked it up. prices are about the same as other stores,7,162.81,Yes
+R10419,2026-06-18,Northgate,Clothing,2,"Long lines at checkout, very frustrating",53,144.53,Yes
+R11196,2026-06-19,Westfield,Clothing,2,Item was damaged when it arrived,28,64.89,No
+R10098,2026-06-20,Eastside,Grocery,5,The staff were very helpful and kind,51,106.75,No
+R10433,2026-06-20,Northgate,Grocery,3,"Average experience overall. fast delivery, exactly what i ordered",2,101.07,No
+R10578,2026-06-20,Downtown,Clothing,3,"Store was open when listed. it was okay, nothing special",47,77.09,No
+R10908,2026-06-20,Westfield,Toys,2,,18,62.34,No
+R10870,2026-06-22,Northgate,Grocery,4,"Product works perfectly, highly recommend",67,160.71,No
+R10970,2026-06-22,Eastside,Clothing,4,The staff were very helpful and kind,30,70.11,No
+R10472,2026-06-23,Northgate,Grocery,3,Store was open when listed,47,173.88,Yes
+R10834,2026-06-24,Northgate,Clothing,4,Excellent value for the price. clean store and great selection,27,61.5,No
+R10493,2026-06-25,Riverside,Electronics,5,"Product works perfectly, highly recommend. amazing customer support, solved my issue fast",18,58.2,No
+R10551,2026-06-25,Eastside,Garden,2,Item was damaged when it arrived,46,50.66,Yes
+R10585,2026-06-25,Downtown,Home,5,"Amazing customer support, solved my issue fast",40,63.05,No
+R11103,2026-06-25,Riverside,Home,5,Great service and friendly staff,50,142.55,No
+R11132,2026-06-25,Riverside,Electronics,5,"Product works perfectly, highly recommend. great service and friendly staff",70,143.78,No
+R10928,2026-06-27,Downtown,Clothing,4,Excellent value for the price,24,67.21,No
+R10019,2026-06-28,Eastside,Grocery,4,"Amazing customer support, solved my issue fast",56,183.44,Yes
+R10310,2026-06-28,Eastside,Electronics,2,Rude staff and long wait times. very slow delivery and no updates,16,34.32,No
+R10509,2026-06-28,Eastside,Grocery,4,Excellent value for the price. easy checkout and quick pickup,68,202.14,No
+R10735,2026-06-28,Riverside,Toys,3,Ordered online and picked it up,12,126.03,Yes
+R10982,2026-06-28,Eastside,Toys,4,"Love the quality, will buy again",35,83.2,No
+R10515,2026-06-30,Northgate,Clothing,3,Average experience overall. average experience overall,41,94.48,No
+R10620,2026-06-30,Eastside,Grocery,2,Website kept crashing during checkout,14,85.65,Yes
+R10139,2026-07-01,Downtown,Grocery,4,"Amazing customer support, solved my issue fast",33,119.56,No
+R10291,2026-07-01,Riverside,Clothing,1,Website kept crashing during checkout,56,57.47,No
+R10995,2026-07-01,Westfield,Home,5,"Product works perfectly, highly recommend",70,62.66,No
+R10136,2026-07-02,Westfield,Clothing,1,"Long lines at checkout, very frustrating. overpriced and poor quality",7,67.77,Yes
+R10300,2026-07-02,Northgate,Clothing,4,The staff were very helpful and kind,71,38.3,Yes
+R10918,2026-07-02,Downtown,Toys,3,Ordered online and picked it up. great service and friendly staff,58,129.15,Yes
+R11135,2026-07-02,Downtown,Home,2,The product broke after one week. the product broke after one week,64,157.38,Yes
+R10827,2026-07-04,Downtown,Electronics,5,"Product works perfectly, highly recommend",29,133.95,No
+R10964,2026-07-05,Riverside,Home,3,"It was okay, nothing special. average experience overall",69,213.41,No
+R10292,2026-07-06,Downtown,Clothing,5,"Product works perfectly, highly recommend",62,121.04,No
+R10462,2026-07-06,Westfield,Toys,2,Wrong item shipped and the refund took weeks,25,138.19,No
+R10376,2026-07-07,Riverside,Electronics,4,Clean store and great selection,46,76.41,No
+R10015,2026-07-08,Riverside,Clothing,5,"Fast delivery, exactly what I ordered",38,71.25,No
+R10271,2026-07-08,Riverside,Clothing,4,"Amazing customer support, solved my issue fast. excellent value for the price",42,39.62,No
+R10124,2026-07-09,Downtown,Garden,5,Excellent value for the price,41,124.61,No
+R10369,2026-07-09,Westfield,Grocery,2,Very slow delivery and no updates,58,111.2,Yes
+R10726,2026-07-09,Downtown,Home,3,Prices are about the same as other stores,28,135.21,Yes
+R10860,2026-07-09,Downtown,Home,3,Average experience overall. great service and friendly staff,58,66.35,No
+R10924,2026-07-11,Westfield,Garden,5,Clean store and great selection,63,276.79,No
+R11020,2026-07-11,Riverside,Grocery,5,"Amazing customer support, solved my issue fast",43,59.91,No
+R11155,2026-07-11,Riverside,Grocery,4,"Love the quality, will buy again",20,74.47,Yes
+R10408,2026-07-12,Westfield,Garden,3,"It was okay, nothing special",46,31.92,Yes
+R10643,2026-07-12,Northgate,Clothing,2,Overpriced and poor quality,8,44.68,Yes
+R10648,2026-07-12,Eastside,Garden,3,Prices are about the same as other stores,46,42.35,No
+R10869,2026-07-12,Eastside,Home,2,Item was damaged when it arrived. rude staff and long wait times,18,47.55,Yes
+R10133,2026-07-13,Northgate,Toys,3,Store was open when listed,56,104.36,Yes
+R10216,2026-07-13,Westfield,Garden,2,Website kept crashing during checkout,23,188.08,No
+R10244,2026-07-14,Westfield,Grocery,4,Clean store and great selection. great service and friendly staff,64,104.58,No
+R10546,2026-07-14,Westfield,Garden,4,Great service and friendly staff. clean store and great selection,10,62.53,No
+R10580,2026-07-14,Eastside,Garden,2,The product broke after one week. rude staff and long wait times,7,28.26,Yes
+R10717,2026-07-14,Riverside,Electronics,4,"Fast delivery, exactly what I ordered",7,116.51,No
+R11031,2026-07-14,Riverside,Garden,4,"Amazing customer support, solved my issue fast",35,71.63,No
+R10128,2026-07-15,Riverside,Grocery,4,Easy checkout and quick pickup,38,47.52,No
+R10302,2026-07-15,Westfield,Clothing,5,"Easy checkout and quick pickup. product works perfectly, highly recommend",14,117.66,No
+R10844,2026-07-15,Westfield,Garden,3,Store was open when listed,37,38.44,No
+R10003,2026-07-16,Downtown,Toys,3,Prices are about the same as other stores,63,82.83,Yes
+R10797,2026-07-16,Downtown,Garden,4,Great service and friendly staff,63,56.69,No
+R10201,2026-07-17,Riverside,Garden,4,"Clean store and great selection. fast delivery, exactly what i ordered",36,48.23,No
+R10397,2026-07-17,Downtown,Electronics,5,Excellent value for the price,1,126.93,No
+R10576,2026-07-17,Westfield,Clothing,4,"Amazing customer support, solved my issue fast. clean store and great selection",5,86.01,No
+R10753,2026-07-17,Northgate,Electronics,4,Clean store and great selection,56,16.56,No
+R11172,2026-07-17,Northgate,Grocery,3,Average experience overall,8,173.72,Yes
+R10584,2026-07-18,Riverside,Toys,3,Store was open when listed,69,79.46,No
+R10841,2026-07-18,Eastside,Toys,4,,47,98.74,Yes
+R10044,2026-07-19,Northgate,Garden,4,"Love the quality, will buy again. the staff were very helpful and kind",44,326.17,No
+R10720,2026-07-19,Northgate,Clothing,2,"Long lines at checkout, very frustrating. overpriced and poor quality",56,94.51,No
+R11171,2026-07-20,Downtown,Toys,3,Store was open when listed,27,76.21,Yes
+R10341,2026-07-21,Northgate,Grocery,3,Prices are about the same as other stores,58,32.91,No
+R10444,2026-07-21,Northgate,Clothing,3,"It was okay, nothing special. product arrived on the expected date",63,58.88,No
+R10594,2026-07-21,Downtown,Garden,5,"Product works perfectly, highly recommend",16,42.01,Yes
+R11198,2026-07-24,Northgate,Toys,4,"Product works perfectly, highly recommend",46,98.34,No
+R10095,2026-07-25,Riverside,Clothing,2,The product broke after one week. item was damaged when it arrived,36,30.02,No
+R10490,2026-07-25,Westfield,Garden,3,Store was open when listed,61,60.06,Yes
+R10944,2026-07-25,Westfield,Garden,2,Rude staff and long wait times,3,115.97,Yes
+R11082,2026-07-25,Eastside,Electronics,5,"Love the quality, will buy again",9,244.88,No
+R10733,2026-07-27,Eastside,Garden,3,"It was okay, nothing special. it was okay, nothing special",54,134.62,No
+R11081,2026-07-27,Downtown,Clothing,3,Average experience overall,34,58.75,Yes
+R10173,2026-07-28,Northgate,Toys,3,Prices are about the same as other stores,27,150.77,No
+R11194,2026-07-28,Riverside,Garden,2,Item was damaged when it arrived. the product broke after one week,34,80.94,Yes
+R10884,2026-07-29,Westfield,Electronics,5,"Fast delivery, exactly what I ordered",6,104.61,No
+R10573,2026-07-30,Riverside,Electronics,4,"Love the quality, will buy again",5,133.4,No
+R10725,2026-07-30,Eastside,Electronics,2,Item was damaged when it arrived,23,128.79,No
+R10303,2026-07-31,Northgate,Garden,5,,54,77.45,No
+R10799,2026-07-31,Westfield,Home,3,Ordered online and picked it up,29,36.21,No
+R10940,2026-07-31,Downtown,Home,4,Great service and friendly staff,30,102.96,No
+R10549,2026-08-01,Downtown,Electronics,3,Average experience overall,13,103.95,No
+R11000,2026-08-01,Downtown,Home,4,Easy checkout and quick pickup. easy checkout and quick pickup,61,80.65,Yes
+R10868,2026-08-03,Westfield,Garden,1,Wrong item shipped and the refund took weeks,33,51.78,Yes
+R10122,2026-08-04,Westfield,Home,4,"Fast delivery, exactly what I ordered",60,177.15,No
+R10561,2026-08-04,Eastside,Electronics,2,"Long lines at checkout, very frustrating",63,89.74,Yes
+R11160,2026-08-04,Eastside,Garden,3,"Prices are about the same as other stores. it was okay, nothing special",15,86.8,No
+R10846,2026-08-05,Riverside,Home,3,Product arrived on the expected date. ordered online and picked it up,51,62.99,No
+R10926,2026-08-05,Downtown,Garden,4,"Amazing customer support, solved my issue fast. excellent value for the price",45,160.75,No
+R10329,2026-08-06,Riverside,Home,3,Prices are about the same as other stores,40,63.32,Yes
+R10974,2026-08-08,Eastside,Grocery,1,Very slow delivery and no updates. very slow delivery and no updates,2,160.03,Yes
+R10511,2026-08-09,Eastside,Toys,4,"Amazing customer support, solved my issue fast",43,62.37,No
+R10348,2026-08-12,Westfield,Home,4,Clean store and great selection. excellent value for the price,61,61.83,No
+R10465,2026-08-12,Eastside,Toys,5,"Fast delivery, exactly what I ordered",34,114.81,No
+R10722,2026-08-12,Westfield,Electronics,4,Great service and friendly staff,62,57.57,No
+R10988,2026-08-12,Northgate,Garden,5,"The staff were very helpful and kind. amazing customer support, solved my issue fast",20,93.12,No
+R10727,2026-08-13,Eastside,Electronics,2,"Long lines at checkout, very frustrating",37,67.51,Yes
+R10761,2026-08-13,Northgate,Clothing,2,Wrong item shipped and the refund took weeks,37,202.92,No
+R11190,2026-08-13,Westfield,Home,3,Prices are about the same as other stores. prices are about the same as other stores,58,37.05,No
+R10627,2026-08-14,Westfield,Electronics,4,The staff were very helpful and kind,37,76.85,No
+R11175,2026-08-14,Eastside,Electronics,4,"The staff were very helpful and kind. love the quality, will buy again",53,73.09,No
+R10072,2026-08-15,Northgate,Toys,2,Rude staff and long wait times,14,110.56,No
+R10704,2026-08-15,Westfield,Grocery,5,"Clean store and great selection. product works perfectly, highly recommend",18,66.2,No
+R10783,2026-08-16,Westfield,Garden,3,Store was open when listed. average experience overall,59,62.12,Yes
+R10531,2026-08-17,Westfield,Toys,3,Product arrived on the expected date,42,77.29,Yes
+R11049,2026-08-18,Westfield,Clothing,4,"Amazing customer support, solved my issue fast. excellent value for the price",57,102.21,No
+R10653,2026-08-19,Downtown,Clothing,3,"It was okay, nothing special",4,46.15,Yes
+R10730,2026-08-19,Northgate,Garden,4,Excellent value for the price,53,67.95,No
+R10795,2026-08-19,Westfield,Electronics,3,Product arrived on the expected date. product arrived on the expected date,43,81.3,No
+R11150,2026-08-19,Downtown,Home,3,Ordered online and picked it up. product arrived on the expected date,47,114.08,Yes
+R11027,2026-08-20,Downtown,Garden,3,"It was okay, nothing special. product arrived on the expected date",43,67.57,Yes
+R11087,2026-08-20,Riverside,Home,4,"Fast delivery, exactly what I ordered",13,67.7,No
+R11133,2026-08-21,Riverside,Garden,5,The staff were very helpful and kind,60,93.47,No
+R11094,2026-08-22,Riverside,Grocery,2,"Long lines at checkout, very frustrating",17,187.99,Yes
+R10260,2026-08-23,Northgate,Clothing,3,Ordered online and picked it up,11,262.05,No
+R11186,2026-08-23,Northgate,Toys,3,Ordered online and picked it up,67,28.35,Yes
+R10269,2026-08-25,Westfield,Home,4,"Fast delivery, exactly what I ordered",27,36.37,No
+R10743,2026-08-26,Downtown,Home,5,Clean store and great selection. clean store and great selection,15,108.35,No
+R10438,2026-08-27,Eastside,Electronics,4,Excellent value for the price. the staff were very helpful and kind,22,115.07,Yes
+R11153,2026-08-27,Northgate,Grocery,5,Easy checkout and quick pickup,46,61.57,No
+R10217,2026-08-29,Riverside,Electronics,4,"Love the quality, will buy again",48,159.34,No
+R10279,2026-08-29,Northgate,Grocery,5,"Great service and friendly staff. love the quality, will buy again",33,43.98,No
+R10461,2026-08-29,Northgate,Home,4,"Product works perfectly, highly recommend",33,131.69,No
+R10568,2026-08-29,Riverside,Grocery,3,,6,82.03,No
+R10595,2026-08-29,Westfield,Toys,5,"Product works perfectly, highly recommend",14,84.16,No
+R10862,2026-08-29,Eastside,Toys,4,"Fast delivery, exactly what I ordered. the staff were very helpful and kind",45,77.92,No
+R10878,2026-08-29,Riverside,Electronics,5,Excellent value for the price,61,78.79,No
+R10782,2026-08-30,Northgate,Toys,3,Store was open when listed,40,210.52,No
+R10078,2026-08-31,Riverside,Toys,4,"Product works perfectly, highly recommend",30,120.7,No
+R10256,2026-08-31,Eastside,Garden,3,Average experience overall,39,73.43,Yes
+R10880,2026-08-31,Northgate,Grocery,4,,57,114.96,No
+R11053,2026-08-31,Northgate,Toys,4,"Fast delivery, exactly what I ordered",16,47.11,No
+R10418,2026-09-02,Eastside,Clothing,4,The staff were very helpful and kind,46,138.01,No
+R10422,2026-09-03,Westfield,Grocery,3,Average experience overall,54,87.54,No
+R10679,2026-09-03,Westfield,Garden,5,Clean store and great selection,21,117.97,No
+R10828,2026-09-03,Westfield,Clothing,5,"Easy checkout and quick pickup. amazing customer support, solved my issue fast",28,79.64,No
+R11066,2026-09-03,Westfield,Electronics,4,"Product works perfectly, highly recommend. amazing customer support, solved my issue fast",25,59.45,Yes
+R10785,2026-09-04,Northgate,Clothing,2,"Terrible customer service, nobody answered",15,121.43,Yes
+R10333,2026-09-05,Downtown,Home,3,"It was okay, nothing special",36,135.35,Yes
+R11056,2026-09-05,Eastside,Garden,3,Store was open when listed,59,95.7,Yes
+R10161,2026-09-07,Northgate,Grocery,2,"Long lines at checkout, very frustrating",21,122.94,No
+R10387,2026-09-07,Eastside,Clothing,2,Rude staff and long wait times. website kept crashing during checkout,66,81.41,No
+R10794,2026-09-07,Westfield,Grocery,3,Prices are about the same as other stores,57,33.67,Yes
+R10022,2026-09-08,Downtown,Garden,4,Clean store and great selection. excellent value for the price,51,40.97,No
+R10567,2026-09-08,Downtown,Toys,4,Clean store and great selection,4,164.6,No
+R10923,2026-09-08,Riverside,Home,5,"Love the quality, will buy again",1,92.92,No
+R11183,2026-09-08,Downtown,Toys,3,Average experience overall. great service and friendly staff,57,118.83,Yes
+R10771,2026-09-09,Downtown,Grocery,3,Store was open when listed,44,145.48,No
+R10911,2026-09-09,Eastside,Electronics,3,Product arrived on the expected date,50,39.36,No
+R10574,2026-09-11,Northgate,Toys,2,Wrong item shipped and the refund took weeks,69,208.48,No
+R10767,2026-09-11,Westfield,Garden,3,"It was okay, nothing special",3,44.15,Yes
+R10285,2026-09-12,Riverside,Garden,5,,55,100.36,No
+R10754,2026-09-13,Eastside,Toys,3,Ordered online and picked it up,59,54.64,No
+R10035,2026-09-14,Eastside,Electronics,4,Excellent value for the price,59,103.13,No
+R10147,2026-09-14,Riverside,Garden,5,Clean store and great selection,38,53.35,No
+R10440,2026-09-14,Westfield,Home,2,The product broke after one week,5,70.53,Yes
+R10800,2026-09-14,Riverside,Garden,3,Average experience overall. store was open when listed,10,67.97,No
+R10865,2026-09-14,Northgate,Grocery,5,"Love the quality, will buy again",30,60.81,No
+R10486,2026-09-15,Westfield,Toys,2,Very slow delivery and no updates. website kept crashing during checkout,22,175.17,Yes
+R10899,2026-09-15,Northgate,Clothing,4,"Fast delivery, exactly what I ordered",27,27.81,No
+R11092,2026-09-15,Downtown,Garden,2,Rude staff and long wait times,20,103.08,Yes
+R10364,2026-09-16,Downtown,Grocery,3,Ordered online and picked it up. prices are about the same as other stores,67,39.64,Yes
+R10048,2026-09-17,Downtown,Garden,5,"Product works perfectly, highly recommend. fast delivery, exactly what i ordered",42,144.51,No
+R10822,2026-09-17,Northgate,Electronics,5,"Excellent value for the price. amazing customer support, solved my issue fast",26,74.28,No
+R11166,2026-09-17,Eastside,Garden,2,"Terrible customer service, nobody answered",1,122.08,No
+R10013,2026-09-18,Downtown,Home,5,The staff were very helpful and kind,11,74.39,No
+R10026,2026-09-18,Downtown,Grocery,4,"Product works perfectly, highly recommend",55,100.22,No
+R10634,2026-09-18,Downtown,Grocery,5,"Product works perfectly, highly recommend. easy checkout and quick pickup",35,75.22,No
+R10810,2026-09-18,Westfield,Home,3,Average experience overall,43,99.27,No
+R10818,2026-09-18,Downtown,Electronics,3,Store was open when listed. prices are about the same as other stores,29,117.88,No
+R11051,2026-09-18,Riverside,Home,4,"Love the quality, will buy again",71,62.45,No
+R10938,2026-09-19,Eastside,Clothing,3,,36,31.06,Yes
+R11033,2026-09-19,Downtown,Garden,3,Store was open when listed,58,125.53,No
+R10558,2026-09-20,Riverside,Home,4,"Product works perfectly, highly recommend",61,127.49,No
+R10644,2026-09-20,Northgate,Clothing,2,Wrong item shipped and the refund took weeks,10,88.15,Yes
+R10807,2026-09-20,Westfield,Clothing,3,Prices are about the same as other stores. prices are about the same as other stores,9,22.93,No
+R11123,2026-09-20,Eastside,Grocery,2,Very slow delivery and no updates,41,81.36,Yes
+R10410,2026-09-21,Eastside,Clothing,4,"The staff were very helpful and kind. product works perfectly, highly recommend",64,99.39,No
+R10948,2026-09-21,Downtown,Clothing,2,The product broke after one week,6,93.55,Yes
+R10195,2026-09-22,Eastside,Home,2,Very slow delivery and no updates,49,73.09,No
+R10247,2026-09-22,Eastside,Clothing,3,Prices are about the same as other stores. prices are about the same as other stores,45,103.26,No
+R10320,2026-09-22,Eastside,Electronics,3,Store was open when listed,3,214.57,Yes
+R10763,2026-09-22,Northgate,Home,4,"Product works perfectly, highly recommend",68,141.25,No
+R10831,2026-09-22,Westfield,Grocery,4,The staff were very helpful and kind,40,99.98,No
+R10954,2026-09-22,Downtown,Grocery,3,,12,133.65,No
+R10052,2026-09-24,Riverside,Home,4,"Product works perfectly, highly recommend",7,116.58,No
+R10665,2026-09-24,Riverside,Garden,2,"Very slow delivery and no updates. terrible customer service, nobody answered",28,42.27,No
+R10202,2026-09-25,Northgate,Toys,3,Ordered online and picked it up,10,110.73,No
+R10495,2026-09-25,Northgate,Toys,5,Clean store and great selection. the staff were very helpful and kind,47,23.9,No
+R10132,2026-09-27,Downtown,Clothing,1,,16,166.15,Yes
+R10457,2026-09-27,Eastside,Garden,4,"Fast delivery, exactly what I ordered. love the quality, will buy again",65,96.52,Yes
+R10798,2026-09-27,Westfield,Electronics,3,Store was open when listed. very slow delivery and no updates,55,72.46,No
+R10489,2026-09-28,Downtown,Grocery,4,Easy checkout and quick pickup,14,199.32,No
+R10513,2026-09-28,Downtown,Home,3,Ordered online and picked it up,30,129.46,No
+R10011,2026-09-29,Downtown,Home,4,Excellent value for the price,71,57.13,No
+R10368,2026-09-29,Northgate,Grocery,5,"Amazing customer support, solved my issue fast. great service and friendly staff",69,63.65,No
+R10600,2026-09-29,Westfield,Grocery,5,"Love the quality, will buy again. amazing customer support, solved my issue fast",9,126.32,No
+R10028,2026-09-30,Northgate,Toys,5,"Fast delivery, exactly what I ordered. excellent value for the price",4,133.29,No
+R10619,2026-09-30,Eastside,Home,3,Average experience overall. prices are about the same as other stores,61,149.38,No
+R10632,2026-09-30,Westfield,Grocery,2,Item was damaged when it arrived,55,52.58,No
+R10766,2026-09-30,Riverside,Garden,3,Prices are about the same as other stores,63,88.82,No
+R10809,2026-09-30,Eastside,Electronics,3,Product arrived on the expected date,24,83.87,No
+R11100,2026-09-30,Eastside,Garden,5,,65,159.0,No
+R11144,2026-09-30,Downtown,Toys,4,Clean store and great selection. the staff were very helpful and kind,7,94.81,No

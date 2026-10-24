@@ -8,3 +8,12 @@ statsmodels
 duckdb
 python-docx
 matplotlib
+vaderSentiment
+sqlalchemy
+psycopg2-binary
+pymysql
+pyarrow
+tensorflow-cpu; sys_platform == "linux"
+tensorflow; sys_platform != "linux"
+gymnasium
+pillow

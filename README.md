@@ -13,14 +13,24 @@ Built by Kevin Simmons, Vanguard Data Analytics LLC.
 |---|---|
 | **Clean** | Detects column types, strips currency and percent text, removes duplicates and ID columns, fills or sets aside missing values, flags (never deletes) outliers, and keeps codes such as ZIP or NAICS as categories. Every change is listed in a cleaning report. |
 | **Describe** | Frequency tables (equal-width, equal-count or log-scale grouping, picked automatically for lopsided data), summary statistics including mean absolute deviation, cross-tabulations, correlation, and charts chosen to fit each column. |
-| **Prepare** | Data quality report, scale types, binning, one-hot encoding, normalization, transforms and PCA. |
-| **Predict** | Compares regression or classification models on held-out data with 5-fold cross-validation and reports the measured error. |
+| **Prepare** | Data quality report, scale types, binning, one-hot encoding, normalization, transforms (log, Box-Cox, Yeo-Johnson, quantile), mapping numeric columns to a Gaussian distribution with normality tests, and PCA. |
+| **Predict** | Compares regression or classification models (linear/logistic, k-NN, naive Bayes, decision tree, random forest, gradient boosting, neural network (MLP), support vector machine) on held-out data with 5-fold cross-validation and reports the measured error. |
 | **Forecast** | Tests seven forecasting methods on your most recent periods and forecasts with the best, with a rough range. |
 | **Find patterns** | Clustering, anomaly detection and significance tests (t-test, ANOVA, chi-square, correlation). |
 | **Combine sources** | Makes measurements from different sites, stores, labs or methods comparable (robust z-scores per series), compares each reading with the other series in the same period, flags outliers, reporting gaps and step changes (such as a lab switch), combines them into one weighted index, and forecasts that index against a naive baseline. |
+| **Business problem & KPIs** | A project life cycle tracker (understand the problem, data access, data engineering, modeling) plus five steps: problem statement, requirements (target/DV and inputs/IVs), data pipeline (filled in from the cleaning log), target balance (class imbalance), each input against the target, a correlation matrix including the target, feature importance (random forest Gini, decision tree, permutation, Boruta), KPIs with trend tests (customer churn rate by month, length of relationship, transaction frequency, revenue per customer, any KPI over time), the columns most linked to the target, and a Word business problem brief. |
+| **Data pipeline** | Seven stages: ingest; validate (PASS/WARN/FAIL quality gates, optional schema contract); bronze (raw copy with fingerprint); silver (cleaned, joined with a second file, private details hashed or masked); gold (summary table); orchestrate (save the steps as a config and re-run them with `pipeline_run.py` on a schedule); govern and monitor (lineage, run log, SQL on a DuckDB warehouse). Downloads a bundle of Parquet files plus `warehouse.duckdb`. A Parquet & partitions tab compares CSV with Parquet compressions (snappy, gzip, brotli, lz4, zstd), adds year/month/day columns, writes a partitioned dataset (year=2026/month=01/...), checks partition columns, and shows partition pruning. Tables can be written back to a database (fail / overwrite / append), and the whole pipeline can be downloaded as a PySpark script for a Spark cluster. |
+| **Group & summarize** | Group by any category or by day, week, month, quarter or year, with totals, averages, medians, counts, min, max and spread; pivot tables with totals. |
+| **Analyze text** | Scores each comment as positive, neutral or negative (VADER), compares sentiment by group, and lists the most common words and two-word phrases. |
+| **Items bought together** | Market basket analysis: support, confidence and lift for every pair of items, plus "customers who buy X also buy" suggestions. |
+| **Deep learning (Keras)** | TensorFlow/Keras: a dense neural network on any table (layers, dropout, optimizer, learning rate, early stopping, live training curves) compared with logistic/linear regression and random forest, plus a fairness check by group (four-fifths rule); a CNN image classifier (Conv2D, MaxPooling, Dropout, data augmentation) from a zip of class folders or built-in handwritten digits; and deep Q-learning agents (treasure maze, Gymnasium CartPole) with epsilon-greedy exploration, experience replay and a discount factor. Trained models download with a FastAPI service and Dockerfile. |
 | **Report** | One click builds a Word report of what was loaded, what the cleaning changed, and a plain-language description of every column with charts. |
 
-**Inputs:** CSV, TSV, TXT, Excel, JSON and Parquet. Large-file mode (DuckDB) scans files with millions
+**Inputs:** CSV, TSV, TXT, Excel, JSON and Parquet, uploaded, loaded from a web address (like `pd.read_csv(url)`), or read from a PostgreSQL, MySQL or SQLite database (a table or a SELECT query, like Spark's `read.jdbc`). ORC files are supported too.
+Files with no header row are detected and can be given column names; '?', 'N/A', 'null' and similar count as missing.
+You can change any column's type, choose how missing values are handled, see which business questions the data can
+answer, download the cleaned data as CSV, Excel, JSON or Parquet, and download a reproducibility record (input
+fingerprint, settings, every cleaning step, random seed and library versions). Large-file mode (DuckDB) scans files with millions
 of rows on one computer. A built-in connector also pulls public U.S. federal contract awards from USAspending.gov.
 
 ## Sample data (synthetic)
@@ -32,6 +42,18 @@ of rows on one computer. A built-in connector also pulls public U.S. federal con
 | Multi-site measurements | Combine & standardize sources (finds the planted bad readings, gaps and lab change) |
 | Government contracts | Predict total cost or risk level |
 | Contract awards over time | Forecast monthly awards |
+| Customer reviews | Analyze text (sentiment by store); predict churn |
+| Store orders | Find items bought together; customer KPIs and churn; data pipeline |
+| Bank marketing | Business problem & KPIs: target y, imbalance, feature importance and Boruta |
+
+## Run a saved pipeline on a schedule
+
+```bash
+py pipeline_run.py --config my_pipeline.json --input "C:\data\new_file.csv" --out "C:\data\pipeline_output"
+```
+
+Exit code 0 = success, 2 = stopped at a quality gate, 1 = error. Schedule it with Windows Task Scheduler
+(`schtasks`), cron, or an orchestrator such as Airflow.
 
 ## Run it locally
 
@@ -53,7 +75,8 @@ Then open http://localhost:8501.
 ## Roadmap
 
 Messy-spreadsheet import (title rows, merged cells), joining related tables, database connections,
-tables inside PDFs, text analysis, maps, and user accounts.
+tables inside PDFs, maps, and user accounts. Distributed processing (Spark, Hadoop) is not planned for the
+hosted app; DuckDB covers large files on one computer.
 
 ## Code layout
 
@@ -62,6 +85,14 @@ tables inside PDFs, text analysis, maps, and user accounts.
 - `descriptive.py`, `explore_ui.py`, `wrangle_ui.py`: description and preparation
 - `model_selector.py`, `forecasting.py`, `unsupervised.py`, `statistical_tests.py`: models
 - `standardize.py`, `standardize_ui.py`: multi-source standardization and index forecast
+- `grouping.py`, `text_analysis.py`, `basket.py`, `analysis_ui.py`: group & summarize, text, items bought together
+- `pipeline.py`, `pipeline_ui.py`, `pipeline_run.py`: data pipeline stages, screen and scheduled runner
+- `deep_learning.py`, `deep_ui.py`: Keras neural networks, CNN, deep Q-learning, fairness, FastAPI/Docker export
+- `dbio.py`, `db_ui.py`: database read and write
+- `parquet_tools.py`: Parquet compression, partitioned datasets, partition pruning, PySpark export
+- `importance.py`: target balance, correlation with the target, feature importance, Boruta
+- `kpi.py`, `problem_ui.py`: business problem steps, KPIs and the Word brief
+- `use_cases.py`: "What can this data answer?"
 - `report.py`: Word report
 - `bigdata.py`: large-file mode (DuckDB)
 - `usaspending.py`: USAspending.gov connector

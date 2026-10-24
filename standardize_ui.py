@@ -38,7 +38,7 @@ def render_standardize(clean_df: pd.DataFrame, profile: dict, source_name: str):
 
     df = clean_df.copy()
     extra = st.file_uploader("Add more files with the same columns (optional)", accept_multiple_files=True,
-                             type=["csv", "tsv", "txt", "xlsx", "xls", "json", "parquet"], key="sz_extra",
+                             type=["csv", "tsv", "txt", "xlsx", "xls", "json", "parquet", "orc"], key="sz_extra",
                              help="Each file's name is kept in a 'source_file' column, so you can use it as the source.")
     if extra:
         parts = [df.assign(source_file=source_name)]

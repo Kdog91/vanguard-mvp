@@ -329,18 +329,84 @@ def render_prepare(raw_df: pd.DataFrame, df: pd.DataFrame, profile: dict):
         else:
             st.markdown("**Transform a numeric column**")
             c = st.selectbox("Column", num, key="tr_c")
-            method = st.radio("Transformation", ["log", "square root", "Box-Cox", "square"], horizontal=True, key="tr_m",
-                              help="Log, square root and Box-Cox pull in a long right tail (reduce skew). Square stretches it.")
+            method = st.radio("Transformation", ["log", "square root", "Box-Cox", "Yeo-Johnson", "Quantile → normal", "square"],
+                              horizontal=True, key="tr_m",
+                              help="Log, square root, Box-Cox and Yeo-Johnson pull in a long tail (reduce skew). "
+                                   "Quantile → normal maps the values onto a bell curve. Square stretches the tail.")
             try:
                 out = d.transform(df[c], method)
-                sk = pd.DataFrame({"Skewness": [df[c].skew(), out.skew()]}, index=["Before", "After"]).round(3)
+                sk = pd.DataFrame([d.normality(df[c]), d.normality(out)], index=["Before", "After"])
                 st.dataframe(sk, width="stretch")
-                st.caption("Skewness closer to 0 means a more symmetric distribution.")
+                st.caption("Skewness and excess kurtosis near 0, and a normality p-value above 0.05, mean the shape is "
+                           "close to a Gaussian (normal) bell curve.")
                 _chart(charts.before_after_histograms(df[c], out, c))
                 _download(df.assign(**{f"{c}_{method.replace(' ', '_')}": out.round(4)}), f"{c}_{method}.csv",
                           "Download full data with new column")
             except ValueError as e:
                 st.error(str(e))
+
+        if num:
+            st.markdown("**Map numeric columns to a Gaussian (normal) distribution**")
+            st.caption("Many models (linear and logistic regression, SVM, neural networks) work best when inputs are "
+                       "roughly bell-shaped. This maps every chosen column at once and shows the shape before and after.")
+            g1, g2 = st.columns([2, 1])
+            gcols = g1.multiselect("Columns", num, default=num, key="ga_cols")
+            gm = g2.selectbox("Method", d.GAUSSIAN_METHODS, key="ga_m",
+                              help="Yeo-Johnson works with any values. Quantile → normal forces a bell shape from the "
+                                   "ranks. Box-Cox needs positive values (columns with 0 or less use Yeo-Johnson).")
+            if gcols:
+                # 1) normality test: which columns are not normal
+                nt = pd.DataFrame([{"Column": c, **d.normality(df[c])} for c in gcols])
+                nt["Normal? (p > 0.05)"] = nt["Normality p-value"].map(lambda p: "yes" if p > 0.05 else "no")
+                st.markdown("**Normality test** (D'Agostino K²)")
+                st.dataframe(nt, hide_index=True, width="stretch")
+                # 2) fit on training rows, apply the same parameters to test rows
+                test_pct = st.slider("Hold back this % of rows as evaluation (test) data", 10, 50, 30, key="ga_test")
+                train = df.sample(frac=1 - test_pct / 100, random_state=42)
+                test = df.drop(train.index)
+                fitted = d.fit_gaussian(train, gcols, gm)
+                tr_out, te_out = d.apply_gaussian(train, fitted), d.apply_gaussian(test, fitted)
+                gtab = pd.DataFrame([{"Column": c, "Method": fitted[c][0],
+                                      "Skew before": d.normality(df[c])["Skewness"],
+                                      "Skew after (training)": d.normality(tr_out[c])["Skewness"],
+                                      "Skew after (test, same parameters)": d.normality(te_out[c])["Skewness"],
+                                      "Normality p after (test)": d.normality(te_out[c])["Normality p-value"]}
+                                     for c in fitted])
+                st.markdown(f"**Mapped with parameters learned on {len(train):,} training rows, then applied to "
+                            f"{len(test):,} test rows**")
+                st.dataframe(gtab, hide_index=True, width="stretch")
+                with st.expander("Fitted parameters (λ for Box-Cox / Yeo-Johnson)"):
+                    st.dataframe(d.fitted_params(fitted), hide_index=True, width="stretch")
+                st.caption("Parameters come only from the training rows, so the test rows stay unseen, just as new data "
+                           "would be when the model is used.")
+                # 3) probability density before and after
+                if fitted:
+                    pc = st.selectbox("Probability density for", list(fitted), key="ga_plot")
+                    dd = pd.concat([pd.DataFrame({"value": (df[pc] - df[pc].mean()) / (df[pc].std() or 1), "Data": "Before (standardized)"}),
+                                    pd.DataFrame({"value": tr_out[pc], "Data": "After mapping"})]).dropna()
+                    import altair as alt
+                    st.altair_chart(alt.Chart(dd).transform_density("value", groupby=["Data"], as_=["value", "density"],
+                                                                    extent=[-4, 4]).mark_line(strokeWidth=2).encode(
+                        x=alt.X("value:Q", title=f"{pc} (standard units)"), y=alt.Y("density:Q", title="Density"),
+                        color=alt.Color("Data:N", scale=alt.Scale(range=["#a3a29c", "#2a78d6"]))
+                    ).properties(height=260), width="stretch")
+                full = d.apply_gaussian(df, fitted)
+                _download(full, f"gaussian_{gm.split()[0].lower()}.csv", "Download data with Gaussian-mapped columns")
+                # 4) apply to a new evaluation file
+                newf = st.file_uploader("Apply the same parameters to a new evaluation file (optional)", key="ga_new",
+                                        type=["csv", "tsv", "txt", "xlsx", "xls", "json", "parquet", "orc"])
+                if newf is not None:
+                    from data_cleaner import load_file
+                    try:
+                        nd = load_file(newf)
+                        miss = [c for c in fitted if c not in nd.columns]
+                        if miss:
+                            st.warning("Missing in the new file: " + ", ".join(miss))
+                        nout = d.apply_gaussian(nd, fitted)
+                        st.dataframe(nout.head(10), width="stretch")
+                        _download(nout, f"evaluation_gaussian_{gm.split()[0].lower()}.csv", "Download transformed evaluation file")
+                    except Exception as ex:
+                        st.error(f"Could not transform the file: {ex}")
 
     with dim:
         if len(num) < 2:
