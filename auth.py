@@ -40,6 +40,14 @@ def configured() -> bool:
     return bool(a.get("client_id") and a.get("client_secret") and a.get("redirect_uri"))
 
 
+def authlib_ok() -> tuple[bool, str]:
+    try:
+        import authlib
+        return True, getattr(authlib, "__version__", "?")
+    except Exception as e:
+        return False, str(e)
+
+
 def logged_in() -> bool:
     try:
         return bool(st.user.is_logged_in)
@@ -90,6 +98,11 @@ def render_sidebar():
     """Account box at the top of the sidebar."""
     if not configured():
         st.caption("Sign-in is not set up, so this copy is open. Do not load private data on a shared link.")
+        return
+    ok, info = authlib_ok()
+    if not ok:
+        st.error("Sign-in is set up but the Authlib package is missing on this server, so sign-in cannot start. "
+                 "Reboot the app so it reinstalls requirements.txt. (" + info[:80] + ")")
         return
     if logged_in():
         st.markdown(f"**Signed in** as {name()}")
