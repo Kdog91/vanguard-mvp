@@ -81,6 +81,10 @@ Questions: **{CONTACT}**.
 def route() -> bool:
     """Show a legal page if the address asks for one. Returns True when a page was shown."""
     page = st.query_params.get("page", "")
+    if page == "authcheck":
+        import auth
+        auth.render_check()
+        return True
     if page not in ("privacy", "terms"):
         return False
     st.markdown(PRIVACY if page == "privacy" else TERMS)
