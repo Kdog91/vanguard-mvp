@@ -1,5 +1,6 @@
 """
-Sign-in with Google (Streamlit's built-in OpenID Connect login).
+Sign-in (Streamlit's built-in OpenID Connect login): Google directly, or Auth0, which lets anyone sign up
+with email and password or with Google, Microsoft and other accounts.
 
 Anyone can open the app and try the sample data and public USAspending data. Loading your own data
 (upload, web address, database, large file) requires signing in. Optionally only approved emails
@@ -18,6 +19,9 @@ Setup (Streamlit Cloud: app → Settings → Secrets; on your computer: .streaml
     allowed_emails = ["you@example.com", "client@agency.gov"]
     allowed_domains = ["agency.gov"]
     admin_emails = ["vanguarddataanalytics@gmail.com"]
+
+For Auth0 use server_metadata_url = "https://YOUR-TENANT.us.auth0.com/.well-known/openid-configuration"
+and the Auth0 application's client_id and client_secret.
 
 Without an [auth] section the app runs open (for local development) and says so.
 """
@@ -96,8 +100,9 @@ def render_sidebar():
                        "You can still try the sample data.")
         st.button("Sign out", key="auth_out", on_click=st.logout)
     else:
-        st.button("Sign in with Google", key="auth_in", type="primary", on_click=st.login, use_container_width=True)
-        st.caption("Sign in to load your own data. Sample data works without signing in.")
+        label = "Sign in with Google" if "google" in _secrets("auth").get("server_metadata_url", "") else "Sign in / Sign up"
+        st.button(label, key="auth_in", type="primary", on_click=st.login, use_container_width=True)
+        st.caption("Free account. Sign in to load your own data. Sample data works without signing in.")
 
 
 def render_locked(what: str = "your own data"):
