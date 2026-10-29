@@ -14,9 +14,27 @@ After a file loads, **What do you want to know?** offers plain-language goals (f
 ## Sign-in
 
 Sample data and public USAspending data work for everyone. Loading your own data (upload, web address,
-database, large file) requires **Sign in with Google**. Optional `[access]` rules in Secrets limit it to
+database, large file) requires a free account (**Sign in / Sign up** through Auth0: email and password, or Google). Optional `[access]` rules in Secrets limit it to
 approved emails or domains. Setup is described at the top of `auth.py`. Without an `[auth]` section the app
 runs open, for local development.
+
+## Security
+
+Controls from the Vanguard Analytics Security Outline (update 26f), most in `security.py`:
+
+| Area | Control |
+|---|---|
+| Web-address imports | http/https only; the host must resolve to public addresses only; every redirect is re-checked; the real peer address is checked after connecting and before anything is sent (blocks 127.0.0.1, 10.x, 172.16-31.x, 192.168.x, 169.254.x cloud metadata, IPv6 local, DNS rebinding) |
+| Databases (public app) | Private and internal hosts refused; SQLite files on the server refused |
+| Uploads | Allowed types only; 200 MB; 1,000,000 rows; 2,000 columns |
+| Sensitive data | Warning on the upload screen and in the Terms of Use: no PHI, CUI, card numbers or SSNs on the public app |
+| Downloads | CSV and Excel cells starting with = + - @ are escaped (formula injection); names, emails, phone and ID columns are replaced with codes in downloads and Word reports by default |
+| Temporary files | All named `vanguard_*`; removed after 3 hours; cached results leave memory within an hour |
+| Audit log | One `AUDIT {...}` JSON line per sign-in, sign-out, load, export and refused request, with the account as a one-way code; no data, file contents, passwords or full addresses. View in Streamlit Cloud under Manage app → logs |
+| Model exports | FastAPI service requires an `X-API-Key` header (from `VANGUARD_API_KEY`), caps request size, has `/health`; Dockerfile runs as a non-root user; `SECURITY.txt` deployment notes in every bundle |
+
+Account settings to keep on: Auth0 multi-factor authentication, brute-force protection and breached-password
+detection; GitHub secret scanning, push protection and Dependabot alerts. Keys live only in Streamlit Secrets.
 
 ## What it does
 

@@ -243,7 +243,8 @@ def render_pipeline(raw_df: pd.DataFrame, clean_df: pd.DataFrame, profile: dict,
         if st.session_state.get("pl_zip"):
             st.download_button("Download bundle: bronze, silver, gold, warehouse.duckdb, checks, manifest",
                                st.session_state["pl_zip"], file_name=f"{ctx['label']}_pipeline_bundle.zip",
-                               mime="application/zip", key="pl_zip_dl")
+                               mime="application/zip", key="pl_zip_dl",
+                               on_click=lambda: __import__("security").audit("export", what="pipeline_bundle"))
         if st.session_state.get("pl_runs"):
             st.markdown("**Run log (this session)**")
             st.dataframe(pd.DataFrame(st.session_state["pl_runs"]), hide_index=True, width="stretch")
@@ -297,12 +298,16 @@ def render_parquet(df: pd.DataFrame, profile: dict, label: str):
             folder, tree, n, kb = pt.write_partitioned(work, cols, comp)
         st.session_state.update(pq_folder=folder, pq_tree=tree, pq_n=n, pq_kb=kb, pq_cols_used=cols,
                                 pq_zip=pt.zip_folder(folder), pq_vals=sorted(work[cols[0]].dropna().astype(str).unique()))
+    if st.session_state.get("pq_folder") and not __import__("os").path.isdir(st.session_state["pq_folder"]):
+        st.session_state.pop("pq_folder")          # temporary folder was cleaned up; write it again
+        st.info("The partitioned files were cleared after a period of inactivity. Click the button to write them again.")
     if st.session_state.get("pq_folder") and st.session_state.get("pq_cols_used") == cols:
         st.success(f"Wrote {st.session_state['pq_n']:,} Parquet files ({st.session_state['pq_kb']:,} KB) in folders by "
                    + " / ".join(cols) + ".")
         st.code(st.session_state["pq_tree"], language="text")
         st.download_button("Download partitioned dataset (.zip)", st.session_state["pq_zip"],
-                           file_name=f"{label}_partitioned_parquet.zip", mime="application/zip", key="pq_dl")
+                           file_name=f"{label}_partitioned_parquet.zip", mime="application/zip", key="pq_dl",
+                           on_click=lambda: __import__("security").audit("export", what="partitioned_parquet"))
         st.markdown("**Partition pruning: read only what the filter needs**")
         val = st.selectbox(f"Filter {cols[0]} =", st.session_state["pq_vals"], key="pq_val")
         r = pt.pruning_demo(st.session_state["pq_folder"], pt._safe(work[[cols[0]]]).columns[0], val)

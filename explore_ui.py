@@ -42,7 +42,8 @@ def _download(df: pd.DataFrame, filename: str, label: str = "Download as CSV"):
     """Download button whose file is named after the dataset and the table, e.g.
     Department_of_Defense_2025-10-12_to_2026-10-12_award_amount_statistics.csv"""
     name = f"{st.session_state.get('dataset_label', 'data')}_{filename}"
-    st.download_button(label, df.to_csv(index=False).encode("utf-8"), file_name=name, mime="text/csv",
+    import security
+    st.download_button(label, security.csv_bytes(df), file_name=name, mime="text/csv",
                        key=f"dl::{name}::{label}")
 
 

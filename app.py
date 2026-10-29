@@ -61,6 +61,8 @@ st.markdown("""
 import legal
 if legal.route():
     st.stop()
+import security
+security.sweep_temp()          # delete leftover temporary files from sessions that ended hours ago
 
 head_logo, head_text = st.columns([1, 14], vertical_alignment="center")
 if os.path.exists(LOGO):
@@ -74,17 +76,17 @@ def section(label):
     st.markdown(f'<div class="vg-section">{label}</div>', unsafe_allow_html=True)
 
 
-@st.cache_data(show_spinner=False)
+@st.cache_data(show_spinner=False, ttl=3600, max_entries=20)  # results leave server memory within an hour
 def _big_summary(path, stamp):
     return bigdata.summarize_file(path)
 
 
-@st.cache_data(show_spinner=False)
+@st.cache_data(show_spinner=False, ttl=3600, max_entries=20)  # results leave server memory within an hour
 def _big_sample(path, stamp, n):
     return bigdata.load_sample(path, n)
 
 
-@st.cache_data(show_spinner=False)
+@st.cache_data(show_spinner=False, ttl=3600, max_entries=20)  # results leave server memory within an hour
 def _big_daily(path, stamp, date_col, value_col, types):
     return bigdata.daily_totals(path, date_col, value_col, types)
 
@@ -117,6 +119,22 @@ with st.sidebar:
         uploaded_file = st.file_uploader("Upload a file",
                                          type=["csv", "tsv", "txt", "xlsx", "xls", "json", "jsonl", "ndjson", "parquet", "orc"],
                                          help="CSV, TSV, TXT, Excel, JSON, Parquet or ORC, up to 200 MB.")
+        st.caption(":warning: Do not upload health records (PHI), controlled government data (CUI), card numbers "
+                   "or other data you may not share with a cloud service. See the [Terms of Use](?page=terms).")
+        if uploaded_file is not None:
+            try:
+                security.check_upload(uploaded_file.name, uploaded_file.size)
+            except security.SecurityError as e:
+                st.error(str(e))
+                security.audit("upload_refused", file_type=os.path.splitext(uploaded_file.name)[1].lower(),
+                               size_mb=round(uploaded_file.size / 1e6, 2))
+                uploaded_file = None
+        if uploaded_file is not None:
+            _up_key = f"audited::{uploaded_file.name}::{uploaded_file.size}"
+            if not st.session_state.get(_up_key):
+                st.session_state[_up_key] = True
+                security.audit("upload", file_type=os.path.splitext(uploaded_file.name)[1].lower(),
+                               size_mb=round(uploaded_file.size / 1e6, 2))
         with st.form("url_form", border=False):
             url_in = st.text_input("Or load from a web address", key="url_in",
                                    placeholder="https://raw.githubusercontent.com/.../data.csv",
@@ -127,8 +145,12 @@ with st.sidebar:
             try:
                 with st.spinner("Downloading..."):
                     st.session_state["url_data"] = {"df": load_url(url_in), "url": url_in.strip()}
+                security.audit("url_load", host=security.host_of(url_in),
+                               rows=len(st.session_state["url_data"]["df"]))
             except Exception as e:
                 st.error(f"Could not load that address: {e}")
+                security.audit("url_load_failed", host=security.host_of(url_in),
+                               reason=type(e).__name__)
         from db_ui import render_sidebar_loader
         render_sidebar_loader()
     if "url_data" in st.session_state:
@@ -300,7 +322,7 @@ if uploaded_file or big or sample_path or usa or web:
         for _m in _i.get("messages", []):
             if _m.startswith("USAspending did not accept"):
                 st.info(_m)
-        st.download_button("Download these awards as CSV", raw_df.to_csv(index=False).encode("utf-8"),
+        st.download_button("Download these awards as CSV", security.csv_bytes(raw_df),
                            file_name=f"{st.session_state['dataset_label']}_awards_raw.csv", mime="text/csv", key="usa_dl")
     elif not big:
         src_name = (web["url"] if web else os.path.basename(sample_path) if sample_path else uploaded_file.name)
@@ -414,22 +436,36 @@ if uploaded_file or big or sample_path or usa or web:
     # --- Export the cleaned data, and a record of how it was made ---
     import io as _io, json as _json, hashlib as _hl, sklearn as _skl
     _stem = st.session_state["dataset_label"]
-    with st.expander("Download cleaned data"):
+    import pipeline as _pl
+    _pii = {c: k for c, k in _pl.detect_pii(clean_df).items() if c in clean_df.columns}
+    _export_df = clean_df
+    with st.expander("Download cleaned data", expanded=False):
+        if _pii:
+            _mask_on = st.checkbox("Hide private details in downloads and the Word report (recommended)", value=True,
+                                   key=f"mask_{_ds}",
+                                   help="Columns that look like names, emails, phone or ID numbers are replaced with "
+                                        "a code. The same value always gets the same code, so rows can still be "
+                                        "counted and matched.")
+            st.caption("Private details found: " + ", ".join(f"**{c}** ({k})" for c, k in _pii.items()))
+            if _mask_on:
+                _export_df = _pl.mask_pii(clean_df, _pii, "hash", salt=_stem)
         e1, e2, e3, e4, e5, e6 = st.columns(6)
-        e1.download_button("CSV", clean_df.to_csv(index=False).encode("utf-8"), file_name=f"{_stem}_cleaned.csv",
-                           mime="text/csv", key="exp_csv")
-        _xl = _io.BytesIO()
-        clean_df.to_excel(_xl, index=False)
-        e2.download_button("Excel", _xl.getvalue(), file_name=f"{_stem}_cleaned.xlsx", key="exp_xlsx",
-                           mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-        e3.download_button("JSON", clean_df.to_json(orient="records", date_format="iso", indent=1).encode("utf-8"),
-                           file_name=f"{_stem}_cleaned.json", mime="application/json", key="exp_json")
+        _dl_log = lambda fmt: (lambda: security.audit("export", what="cleaned_data", format=fmt,
+                                                      rows=len(_export_df), masked=_export_df is not clean_df))
+        e1.download_button("CSV", security.csv_bytes(_export_df), file_name=f"{_stem}_cleaned.csv",
+                           mime="text/csv", key="exp_csv", on_click=_dl_log("csv"))
+        e2.download_button("Excel", security.excel_bytes(_export_df), file_name=f"{_stem}_cleaned.xlsx", key="exp_xlsx",
+                           mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                           on_click=_dl_log("excel"))
+        e3.download_button("JSON", _export_df.to_json(orient="records", date_format="iso", indent=1).encode("utf-8"),
+                           file_name=f"{_stem}_cleaned.json", mime="application/json", key="exp_json",
+                           on_click=_dl_log("json"))
         _pq = _io.BytesIO()
-        clean_df.to_parquet(_pq, index=False)
+        _export_df.to_parquet(_pq, index=False)
         e4.download_button("Parquet", _pq.getvalue(), file_name=f"{_stem}_cleaned.parquet", key="exp_pq",
-                           mime="application/octet-stream")
+                           mime="application/octet-stream", on_click=_dl_log("parquet"))
         _record = {
-            "app": "Vanguard Analytics (update 18)", "created": pd.Timestamp.now().isoformat(timespec="seconds"),
+            "app": "Vanguard Analytics (update 26f)", "created": pd.Timestamp.now().isoformat(timespec="seconds"),
             "source": (web["url"] if web else os.path.basename(sample_path) if sample_path
                        else uploaded_file.name if uploaded_file is not None else _stem),
             "input_rows": int(len(raw_df)), "input_columns": int(raw_df.shape[1]),
@@ -444,7 +480,7 @@ if uploaded_file or big or sample_path or usa or web:
         try:
             _orc = _io.BytesIO()
             from pipeline import _safe_table as _st
-            _st(clean_df).to_orc(_orc, index=False)
+            _st(_export_df).to_orc(_orc, index=False)
             e5.download_button("ORC", _orc.getvalue(), file_name=f"{_stem}_cleaned.orc", key="exp_orc",
                                mime="application/octet-stream")
         except Exception:
@@ -457,7 +493,8 @@ if uploaded_file or big or sample_path or usa or web:
                    "file has not changed: same fingerprint, same settings, same result.")
 
     # --- One-click Word report ---
-    _rep_key = f"report::{st.session_state['dataset_label']}::{raw_df.shape}::{clean_df.shape}"
+    _rep_key = (f"report::{st.session_state['dataset_label']}::{raw_df.shape}::{clean_df.shape}"
+                f"::{_export_df is not clean_df}")
     rc1, rc2 = st.columns([1, 2])
     with rc1:
         if st.button("Build report (Word)", help="A shareable summary: what was loaded, what the cleaning changed, "
@@ -481,8 +518,10 @@ if uploaded_file or big or sample_path or usa or web:
             if _di.get("future_start"):
                 _notes.append(f"{_di['future_start']:,} records are scheduled to start after today (normal for new awards).")
             with st.spinner("Building report..."):
+                _rep_raw = _pl.mask_pii(raw_df, {c: k for c, k in _pii.items() if c in raw_df.columns}, "hash",
+                                        salt=_stem) if _export_df is not clean_df else raw_df
                 st.session_state[_rep_key] = build_report(
-                    st.session_state["dataset_label"], _src, raw_df, clean_df, profile, report,
+                    st.session_state["dataset_label"], _src, _rep_raw, _export_df, profile, report,
                     {"rows_after": len(clean_df), "cols_kept": clean_df.shape[1], "cols_raw": raw_df.shape[1],
                      "rows_removed": len(raw_df) - len(clean_df), "filled": filled, "flagged": flagged}, _notes)
     with rc2:
@@ -490,7 +529,7 @@ if uploaded_file or big or sample_path or usa or web:
             st.download_button("Download report (.docx)", st.session_state[_rep_key],
                                file_name=f"{st.session_state['dataset_label']}_report.docx",
                                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                               key="report_dl")
+                               key="report_dl", on_click=lambda: security.audit("export", what="word_report"))
 
     if big:
         st.subheader("Clean the full file")
@@ -506,6 +545,8 @@ if uploaded_file or big or sample_path or usa or web:
             src = big["path"]
             folder = os.path.dirname(src) if local_path else tempfile.gettempdir()
             stem = os.path.splitext(os.path.basename(local_path or uploaded_file.name))[0]
+            if not local_path:
+                stem = security.TEMP_PREFIX + stem      # temporary copy on the server: removed by the sweep
             out_path = os.path.join(folder, f"{stem}_cleaned_by_{partition_by}" if partition_by
                                     else f"{stem}_cleaned.parquet")
             with st.spinner("Cleaning every row..."):
@@ -740,7 +781,7 @@ if uploaded_file or big or sample_path or usa or web:
                 out = fc["forecast"].copy()
                 out["Period"] = out["Period"].dt.strftime("%Y-%m-%d")
                 st.dataframe(out.round(2), hide_index=True)
-                st.download_button("Download forecast as CSV", out.round(2).to_csv(index=False),
+                st.download_button("Download forecast as CSV", security.csv_bytes(out.round(2)),
                                    file_name=f"{st.session_state.get('dataset_label', 'data')}_forecast.csv", mime="text/csv")
 
                 st.write("**Method comparison** (lower error = better; sorted best first):")

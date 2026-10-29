@@ -128,6 +128,10 @@ PII_NAME_HINTS = {"name": ("first_name", "last_name", "full_name", "customer_nam
                   "email": ("email", "e-mail"), "phone": ("phone", "mobile", "cell"), "SSN": ("ssn", "social_security")}
 
 
+_PERSON_WORDS = {"first", "last", "full", "customer", "patient", "contact", "client", "employee", "person", "member",
+                 "student", "user", "owner", "applicant", "resident", "guest", "buyer", "recipient_person"}
+
+
 def detect_pii(df: pd.DataFrame) -> dict:
     """Columns that look like personal information, from their values or their names."""
     found = {}
@@ -144,9 +148,12 @@ def detect_pii(df: pd.DataFrame) -> dict:
                 break
         if c in found:
             continue
-        low = str(c).lower()
+        low = str(c).lower().replace(" ", "_").replace("-", "_")
+        parts = low.split("_")
         for kind, hints in PII_NAME_HINTS.items():
-            if any(low == h or low.startswith(h + "_") or low.endswith("_" + h) or h in low.split("_") for h in hints):
+            if kind == "name" and low != "name" and not (set(parts) & _PERSON_WORDS):
+                continue                     # product_name, store_name, agency_name ... are not personal
+            if any(low == h or low.startswith(h + "_") or low.endswith("_" + h) or h in parts for h in hints):
                 if not pd.api.types.is_numeric_dtype(df[c]) or kind in ("phone", "SSN"):
                     found[c] = kind
                     break
@@ -211,7 +218,7 @@ def warehouse_bytes(tables: dict) -> bytes:
     import duckdb
     import os
     import tempfile
-    fd, path = tempfile.mkstemp(suffix=".duckdb")
+    fd, path = tempfile.mkstemp(suffix=".duckdb", prefix="vanguard_")
     os.close(fd)
     os.remove(path)
     con = duckdb.connect(path)

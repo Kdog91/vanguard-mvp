@@ -194,7 +194,7 @@ def render_text(df: pd.DataFrame, profile: dict):
     _download(pd.concat([df, scored], axis=1), "with_sentiment.csv", "Download data with sentiment scores")
 
 
-@st.cache_data(show_spinner=False)
+@st.cache_data(show_spinner=False, ttl=3600, max_entries=20)  # results leave server memory within an hour
 def _score(series: pd.Series) -> pd.DataFrame:
     return ta.sentiment(series)
 
@@ -250,6 +250,6 @@ def render_basket(raw_df: pd.DataFrame):
         st.dataframe(r["items"], hide_index=True, width="stretch")
 
 
-@st.cache_data(show_spinner=False)
+@st.cache_data(show_spinner=False, ttl=3600, max_entries=20)  # results leave server memory within an hour
 def _rules(df: pd.DataFrame, order: str, item: str, min_orders: int):
     return basket.rules(df, order, item, min_orders)

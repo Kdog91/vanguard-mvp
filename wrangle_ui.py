@@ -42,7 +42,8 @@ def fill_missing(df: pd.DataFrame, col: str, method: str, sort_by: str | None = 
 
 
 def _download(df, name, label="Download result as CSV"):
-    st.download_button(label, df.to_csv(index=False).encode("utf-8"), file_name=name, mime="text/csv", key=f"dl_{name}")
+    import security
+    st.download_button(label, security.csv_bytes(df), file_name=name, mime="text/csv", key=f"dl_{name}")
 
 
 def render_missing(raw_df: pd.DataFrame):

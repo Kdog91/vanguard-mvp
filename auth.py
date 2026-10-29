@@ -105,17 +105,27 @@ def render_sidebar():
                  "Reboot the app so it reinstalls requirements.txt. (" + info[:80] + ")")
         return
     if logged_in():
+        if not st.session_state.get("_audit_signin"):
+            st.session_state["_audit_signin"] = True
+            import security
+            security.audit("sign_in", approved=approved())
         st.markdown(f"**Signed in** as {name()}")
         if name() != email():
             st.caption(email())
         if not approved():
             st.warning("This account is not approved yet. Contact vanguarddataanalytics@gmail.com for access. "
                        "You can still try the sample data.")
-        st.button("Sign out", key="auth_out", on_click=st.logout)
+        st.button("Sign out", key="auth_out", on_click=_sign_out)
     else:
         label = "Sign in with Google" if "google" in _secrets("auth").get("server_metadata_url", "") else "Sign in / Sign up"
         st.button(label, key="auth_in", type="primary", on_click=st.login, use_container_width=True)
         st.caption("Free account. Sign in to load your own data. Sample data works without signing in.")
+
+
+def _sign_out():
+    import security
+    security.audit("sign_out")
+    st.logout()
 
 
 def render_locked(what: str = "your own data"):

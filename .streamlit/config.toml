@@ -5,3 +5,10 @@ backgroundColor = "#ffffff"
 secondaryBackgroundColor = "#f2f5f9"
 textColor = "#14263d"
 font = "sans serif"
+
+[server]
+maxUploadSize = 200           # MB; matches security.MAX_UPLOAD_MB
+enableXsrfProtection = true
+
+[browser]
+gatherUsageStats = false

@@ -266,7 +266,8 @@ def render_problem(raw_df: pd.DataFrame, df: pd.DataFrame, profile: dict, pipeli
             st.download_button("Download brief (.docx)", st.session_state["brief_doc"],
                                file_name=f"{st.session_state.get('dataset_label', 'data')}_business_problem_brief.docx",
                                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                               key="bp_dl")
+                               key="bp_dl",
+                               on_click=lambda: __import__("security").audit("export", what="business_brief"))
 
 
 LIFECYCLE = [

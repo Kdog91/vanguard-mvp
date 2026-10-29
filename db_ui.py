@@ -2,6 +2,7 @@
 import streamlit as st
 
 import dbio
+import security
 
 
 def connection_form(prefix: str):
@@ -10,7 +11,9 @@ def connection_form(prefix: str):
     if kind.startswith("SQLite"):
         path = st.text_input("Path to the .db / .sqlite file", key=f"{prefix}_path",
                              placeholder=r"C:\data\mydata.db",
-                             help="Works when the app runs on your own computer.")
+                             help="Works only when the app runs on your own computer.")
+        if security.ON_CLOUD:
+            st.caption("SQLite files can't be opened on the public app. Upload the table as a file instead.")
         return dbio.make_url(kind, database=path.strip().strip('"')) if path.strip() else None
     c1, c2 = st.columns([3, 1])
     host = c1.text_input("Host", key=f"{prefix}_host", placeholder="localhost or db.example.org")
@@ -34,6 +37,7 @@ def render_sidebar_loader():
         st.session_state["db_url"] = url
         if st.button("List tables", key="dbin_list"):
             try:
+                security.check_database(url)
                 st.session_state["db_tables"] = dbio.list_tables(url)
             except Exception as e:
                 st.error(f"Could not connect: {_clean(e)}")
@@ -45,14 +49,18 @@ def render_sidebar_loader():
                                  format_func=lambda v: f"{v:,}")
         if st.button("Load from database", key="dbin_load"):
             try:
+                security.check_database(url)
                 with st.spinner("Reading..."):
                     df = dbio.read(url, table or "", sql, limit)
+                security.check_frame(df)
                 name = (table or "query").replace(".", "_")
                 st.session_state["url_data"] = {"df": df, "url": f"{dbio.describe(url)}/{name}",
                                                 "kind": "database"}
                 st.success(f"Loaded {len(df):,} rows.")
+                security.audit("db_load", kind=url.drivername.split("+")[0], rows=len(df))
             except Exception as e:
                 st.error(f"Could not load: {_clean(e)}")
+                security.audit("db_load_failed", kind=url.drivername.split("+")[0], reason=type(e).__name__)
 
 
 def render_writer(tables: dict, label: str):
@@ -71,9 +79,11 @@ def render_writer(tables: dict, label: str):
                         format_func=lambda m: {"fail": "stop (error)", "replace": "overwrite", "append": "append"}[m])
     if st.button("Write to database", key="dbout_go"):
         try:
+            security.check_database(url)
             with st.spinner("Writing..."):
                 n = dbio.write(tables[which], url, target, mode)
             st.success(f"Wrote {n:,} rows to {target} in {dbio.describe(url)}.")
+            security.audit("db_write", kind=url.drivername.split("+")[0], rows=n, mode=mode)
         except Exception as e:
             st.error(f"Could not write: {_clean(e)}")
 

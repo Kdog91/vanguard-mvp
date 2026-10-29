@@ -146,7 +146,8 @@ def _tabular(df, profile, label):
     pre = {**r["prep"].to_json(), "target": target, "task": r["task"], "classes": r["classes"],
            "y_mean": r["y_mean"], "y_std": r["y_std"]}
     st.download_button("Download model + FastAPI service + Dockerfile (.zip)", dl.export_bundle(r["model"], pre),
-                       file_name=f"{label}_{target}_keras_model.zip", mime="application/zip", key="dl_export")
+                       file_name=f"{label}_{target}_keras_model.zip", mime="application/zip", key="dl_export",
+                       on_click=lambda: __import__("security").audit("export", what="keras_model"))
 
 
 # ------------------------------------------------------------------ images
@@ -232,7 +233,8 @@ def _images(label):
     st.download_button("Download model + FastAPI service + Dockerfile (.zip)",
                        dl.export_bundle(r["model"], {"classes": r["classes"], "size": int(saved[3]),
                                                      "gray": bool(saved[4])}, kind="image"),
-                       file_name=f"{label}_cnn_model.zip", mime="application/zip", key="cnn_export")
+                       file_name=f"{label}_cnn_model.zip", mime="application/zip", key="cnn_export",
+                       on_click=lambda: __import__("security").audit("export", what="cnn_model"))
     st.caption("Images of people (faces) raise privacy and bias concerns: check accuracy for each group and get "
                "consent before training on them.")
 

@@ -558,16 +558,35 @@ def train_cartpole(episodes: int, epsilon: float, eps_min: float, eps_decay: flo
 SERVE_TABULAR = '''"""
 FastAPI service for a model trained in Vanguard Analytics.
 Run:   pip install -r requirements.txt
-       uvicorn serve:app --host 0.0.0.0 --port 8000
+       set VANGUARD_API_KEY (see below), then  uvicorn serve:app --host 127.0.0.1 --port 8000
 Docs:  http://localhost:8000/docs
-Call:  POST /predict  with  {"records": [{"column": value, ...}, ...]}
+Call:  POST /predict  with header  X-API-Key: <key>  and body  {"records": [{"column": value, ...}, ...]}
 """
 import json
 import numpy as np
 import pandas as pd
 import keras
 from fastapi import FastAPI
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+import os
+import secrets
+from fastapi import Depends, Header, HTTPException
+
+# Every prediction call must send the header  X-API-Key: <your key>.  Set the key before starting the service:
+#   Windows PowerShell:  $env:VANGUARD_API_KEY = "<long random text>"
+#   Linux / macOS:       export VANGUARD_API_KEY="<long random text>"
+# Make a key with:  python -c "import secrets; print(secrets.token_urlsafe(32))"
+API_KEY = os.environ.get("VANGUARD_API_KEY", "")
+
+
+def require_key(x_api_key: str = Header(default="")):
+    if len(API_KEY) < 16:
+        raise HTTPException(503, "The service has no API key. Set VANGUARD_API_KEY (16+ characters) and restart.")
+    if not secrets.compare_digest(x_api_key.encode(), API_KEY.encode()):
+        raise HTTPException(401, "Missing or wrong X-API-Key header.")
+
+
+MAX_RECORDS = 10_000
 
 model = keras.saving.load_model("model.keras")
 P = json.load(open("preprocess.json"))
@@ -575,7 +594,7 @@ app = FastAPI(title="Vanguard Analytics model: " + P["target"])
 
 
 class Records(BaseModel):
-    records: list[dict]
+    records: list[dict] = Field(..., min_length=1, max_length=MAX_RECORDS)
 
 
 def col(df, c):
@@ -598,12 +617,17 @@ def transform(df):
     return np.hstack(parts).astype("float32")
 
 
-@app.get("/")
+@app.get("/health")
+def health():
+    return {"status": "ok"}
+
+
+@app.get("/", dependencies=[Depends(require_key)])
 def info():
     return {"target": P["target"], "task": P["task"], "inputs": P["num_cols"] + P["cat_cols"] + P["date_cols"]}
 
 
-@app.post("/predict")
+@app.post("/predict", dependencies=[Depends(require_key)])
 def predict(body: Records):
     df = pd.DataFrame(body.records)
     out = model.predict(transform(df), verbose=0)
@@ -617,24 +641,58 @@ def predict(body: Records):
 
 SERVE_IMAGE = '''"""
 FastAPI service for an image classifier trained in Vanguard Analytics.
-Run:   pip install -r requirements.txt python-multipart pillow
-       uvicorn serve:app --host 0.0.0.0 --port 8000
-Call:  POST /predict  with an image file (form field "file")
+Run:   pip install -r requirements.txt
+       set VANGUARD_API_KEY (see below), then  uvicorn serve:app --host 127.0.0.1 --port 8000
+Call:  POST /predict  with header  X-API-Key: <key>  and an image file (form field "file")
 """
 import io, json
 import numpy as np
 import keras
 from fastapi import FastAPI, UploadFile
 from PIL import Image
+import os
+import secrets
+from fastapi import Depends, Header, HTTPException
+
+# Every prediction call must send the header  X-API-Key: <your key>.  Set the key before starting the service:
+#   Windows PowerShell:  $env:VANGUARD_API_KEY = "<long random text>"
+#   Linux / macOS:       export VANGUARD_API_KEY="<long random text>"
+# Make a key with:  python -c "import secrets; print(secrets.token_urlsafe(32))"
+API_KEY = os.environ.get("VANGUARD_API_KEY", "")
+
+
+def require_key(x_api_key: str = Header(default="")):
+    if len(API_KEY) < 16:
+        raise HTTPException(503, "The service has no API key. Set VANGUARD_API_KEY (16+ characters) and restart.")
+    if not secrets.compare_digest(x_api_key.encode(), API_KEY.encode()):
+        raise HTTPException(401, "Missing or wrong X-API-Key header.")
+
+
+MAX_IMAGE_BYTES = 10 * 1024 * 1024
+Image.MAX_IMAGE_PIXELS = 40_000_000
 
 model = keras.saving.load_model("model.keras")
 P = json.load(open("preprocess.json"))
 app = FastAPI(title="Vanguard Analytics image classifier")
 
 
-@app.post("/predict")
+@app.get("/health")
+def health():
+    return {"status": "ok"}
+
+
+@app.post("/predict", dependencies=[Depends(require_key)])
 async def predict(file: UploadFile):
-    img = Image.open(io.BytesIO(await file.read())).convert("L" if P["gray"] else "RGB").resize((P["size"], P["size"]))
+    raw = await file.read(MAX_IMAGE_BYTES + 1)
+    if len(raw) > MAX_IMAGE_BYTES:
+        raise HTTPException(413, "Image larger than 10 MB.")
+    try:
+        img = Image.open(io.BytesIO(raw))
+        img.verify()
+        img = Image.open(io.BytesIO(raw))
+    except Exception:
+        raise HTTPException(400, "That file is not an image.")
+    img = img.convert("L" if P["gray"] else "RGB").resize((P["size"], P["size"]))
     x = np.asarray(img, dtype="float32")[None] / 255.0
     if P["gray"]:
         x = x[..., None]
@@ -645,25 +703,57 @@ async def predict(file: UploadFile):
 '''
 
 DOCKERFILE = '''FROM python:3.11-slim
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
 WORKDIR /app
-COPY . .
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+COPY . .
+# Run as an ordinary user, not root
+RUN useradd --create-home --uid 10001 appuser && chown -R appuser:appuser /app
+USER appuser
 EXPOSE 8000
+HEALTHCHECK CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"
+# The API key comes from the environment:  docker run -e VANGUARD_API_KEY=... -p 8000:8000 vanguard-model
 CMD ["uvicorn", "serve:app", "--host", "0.0.0.0", "--port", "8000"]
 '''
+
+SECURITY_NOTE = """Deploying this model safely
+
+1. API key. Every call to /predict needs the header  X-API-Key: <key>.  The service refuses all predictions
+   until the environment variable VANGUARD_API_KEY is set to at least 16 characters. Make one with:
+       python -c "import secrets; print(secrets.token_urlsafe(32))"
+   Keep it out of code and out of Git; give it only to the systems that call the model. Change it if it leaks.
+2. HTTPS. Do not expose port 8000 directly to the internet. Put the service behind HTTPS (a cloud load
+   balancer, Azure App Service, AWS App Runner, or a reverse proxy such as Caddy or nginx).
+3. Local testing. Run with --host 127.0.0.1 so only your own computer can reach it.
+4. Docker. The image runs as a non-root user. Rebuild it monthly to pick up security fixes
+   (docker build --pull ...), and keep requirements.txt versions current.
+5. Limits. /predict accepts up to 10,000 records per call (images: 10 MB). Add rate limiting at your proxy
+   or gateway if the service is public.
+6. Data. The service does not store requests. If you add logging, do not log the records themselves when
+   they contain personal information.
+7. Model files. Only load model.keras files you created or trust; model files can contain code.
+"""
 
 
 def export_bundle(model, preprocess: dict, kind: str = "tabular") -> bytes:
     import tempfile
     import tensorflow as tf
-    path = os.path.join(tempfile.mkdtemp(), "model.keras")
+    folder = tempfile.mkdtemp(prefix="vanguard_model_")
+    path = os.path.join(folder, "model.keras")
     model.save(path)
     reqs = f"tensorflow-cpu=={tf.__version__}\nfastapi\nuvicorn\npandas\nnumpy\n" + \
            ("python-multipart\npillow\n" if kind == "image" else "")
     readme = ("Vanguard Analytics model export\n\n"
-              "1. pip install -r requirements.txt\n2. uvicorn serve:app --port 8000\n"
-              "3. Open http://localhost:8000/docs to try it.\n\n"
-              "Docker: docker build -t vanguard-model . && docker run -p 8000:8000 vanguard-model\n")
+              "1. pip install -r requirements.txt\n"
+              "2. Set an API key (16+ characters), for example in PowerShell:\n"
+              "     $env:VANGUARD_API_KEY = (python -c \"import secrets; print(secrets.token_urlsafe(32))\")\n"
+              "3. uvicorn serve:app --host 127.0.0.1 --port 8000\n"
+              "4. Open http://localhost:8000/docs, pick /predict, click 'Try it out' and type your key in the "
+              "x-api-key box.\n\n"
+              "Docker: docker build -t vanguard-model . && "
+              "docker run -e VANGUARD_API_KEY=<your key> -p 127.0.0.1:8000:8000 vanguard-model\n\n"
+              "Read SECURITY.txt before putting this on a server.\n")
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as z:
         z.write(path, "model.keras")
@@ -672,5 +762,7 @@ def export_bundle(model, preprocess: dict, kind: str = "tabular") -> bytes:
         z.writestr("requirements.txt", reqs)
         z.writestr("Dockerfile", DOCKERFILE)
         z.writestr("README.txt", readme)
-    os.remove(path)
+        z.writestr("SECURITY.txt", SECURITY_NOTE)
+    import shutil
+    shutil.rmtree(folder, ignore_errors=True)
     return buf.getvalue()

@@ -14,7 +14,7 @@ BLUE = "#2a78d6"
 RED = "#e34948"
 
 
-@st.cache_data(show_spinner=False)
+@st.cache_data(show_spinner=False, ttl=3600, max_entries=20)  # results leave server memory within an hour
 def _run(df, source, date, value, split, weight, log, z_flag, gap_days, period, combine):
     return sz.standardize(df, source, date, value, list(split), weight, log=log, z_flag=z_flag,
                           gap_days=gap_days, period=period, combine=combine)

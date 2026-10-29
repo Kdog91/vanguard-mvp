@@ -113,18 +113,16 @@ class _NamedBytes:
 
 def load_url(url: str, max_mb: int = 200) -> pd.DataFrame:
     """Read a data file from a web address, like pd.read_csv(url). GitHub page links are turned into raw-file links."""
-    import urllib.request
     from urllib.parse import urlparse
+    import security
     url = url.strip()
     if not url.lower().startswith(("http://", "https://")):
         raise ValueError("The address must start with http:// or https://")
     m = re.match(r"https?://github\.com/([^/]+)/([^/]+)/blob/(.+)", url)
     if m:
         url = f"https://raw.githubusercontent.com/{m.group(1)}/{m.group(2)}/{m.group(3)}"
-    req = urllib.request.Request(url, headers={"User-Agent": "VanguardAnalytics/1.0"})
-    with urllib.request.urlopen(req, timeout=30) as resp:
-        data = resp.read(max_mb * 1024 * 1024 + 1)
-        ctype = (resp.headers.get("Content-Type") or "").lower()
+    # Public addresses only, redirects re-checked, real peer checked before anything is sent (security.py)
+    data, ctype, _final = security.safe_fetch(url, max_mb * 1024 * 1024, timeout=30)
     if len(data) > max_mb * 1024 * 1024:
         raise ValueError(f"That file is larger than {max_mb} MB.")
     name = os.path.basename(urlparse(url).path) or "download"
@@ -165,7 +163,9 @@ def _read_json(raw: bytes) -> pd.DataFrame:
 
 def load_file(uploaded_file):
     """Load CSV / TSV / TXT, Excel, JSON / JSON Lines, or Parquet into a DataFrame."""
+    import security
     name = uploaded_file.name.lower()
+    security.check_upload(name if not name.endswith(".data") else name + ".csv", getattr(uploaded_file, "size", None))
     if name.endswith((".csv", ".tsv", ".txt")):
         df = _read_text_table(uploaded_file.read())
     elif name.endswith((".xlsx", ".xls")):
@@ -201,6 +201,7 @@ def load_file(uploaded_file):
     for col in df.columns:
         if df[col].map(lambda v: isinstance(v, (list, dict))).any():
             df[col] = df[col].map(lambda v: str(v) if isinstance(v, (list, dict)) else v)
+    security.check_frame(df)
     return df
 
 
