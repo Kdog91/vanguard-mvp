@@ -1,7 +1,7 @@
 """Privacy policy and terms of use, shown at ?page=privacy and ?page=terms."""
 import streamlit as st
 
-UPDATED = "October 29, 2026"
+UPDATED = "October 30, 2026"
 CONTACT = "vanguarddataanalytics@gmail.com"
 COMPANY = "Vanguard Data Analytics LLC, 1118 Lincoln Ave, Rockford, IL 61102"
 
@@ -20,8 +20,12 @@ you use the app and what we do with it.
 - **Data you load.** Files you upload, web addresses you load, and database tables you connect are processed so the
   app can clean, analyze and chart them. Unless you choose to save a project, this data is kept only in memory for
   your session and is discarded when the session ends.
-- **Saved projects (if you use them).** If you save a project, its settings and data are stored so you can reopen it.
-  You can delete saved projects at any time.
+- **Saved projects (only if you click Save).** The data you loaded, your cleaning choices and the analysis you
+  picked are stored so you can reopen them. Each project is encrypted by the app before it is stored, with a key
+  our storage provider does not have, and is linked to your account only (by a one-way code, not your email).
+  Columns that look like names, emails, phone or ID numbers are replaced with codes before saving unless you turn
+  that off. You can delete one project or all of them at any time from **My projects**; a project you have not
+  opened for 180 days is deleted automatically. You can save up to 25 projects.
 - **Security records.** The app records security events: sign-in and sign-out, the type and size of files you
   load, the host name of web addresses you load, downloads, and errors. Your account appears in these records as
   a one-way code, not your email. The records never contain your data, file contents or passwords.
@@ -34,13 +38,15 @@ you use the app and what we do with it.
 - We do **not** use your sign-in account for anything other than signing in.
 
 ## Who can see your data
-Only you, while signed in. We may access stored data only when needed to provide support you request, keep the
+Only you, while signed in. Saved projects are encrypted and stored under your account's code, and no other
+account can list or open them. We may access stored data only when needed to provide support you request, keep the
 service secure, or comply with the law. Database passwords you enter are used only to connect and are not saved.
 
 ## Third-party services
 - **Auth0 by Okta** (sign-in): see okta.com/privacy-policy. If you sign in with Google, Google's Privacy Policy
   (policies.google.com/privacy) also applies.
 - **Streamlit Community Cloud / Snowflake** (hosting).
+- **Supabase** (storage for saved projects, in the United States; data is encrypted before it reaches Supabase).
 - **USAspending.gov** (public federal award data, when you choose to load it).
 
 ## Your choices
@@ -100,7 +106,17 @@ def route() -> bool:
     page = st.query_params.get("page", "")
     if page == "authcheck":
         import auth
+        if auth.configured() and not auth.is_admin():
+            st.title("Sign-in check")
+            st.info("This page is for the app's administrator. Sign in with an admin account "
+                    "(listed under [access] admin_emails in Secrets) to see it.")
+            if not auth.logged_in():
+                st.button("Sign in", on_click=st.login, type="primary")
+            st.link_button("Back to Vanguard Analytics", "./")
+            return True
         auth.render_check()
+        import projects_ui
+        projects_ui.render_admin_check()
         return True
     if page not in ("privacy", "terms"):
         return False

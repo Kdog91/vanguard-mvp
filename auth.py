@@ -69,18 +69,42 @@ def name() -> str:
         return ""
 
 
+def subject() -> str:
+    """The sign-in provider's permanent id for this account (e.g. google-oauth2|1234 or auth0|abcd).
+    Unlike the email, two different accounts can never share it, so saved projects are keyed on it."""
+    try:
+        return str(st.user.get("sub") or "")
+    except Exception:
+        return ""
+
+
+def email_verified() -> bool:
+    try:
+        v = st.user.get("email_verified")
+    except Exception:
+        return False
+    return v is True or str(v).lower() == "true"
+
+
 def approved() -> bool:
+    """Optional allow-list. admin_emails only marks admins; it does not limit who may sign in."""
     acc = _secrets("access")
-    emails = [e.lower() for e in acc.get("allowed_emails", [])] + [e.lower() for e in acc.get("admin_emails", [])]
+    emails = [e.lower() for e in acc.get("allowed_emails", [])]
     domains = [d.lower().lstrip("@") for d in acc.get("allowed_domains", [])]
+    if is_admin():
+        return True
     if not emails and not domains:
-        return True                                   # any signed-in Google account
+        return True                                   # anyone who signs up
     e = email()
+    if not email_verified():
+        return False                                  # allow-lists only trust verified emails
     return e in emails or (e.split("@")[-1] in domains if "@" in e else False)
 
 
 def is_admin() -> bool:
-    return email() in [e.lower() for e in _secrets("access").get("admin_emails", [])]
+    """Admin = an email in [access] admin_emails that the sign-in provider has verified."""
+    admins = [e.lower() for e in _secrets("access").get("admin_emails", [])]
+    return bool(admins) and logged_in() and email_verified() and email() in admins
 
 
 def can_use_own_data() -> bool:

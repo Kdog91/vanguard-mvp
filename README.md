@@ -18,6 +18,30 @@ database, large file) requires a free account (**Sign in / Sign up** through Aut
 approved emails or domains. Setup is described at the top of `auth.py`. Without an `[auth]` section the app
 runs open, for local development.
 
+## Saved projects (update 27)
+
+Signed-in users can save the loaded data, their column-type and missing-value choices and the analysis they
+picked, then reopen, update or delete it from **My projects** in the sidebar. Storage is Supabase (`store.py`):
+
+- The data is encrypted by the app (Fernet) before it leaves the server, with a key Supabase never sees, and
+  stored in a private bucket. Columns that look like personal details are replaced with codes by default.
+- Projects are keyed to a one-way code of the sign-in provider's account id (`sub`), not the email.
+- Only the server uses Supabase, with the secret key from Secrets. The table has row-level security on, no
+  policies and no grants to the public roles, so the publishable key can read nothing.
+- Up to 25 projects per account, 50 MB each; projects not opened for 180 days are deleted automatically.
+
+Setup: run `supabase_setup.sql` once in Supabase → SQL Editor, then add to Secrets:
+
+```toml
+[supabase]
+url = "https://YOUR-PROJECT.supabase.co"
+secret_key = "sb_secret_..."
+encryption_key = "..."   # py -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+```
+
+Keep a copy of `encryption_key` offline: without it, saved projects cannot be opened. `?page=authcheck`
+(admins only, from `[access] admin_emails`, verified email required) tests the connection.
+
 ## Security
 
 Controls from the Vanguard Analytics Security Outline (update 26f), most in `security.py`:

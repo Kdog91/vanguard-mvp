@@ -28,7 +28,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ON_CLOUD = HERE.replace("\\", "/").startswith("/mount/src")   # Streamlit Community Cloud: no access to the visitor's disk
 LOGO = os.path.join(HERE, "assets", "logo_mark.png")
 SAMPLES = {
-    "Retail sales by store (2,316 rows)": "sample_retail_sales.csv",
+    "Retail sales by store (2,310 rows)": "sample_retail_sales.csv",
     "Clinic visits (1,641 rows)": "sample_clinic_visits.csv",
     "Multi-site measurements (401 rows)": "sample_multisite_measurements.csv",
     "Government contracts (305 rows)": "sample_contracts.csv",
@@ -108,6 +108,8 @@ import auth
 with st.sidebar:
     auth.render_sidebar()
     legal.footer_links()
+    import projects_ui
+    projects_ui.render_sidebar()
     _own = auth.can_use_own_data()
     st.markdown("### Data")
     uploaded_file = None
@@ -116,7 +118,7 @@ with st.sidebar:
         auth.render_locked()
         st.session_state.pop("url_data", None)
     if _own:
-        uploaded_file = st.file_uploader("Upload a file",
+        uploaded_file = st.file_uploader("Upload a file", key=f"uploader_{st.session_state.get('up_ver', 0)}",
                                          type=["csv", "tsv", "txt", "xlsx", "xls", "json", "jsonl", "ndjson", "parquet", "orc"],
                                          help="CSV, TSV, TXT, Excel, JSON, Parquet or ORC, up to 200 MB.")
         st.caption(":warning: Do not upload health records (PHI), controlled government data (CUI), card numbers "
@@ -281,7 +283,9 @@ if uploaded_file or big or sample_path or usa or web:
 
     # A short name for this dataset, used to name every downloaded file (e.g. Department_of_Defense_2025-10-12_to_2026-10-12)
     import re as _re_lbl
-    if web:
+    if web and web.get("label"):
+        _lbl = web["label"]
+    elif web:
         _lbl = os.path.splitext(os.path.basename(web["url"].split("?")[0]))[0] or "web_data"
     elif usa:
         _lbl = f"{usa['info']['agency']}_{usa['info']['start_date']}_to_{usa['info']['end_date']}"
@@ -530,6 +534,26 @@ if uploaded_file or big or sample_path or usa or web:
                                file_name=f"{st.session_state['dataset_label']}_report.docx",
                                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                                key="report_dl", on_click=lambda: security.audit("export", what="word_report"))
+
+    # --- Save this project (update 27) ---
+    if web and web.get("kind") == "project":
+        _psrc = web["url"]
+    elif web and web.get("kind") == "database":
+        _psrc = "Database: " + web["url"]
+    elif web:
+        _psrc = "Web: " + web["url"].split("?")[0][:150]
+    elif usa:
+        _psrc = f"USAspending.gov: {usa['info']['agency']}, {usa['info']['start_date']} to {usa['info']['end_date']}"
+    elif sample_path:
+        _psrc = "Sample: " + os.path.basename(sample_path)
+    elif uploaded_file is not None:
+        _psrc = "Upload: " + uploaded_file.name
+    else:
+        _psrc = _stem
+    projects_ui.render_save(
+        raw_df, {"label": _ds, "missing_choice": missing_choice, "overrides": _overrides,
+                 "mode": st.session_state.get("mode"), "advanced": bool(st.session_state.get("show_advanced"))},
+        _psrc, (web or {}).get("project_name") or _ds.replace("_", " "), bool(big))
 
     if big:
         st.subheader("Clean the full file")
