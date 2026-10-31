@@ -116,7 +116,7 @@ class SupabaseStore:
         return r.json()
 
     def save(self, owner: str, name: str, df: pd.DataFrame, settings: dict, source: str = "",
-             project_id: str | None = None) -> dict:
+             project_id: str | None = None, max_projects: int = MAX_PROJECTS) -> dict:
         self._check_owner(owner)
         name = (name or "").strip()[:80] or "Untitled project"
         buf = io.BytesIO()
@@ -137,8 +137,9 @@ class SupabaseStore:
             r = self._call("PATCH", f"/rest/v1/{TABLE}", params={"id": f"eq.{project_id}", "owner": f"eq.{owner}"},
                            json=meta, headers={"Prefer": "return=representation"})
             return r.json()[0]
-        if len(self.list(owner)) >= MAX_PROJECTS:
-            raise StoreError(f"You have {MAX_PROJECTS} saved projects, the limit. Delete one to save another.")
+        if len(self.list(owner)) >= max_projects:
+            raise StoreError(f"You have {max_projects} saved projects, the limit for your plan. "
+                             "Delete one to save another" + (", or upgrade to Pro." if max_projects < MAX_PROJECTS else "."))
         pid = str(uuid.uuid4())
         path = f"{owner}/{pid}.bin"
         self._upload(path, blob)
@@ -194,6 +195,24 @@ class SupabaseStore:
             ids = ",".join(x["id"] for x in rows if _UUID.match(x["id"]))
             self._call("DELETE", f"/rest/v1/{TABLE}", params={"id": f"in.({ids})"})
         return len(rows)
+
+    # ------------------------------------------------------------------ billing link (update 28)
+    def get_customer(self, owner: str) -> str | None:
+        self._check_owner(owner)
+        r = self._call("GET", "/rest/v1/billing", params={"owner": f"eq.{owner}", "select": "stripe_customer_id"})
+        rows = r.json()
+        return rows[0]["stripe_customer_id"] if rows else None
+
+    def set_customer(self, owner: str, customer_id: str) -> None:
+        self._check_owner(owner)
+        if not re.match(r"^cus_[A-Za-z0-9]+$", customer_id or ""):
+            raise StoreError("Unexpected customer id from the payment provider.")
+        self._call("POST", "/rest/v1/billing", json={"owner": owner, "stripe_customer_id": customer_id},
+                   headers={"Prefer": "resolution=merge-duplicates"})
+
+    def delete_customer_link(self, owner: str) -> None:
+        self._check_owner(owner)
+        self._call("DELETE", "/rest/v1/billing", params={"owner": f"eq.{owner}"})
 
     def check(self) -> list[tuple[str, bool, str]]:
         """Admin diagnostics: (step, ok, note)."""
@@ -269,6 +288,16 @@ create index if not exists {TABLE}_expires on public.{TABLE} (expires_at);
 alter table public.{TABLE} enable row level security;
 revoke all on public.{TABLE} from anon, authenticated;
 grant select, insert, update, delete on public.{TABLE} to service_role;
+
+-- Update 28: link between an account code and its Stripe customer (no card data is ever stored here).
+create table if not exists public.billing (
+  owner              text primary key check (owner ~ '^[0-9a-f]{{64}}$'),
+  stripe_customer_id text not null unique check (stripe_customer_id ~ '^cus_[A-Za-z0-9]+$'),
+  created_at         timestamptz not null default now()
+);
+alter table public.billing enable row level security;
+revoke all on public.billing from anon, authenticated;
+grant select, insert, update, delete on public.billing to service_role;
 
 -- Private bucket for the encrypted project files (50 MB per file).
 insert into storage.buckets (id, name, public, file_size_limit)

@@ -63,6 +63,8 @@ if legal.route():
     st.stop()
 import security
 security.sweep_temp()          # delete leftover temporary files from sessions that ended hours ago
+import billing
+billing.handle_return()        # back from Stripe Checkout
 
 head_logo, head_text = st.columns([1, 14], vertical_alignment="center")
 if os.path.exists(LOGO):
@@ -108,8 +110,11 @@ import auth
 with st.sidebar:
     auth.render_sidebar()
     legal.footer_links()
+    billing.render_sidebar()
     import projects_ui
     projects_ui.render_sidebar()
+    projects_ui.render_privacy_tools()
+    _plan = billing.limits()
     _own = auth.can_use_own_data()
     st.markdown("### Data")
     uploaded_file = None
@@ -120,9 +125,14 @@ with st.sidebar:
     if _own:
         uploaded_file = st.file_uploader("Upload a file", key=f"uploader_{st.session_state.get('up_ver', 0)}",
                                          type=["csv", "tsv", "txt", "xlsx", "xls", "json", "jsonl", "ndjson", "parquet", "orc"],
-                                         help="CSV, TSV, TXT, Excel, JSON, Parquet or ORC, up to 200 MB.")
+                                         help=f"CSV, TSV, TXT, Excel, JSON, Parquet or ORC, up to {_plan['max_upload_mb']} MB "
+                                              f"and {_plan['max_rows']:,} rows on your plan.")
         st.caption(":warning: Do not upload health records (PHI), controlled government data (CUI), card numbers "
                    "or other data you may not share with a cloud service. See the [Terms of Use](?page=terms).")
+        if uploaded_file is not None and uploaded_file.size > _plan["max_upload_mb"] * 1024 * 1024:
+            billing.upgrade_box(f"This file is {uploaded_file.size / 1e6:,.1f} MB; the {_plan['name']} plan allows "
+                                f"{_plan['max_upload_mb']} MB.")
+            uploaded_file = None
         if uploaded_file is not None:
             try:
                 security.check_upload(uploaded_file.name, uploaded_file.size)
@@ -280,6 +290,12 @@ if uploaded_file or big or sample_path or usa or web:
         except Exception as e:
             st.error(f"Could not read file: {e}")
             st.stop()
+
+    # Plan limit on rows for the customer's own data (sample and public data are always allowed)
+    _own_source = uploaded_file is not None or (web is not None and web.get("kind") != "project")
+    if _own_source and not big and len(raw_df) > _plan["max_rows"]:
+        billing.upgrade_box(f"This data has {len(raw_df):,} rows; the {_plan['name']} plan allows {_plan['max_rows']:,}.")
+        st.stop()
 
     # A short name for this dataset, used to name every downloaded file (e.g. Department_of_Defense_2025-10-12_to_2026-10-12)
     import re as _re_lbl
@@ -644,8 +660,14 @@ if uploaded_file or big or sample_path or usa or web:
         render_text(clean_df, profile)
 
     elif mode.startswith("Deep learning"):
-        from deep_ui import render_deep
-        render_deep(clean_df, profile, _stem)
+        if not _plan["deep_learning"]:
+            st.subheader("Deep learning (Keras)")
+            st.write("Train neural networks on your table, classify images with a CNN, run deep Q-learning agents, "
+                     "check fairness by group, and download the trained model with a FastAPI service and Dockerfile.")
+            billing.upgrade_box("Deep learning needs more computing power than the Free plan includes.")
+        else:
+            from deep_ui import render_deep
+            render_deep(clean_df, profile, _stem)
 
     elif mode.startswith("Find items"):
         from analysis_ui import render_basket

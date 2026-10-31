@@ -21,6 +21,16 @@ alter table public.projects enable row level security;
 revoke all on public.projects from anon, authenticated;
 grant select, insert, update, delete on public.projects to service_role;
 
+-- Update 28: link between an account code and its Stripe customer (no card data is ever stored here).
+create table if not exists public.billing (
+  owner              text primary key check (owner ~ '^[0-9a-f]{64}$'),
+  stripe_customer_id text not null unique check (stripe_customer_id ~ '^cus_[A-Za-z0-9]+$'),
+  created_at         timestamptz not null default now()
+);
+alter table public.billing enable row level security;
+revoke all on public.billing from anon, authenticated;
+grant select, insert, update, delete on public.billing to service_role;
+
 -- Private bucket for the encrypted project files (50 MB per file).
 insert into storage.buckets (id, name, public, file_size_limit)
 values ('projects', 'projects', false, 52428800)

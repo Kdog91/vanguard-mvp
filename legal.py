@@ -46,12 +46,15 @@ service secure, or comply with the law. Database passwords you enter are used on
 - **Auth0 by Okta** (sign-in): see okta.com/privacy-policy. If you sign in with Google, Google's Privacy Policy
   (policies.google.com/privacy) also applies.
 - **Streamlit Community Cloud / Snowflake** (hosting).
+- **Stripe** (payments for Pro): you enter card details on Stripe's own page; we never see or store them. We keep
+  only the link between your account code and your Stripe customer id. See stripe.com/privacy.
 - **Supabase** (storage for saved projects, in the United States; data is encrypted before it reaches Supabase).
 - **USAspending.gov** (public federal award data, when you choose to load it).
 
 ## Your choices
-You can use the sample data without signing in, sign out at any time, delete saved projects, and ask us to delete
-your account information by emailing {CONTACT}. If you signed in with Google, you can also remove the app's access
+You can use the sample data without signing in, sign out at any time, delete saved projects, use **Delete my
+data** in the sidebar to remove everything the app stores about you, and ask us to delete your sign-in account by
+emailing {CONTACT}. If you signed in with Google, you can also remove the app's access
 in your Google Account settings under *Security → Third-party connections*.
 
 ## Private details in downloads
@@ -94,8 +97,13 @@ These terms apply to Vanguard Analytics ("the app"), provided by {COMPANY}. By u
 5. **No guarantee.** The app is provided "as is" and may change or be unavailable at times. To the fullest extent the
    law allows, we are not liable for indirect or consequential losses arising from its use.
 6. **Accounts.** We may suspend access that breaks these terms. You can stop using the app at any time.
-7. **Changes.** We may update these terms and will post the new date here.
-8. **Governing law.** Illinois, United States.
+7. **Plans and payment.** The Free plan has the limits shown in the app. Pro costs $29 per month (plus any tax that
+   applies), billed in advance each month through Stripe until you cancel. You can cancel at any time under
+   **Plan → Manage billing**; Pro stays active until the end of the period you paid for, and partial months are not
+   refunded. If a payment fails, Stripe retries it and Pro may be paused until it succeeds. We will give at least
+   30 days' notice by email before changing the price of an active subscription.
+8. **Changes.** We may update these terms and will post the new date here.
+9. **Governing law.** Illinois, United States.
 
 Questions: **{CONTACT}**.
 """

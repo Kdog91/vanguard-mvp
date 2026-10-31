@@ -124,7 +124,9 @@ def render_sidebar():
     if not rows:
         st.caption("No saved projects yet. Load data, then use **Save this project** under it.")
         return
-    st.caption(f"{len(rows)} of {store.MAX_PROJECTS} · encrypted · deleted after {store.RETENTION_DAYS} days unopened")
+    import billing
+    st.caption(f"{len(rows)} of {billing.limits()['max_projects']} · encrypted · deleted after "
+               f"{store.RETENTION_DAYS} days unopened")
     for r in rows:
         with st.container(border=True):
             st.markdown(f"**{r['name']}**")
@@ -142,6 +144,35 @@ def render_sidebar():
     else:
         st.button("Delete all my projects", key="pda", use_container_width=True,
                   on_click=lambda: st.session_state.update(proj_confirm_all=True))
+
+
+def render_privacy_tools():
+    """Sidebar: delete everything the app stores about this account."""
+    if not configured():
+        return
+    owner = _owner()
+    if owner is None or not auth.configured():
+        return
+    with st.expander("Delete my data"):
+        import billing
+        if billing.configured() and billing.plan_key() == "pro" and not auth.is_admin():
+            st.caption("Cancel Pro first under **Plan → Manage billing**, then come back here.")
+            return
+        st.caption("Deletes all your saved projects and the link to your billing record. Stripe keeps its own "
+                   "payment records as tax law requires. To also remove your sign-in account, email "
+                   "vanguarddataanalytics@gmail.com from the address you sign in with.")
+        sure = st.checkbox("I understand this cannot be undone", key="del_me_ok")
+        if st.button("Delete my data", key="del_me", disabled=not sure, type="primary"):
+            try:
+                n = get_store().delete_all(owner)
+                get_store().delete_customer_link(owner)
+            except store.StoreError as e:
+                st.error(str(e))
+                return
+            st.session_state.pop("url_data", None)
+            billing.refresh()
+            security.audit("account_data_deleted", projects=n)
+            st.success(f"Deleted {n} saved projects and your billing link.")
 
 
 # ------------------------------------------------------------------ save
@@ -181,8 +212,10 @@ def render_save(raw_df: pd.DataFrame, settings: dict, source: str, default_name:
             s = dict(settings, masked_columns=list(pii) if mask else [], app_update="27")
             try:
                 with st.spinner("Encrypting and saving..."):
+                    import billing
                     row = get_store().save(owner, name, data, s, source=source,
-                                           project_id=cur.get("project_id") if do_upd else None)
+                                           project_id=cur.get("project_id") if do_upd else None,
+                                           max_projects=billing.limits()["max_projects"])
             except store.StoreError as e:
                 st.error(str(e))
                 security.audit("project_save_failed", reason=str(e)[:80])

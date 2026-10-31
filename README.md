@@ -18,6 +18,30 @@ database, large file) requires a free account (**Sign in / Sign up** through Aut
 approved emails or domains. Setup is described at the top of `auth.py`. Without an `[auth]` section the app
 runs open, for local development.
 
+## Plans and payments (update 28)
+
+| | Free | Pro ($29/month) |
+|---|---|---|
+| Own files | up to 5 MB and 50,000 rows | up to 200 MB and 1,000,000 rows |
+| Saved projects | 2 | 25 |
+| Deep learning and model export | no | yes |
+| Sample and public data, cleaning, statistics, prediction, forecasting, reports, pipelines | yes | yes |
+
+Payments use Stripe Checkout and the Stripe customer portal (`billing.py`): card details go only to Stripe
+(PCI DSS SAQ A). There are no webhooks; the app asks Stripe whether the account has an active subscription
+and caches the answer for five minutes. The app stores only the account code → Stripe customer id link
+(`billing` table). Admins and copies without `[stripe]` in Secrets have everything unlocked.
+
+```toml
+[stripe]
+secret_key = "rk_test_..."   # restricted key: Customers write, Checkout Sessions write,
+                             # Subscriptions read, Customer portal write
+price_id = "price_..."
+app_url = "https://YOUR-APP.streamlit.app"
+```
+
+**Delete my data** in the sidebar removes a user's saved projects and billing link.
+
 ## Saved projects (update 27)
 
 Signed-in users can save the loaded data, their column-type and missing-value choices and the analysis they
